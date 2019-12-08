@@ -261,7 +261,8 @@ class SendTootService : Service(), Injectable {
                 toot.replyingStatusContent,
                 toot.replyingStatusAuthorUsername,
                 Status.Visibility.byString(toot.visibility),
-                toot.poll)
+                toot.poll,
+                toot.markdownMode)
     }
 
     private fun cancelSendingIntent(tootId: Int): PendingIntent {

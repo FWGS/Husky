@@ -51,7 +51,8 @@ public final class SaveTootHelper {
                             @Nullable String replyingStatusContent,
                             @Nullable String replyingStatusAuthorUsername,
                             @NonNull Status.Visibility statusVisibility,
-                            @Nullable NewPoll poll) {
+                            @Nullable NewPoll poll,
+                            @Nullable Boolean markdownMode) {
 
         if (TextUtils.isEmpty(content) && mediaUris.isEmpty() && poll == null) {
             return false;
@@ -89,7 +90,7 @@ public final class SaveTootHelper {
                 replyingStatusContent,
                 replyingStatusAuthorUsername,
                 statusVisibility,
-                poll);
+                poll, markdownMode);
 
         new AsyncTask<Void, Void, Void>() {
             @Override

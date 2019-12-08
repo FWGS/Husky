@@ -561,7 +561,8 @@ public final class ComposeActivity
             }
             
             if(intent.hasExtra(MARKDOWN_MODE_EXTRA)) {
-                enableMarkdownMode(intent.getBooleanExtra(MARKDOWN_MODE_EXTRA, false));
+                // button will be activated later, when we get instance info
+                markdownMode = intent.getBooleanExtra(MARKDOWN_MODE_EXTRA, false);
             }
         }
 
@@ -809,7 +810,7 @@ public final class ComposeActivity
     
     private void enableMarkdownMode(boolean enable) {
         markdownMode = enable;
-        
+
         TransitionManager.beginDelayedTransition((ViewGroup) markdownButton.getParent());
         
         @ColorInt int color;
@@ -865,6 +866,7 @@ public final class ComposeActivity
         emojiButton.setClickable(false);
         hideMediaToggle.setClickable(false);
         scheduleButton.setClickable(false);
+        markdownButton.setClickable(false);
         tootButton.setEnabled(false);
     }
 
@@ -874,6 +876,7 @@ public final class ComposeActivity
         emojiButton.setClickable(true);
         hideMediaToggle.setClickable(true);
         scheduleButton.setClickable(true);
+        markdownButton.setClickable(true);
         tootButton.setEnabled(true);
     }
 
@@ -1903,7 +1906,8 @@ public final class ComposeActivity
                 getIntent().getStringExtra(REPLYING_STATUS_CONTENT_EXTRA),
                 getIntent().getStringExtra(REPLYING_STATUS_AUTHOR_USERNAME_EXTRA),
                 statusVisibility,
-                poll);
+                poll,
+                markdownMode);
         finishWithoutSlideOutAnimation();
     }
 
@@ -2040,6 +2044,7 @@ public final class ComposeActivity
             if ((isPleroma = instance.isPleroma())) {
                 // TODO: implement nodeinfo later
                 enableButton(markdownButton, true, true);
+                enableMarkdownMode(markdownMode);
                 
                 // we always can add new poll but only one
                 if (poll == null)
