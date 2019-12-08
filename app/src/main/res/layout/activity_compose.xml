@@ -324,6 +324,17 @@
             android:tooltipText="@string/action_schedule_toot"
             app:srcCompat="@drawable/ic_access_time" />
 
+        <ImageButton
+            android:id="@+id/composeMarkdownButton"
+            style="?attr/image_button_style"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginEnd="4dp"
+            android:contentDescription="@string/action_markdown"
+            android:padding="4dp"
+            android:tooltipText="@string/action_markdown"
+            app:srcCompat="@drawable/ic_markdown" />
+
         <Space
             android:layout_width="0dp"
             android:layout_height="wrap_content"
