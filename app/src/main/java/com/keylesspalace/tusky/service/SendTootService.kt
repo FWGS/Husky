@@ -133,6 +133,8 @@ class SendTootService : Service(), Injectable {
         }
 
         tootToSend.retries++
+        
+        val contentType : String? = if (tootToSend.markdownMode != null && tootToSend.markdownMode == true) "text/markdown" else null
 
         val newStatus = NewStatus(
                 tootToSend.text,
@@ -142,7 +144,8 @@ class SendTootService : Service(), Injectable {
                 tootToSend.sensitive,
                 tootToSend.mediaIds,
                 tootToSend.scheduledAt,
-                tootToSend.poll
+                tootToSend.poll,
+                contentType
         )
 
         val sendCall = mastodonApi.createStatus(
@@ -298,7 +301,8 @@ class SendTootService : Service(), Injectable {
                            replyingStatusAuthorUsername: String?,
                            savedJsonUrls: String?,
                            account: AccountEntity,
-                           savedTootUid: Int
+                           savedTootUid: Int,
+                           markdownMode: Boolean?
         ): Intent {
             val intent = Intent(context, SendTootService::class.java)
 
@@ -317,6 +321,7 @@ class SendTootService : Service(), Injectable {
                     replyingStatusContent,
                     replyingStatusAuthorUsername,
                     savedJsonUrls,
+                    markdownMode,
                     account.id,
                     savedTootUid,
                     idempotencyKey,
@@ -361,6 +366,7 @@ data class TootToSend(val text: String,
                       val replyingStatusContent: String?,
                       val replyingStatusAuthorUsername: String?,
                       val savedJsonUrls: String?,
+                      var markdownMode: Boolean?,
                       val accountId: Long,
                       val savedTootUid: Int,
                       val idempotencyKey: String,

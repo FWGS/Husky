@@ -202,6 +202,7 @@ public final class ComposeActivity
     private static final String SCHEDULED_AT_EXTRA = "scheduled_at";
     private static final String SENSITIVE_EXTRA = "sensitive";
     private static final String POLL_EXTRA = "poll";
+    private static final String MARKDOWN_MODE_EXTRA = "markdownMode";
     // Mastodon only counts URLs as this long in terms of status character limits
     static final int MAXIMUM_URL_LENGTH = 23;
     // https://github.com/tootsuite/mastodon/blob/1656663/app/models/media_attachment.rb#L94
@@ -226,6 +227,7 @@ public final class ComposeActivity
     private ImageButton emojiButton;
     private ImageButton hideMediaToggle;
     private ImageButton scheduleButton;
+    private ImageButton markdownButton;
     private TextView actionAddPoll;
     private Button atButton;
     private Button hashButton;
@@ -263,6 +265,7 @@ public final class ComposeActivity
     private @Px
     int thumbnailViewSize;
     private boolean isPleroma = false;
+    private boolean markdownMode = false;
 
     private SaveTootHelper saveTootHelper;
     private Gson gson = new Gson();
@@ -291,6 +294,7 @@ public final class ComposeActivity
         emojiButton = findViewById(R.id.composeEmojiButton);
         hideMediaToggle = findViewById(R.id.composeHideMediaButton);
         scheduleButton = findViewById(R.id.composeScheduleButton);
+        markdownButton = findViewById(R.id.composeMarkdownButton);
         scheduleView = findViewById(R.id.composeScheduleView);
         emojiView = findViewById(R.id.emojiView);
         emojiList = Collections.emptyList();
@@ -382,6 +386,7 @@ public final class ComposeActivity
         emojiView.setLayoutManager(new GridLayoutManager(this, 3, GridLayoutManager.HORIZONTAL, false));
 
         enableButton(emojiButton, false, false);
+        enableButton(markdownButton, false, false);
 
         // Setup the interface buttons.
         tootButton.setOnClickListener(v -> onSendClicked());
@@ -391,6 +396,7 @@ public final class ComposeActivity
         emojiButton.setOnClickListener(v -> showEmojis());
         hideMediaToggle.setOnClickListener(v -> toggleHideMedia());
         scheduleButton.setOnClickListener(v -> showScheduleView());
+        markdownButton.setOnClickListener(v -> toggleMarkdownMode());
         scheduleView.setResetOnClickListener(v -> resetSchedule());
         atButton.setOnClickListener(v -> atButtonClicked());
         hashButton.setOnClickListener(v -> hashButtonClicked());
@@ -549,9 +555,13 @@ public final class ComposeActivity
             if(intent.hasExtra(POLL_EXTRA) && (mediaAttachments == null || mediaAttachments.size() == 0)) {
                 updatePoll(intent.getParcelableExtra(POLL_EXTRA));
             }
-
+            
             if(mediaAttachments != null && mediaAttachments.size() > 0) {
                 enablePollButton(false);
+            }
+            
+            if(intent.hasExtra(MARKDOWN_MODE_EXTRA)) {
+                enableMarkdownMode(intent.getBooleanExtra(MARKDOWN_MODE_EXTRA, false));
             }
         }
 
@@ -796,7 +806,23 @@ public final class ComposeActivity
         statusMarkSensitive = !statusMarkSensitive;
         updateHideMediaToggle();
     }
+    
+    private void enableMarkdownMode(boolean enable) {
+        markdownMode = enable;
+        
+        TransitionManager.beginDelayedTransition((ViewGroup) markdownButton.getParent());
+        
+        @ColorInt int color;
+        color = ThemeUtils.getColor(this, markdownMode ? R.attr.colorPrimary : android.R.attr.textColorTertiary);
+        
+        markdownButton.getDrawable().setColorFilter(color, PorterDuff.Mode.SRC_IN);
 
+    }
+    
+    private void toggleMarkdownMode() {
+        enableMarkdownMode(!markdownMode);
+    }
+    
     private void updateHideMediaToggle() {
         TransitionManager.beginDelayedTransition((ViewGroup) hideMediaToggle.getParent());
 
@@ -822,7 +848,7 @@ public final class ComposeActivity
             hideMediaToggle.getDrawable().setColorFilter(color, PorterDuff.Mode.SRC_IN);
         }
     }
-
+    
     private void updateScheduleButton() {
         @ColorInt int color;
         if(scheduleView.getTime() == null) {
@@ -1138,7 +1164,7 @@ public final class ComposeActivity
                 getIntent().getStringExtra(REPLYING_STATUS_CONTENT_EXTRA),
                 getIntent().getStringExtra(REPLYING_STATUS_AUTHOR_USERNAME_EXTRA),
                 getIntent().getStringExtra(SAVED_JSON_URLS_EXTRA),
-                accountManager.getActiveAccount(), savedTootUid);
+                accountManager.getActiveAccount(), savedTootUid, markdownMode);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             startForegroundService(sendIntent);
@@ -2011,7 +2037,14 @@ public final class ComposeActivity
                 maxPollOptionLength = instance.getPollLimits().getMaxOptionChars();
             }
             
-            isPleroma = instance.isPleroma();
+            if ((isPleroma = instance.isPleroma())) {
+                // TODO: implement nodeinfo later
+                enableButton(markdownButton, true, true);
+                
+                // we always can add new poll but only one
+                if (poll == null)
+                    enablePollButton(true);
+            }
 
             cacheInstanceMetadata(accountManager.getActiveAccount());
         }
@@ -2153,6 +2186,8 @@ public final class ComposeActivity
         private Boolean sensitive;
         @Nullable
         private NewPoll poll;
+        @Nullable
+        private Boolean markdownMode;
 
         public IntentBuilder savedTootUid(int uid) {
             this.savedTootUid = uid;
@@ -2228,6 +2263,11 @@ public final class ComposeActivity
             this.poll = poll;
             return this;
         }
+        
+        public IntentBuilder markdownMode(boolean mode) {
+            this.markdownMode = mode;
+            return this;
+        }
 
         public Intent build(Context context) {
             Intent intent = new Intent(context, ComposeActivity.class);
@@ -2277,6 +2317,9 @@ public final class ComposeActivity
             }
             if (poll != null) {
                 intent.putExtra(POLL_EXTRA, poll);
+            }
+            if (markdownMode != null) {
+                intent.putExtra(MARKDOWN_MODE_EXTRA, markdownMode);
             }
             return intent;
         }
