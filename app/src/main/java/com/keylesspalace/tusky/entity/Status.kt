@@ -44,7 +44,8 @@ data class Status(
         val application: Application?,
         var pinned: Boolean?,
         val poll: Poll?,
-        val card: Card?
+        val card: Card?,
+        var content_type: String? = null
 ) {
 
     val actionableId: String
