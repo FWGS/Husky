@@ -65,10 +65,14 @@ public class TootEntity {
     @Nullable
     @ColumnInfo(name = "poll")
     private final NewPoll poll;
+    
+    @Nullable
+    @ColumnInfo(name = "markdownMode")
+    private final Boolean markdownMode;
 
     public TootEntity(int uid, String text, String urls, String descriptions, String contentWarning, String inReplyToId,
                       @Nullable String inReplyToText, @Nullable String inReplyToUsername,
-                      Status.Visibility visibility, @Nullable NewPoll poll) {
+                      Status.Visibility visibility, @Nullable NewPoll poll, @Nullable Boolean markdownMode) {
         this.uid = uid;
         this.text = text;
         this.urls = urls;
@@ -79,6 +83,7 @@ public class TootEntity {
         this.inReplyToUsername = inReplyToUsername;
         this.visibility = visibility;
         this.poll = poll;
+        this.markdownMode = markdownMode;
     }
 
     public String getText() {
@@ -122,6 +127,11 @@ public class TootEntity {
     @Nullable
     public NewPoll getPoll() {
         return poll;
+    }
+    
+    @Nullable
+    public Boolean getMarkdownMode() {
+        return markdownMode;
     }
 
     public static final class Converters {
