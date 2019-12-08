@@ -262,6 +262,7 @@ public final class ComposeActivity
     private Integer maxPollOptionLength = null;
     private @Px
     int thumbnailViewSize;
+    private boolean isPleroma = false;
 
     private SaveTootHelper saveTootHelper;
     private Gson gson = new Gson();
@@ -978,7 +979,9 @@ public final class ComposeActivity
     public void updatePoll(NewPoll poll) {
         this.poll = poll;
 
-        enableButton(pickButton, false, false);
+        if (!isPleroma) {
+            enableButton(pickButton, false, false);
+        }
 
         if(pollPreview == null) {
 
@@ -1341,18 +1344,21 @@ public final class ComposeActivity
         mediaQueued.add(item);
         updateContentDescription(item);
         int queuedCount = mediaQueued.size();
-        if (queuedCount == 1) {
-            // If there's one video in the queue it is full, so disable the button to queue more.
-            if (item.type == QueuedMedia.Type.VIDEO) {
+        if (!isPleroma) {
+            if (queuedCount == 1) {
+                // If there's one video in the queue it is full, so disable the button to queue more.
+                if (item.type == QueuedMedia.Type.VIDEO) {
+                    enableButton(pickButton, false, false);
+                }
+            } else if (queuedCount >= Status.MAX_MEDIA_ATTACHMENTS) {
+                // Limit the total media attachments, also.
                 enableButton(pickButton, false, false);
             }
-        } else if (queuedCount >= Status.MAX_MEDIA_ATTACHMENTS) {
-            // Limit the total media attachments, also.
-            enableButton(pickButton, false, false);
+            
+            enablePollButton(false);
         }
 
         updateHideMediaToggle();
-        enablePollButton(false);
 
         if (item.readyStage != QueuedMedia.ReadyStage.UPLOADED) {
             waitForMediaLatch.countUp();
@@ -2004,6 +2010,8 @@ public final class ComposeActivity
                 maxPollOptions = instance.getPollLimits().getMaxOptions();
                 maxPollOptionLength = instance.getPollLimits().getMaxOptionChars();
             }
+            
+            isPleroma = instance.isPleroma();
 
             cacheInstanceMetadata(accountManager.getActiveAccount());
         }
