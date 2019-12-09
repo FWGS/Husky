@@ -8,7 +8,7 @@ before_script:
   - mkdir -p $ANDROID_HOME/.android/
   - cp debug.keystore $ANDROID_HOME/.android/
 after_script:
-  - apksigner sign --ks debug.keystore --ks-key-alias androiddebugkey --ks-pass "pass:android" --key-pass "pass:android" --in $(find -name "*-blue-release-unsigned.apk") --out husky-release.apk
+  - $ANDROID_HOME/build-tools/28.0.3/apksigner sign --ks debug.keystore --ks-key-alias androiddebugkey --ks-pass "pass:android" --key-pass "pass:android" --in $(find -name "*-blue-release-unsigned.apk") --out husky-release.apk
   - wget https://raw.githubusercontent.com/FWGS/uploadtool/master/upload.sh
   - chmod +x upload.sh
   - ./upload.sh husky-release.apk
