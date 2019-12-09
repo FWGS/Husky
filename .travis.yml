@@ -4,6 +4,14 @@ android:
   components:
     - android-29
     - build-tools-28.0.3
+before_cache:
+  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+cache:
+  directories:
+    - $HOME/.gradle/caches/
+    - $HOME/.gradle/wrapper/
+    - $HOME/.android/build-cache
 after_success:
   - $ANDROID_HOME/build-tools/28.0.3/apksigner sign --ks debug.keystore --ks-key-alias androiddebugkey --ks-pass "pass:android" --key-pass "pass:android" --in $(find -name "*-blue-release-unsigned.apk") --out husky-release.apk
   - wget https://raw.githubusercontent.com/FWGS/uploadtool/master/upload.sh
