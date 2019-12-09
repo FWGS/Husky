@@ -160,6 +160,7 @@ import okhttp3.MultipartBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import me.thanel.markdownedit.MarkdownEdit;
 
 import static com.keylesspalace.tusky.util.MediaUtilsKt.MEDIA_SIZE_UNKNOWN;
 import static com.keylesspalace.tusky.util.MediaUtilsKt.getImageSquarePixels;
@@ -231,6 +232,11 @@ public final class ComposeActivity
     private TextView actionAddPoll;
     private Button atButton;
     private Button hashButton;
+    private ImageButton codeButton;
+    private ImageButton linkButton;
+    private ImageButton strikethroughButton;
+    private ImageButton italicButton;
+    private ImageButton boldButton;
 
     private ComposeOptionsView composeOptionsView;
     private BottomSheetBehavior composeOptionsBehavior;
@@ -300,6 +306,11 @@ public final class ComposeActivity
         emojiList = Collections.emptyList();
         atButton = findViewById(R.id.atButton);
         hashButton = findViewById(R.id.hashButton);
+        codeButton = findViewById(R.id.codeButton);
+        linkButton = findViewById(R.id.linkButton);
+        strikethroughButton = findViewById(R.id.strikethroughButton);
+        italicButton = findViewById(R.id.italicButton);
+        boldButton = findViewById(R.id.boldButton);
 
         saveTootHelper = new SaveTootHelper(database.tootDao(), this);
 
@@ -400,6 +411,11 @@ public final class ComposeActivity
         scheduleView.setResetOnClickListener(v -> resetSchedule());
         atButton.setOnClickListener(v -> atButtonClicked());
         hashButton.setOnClickListener(v -> hashButtonClicked());
+        codeButton.setOnClickListener(v -> codeButtonClicked());
+        linkButton.setOnClickListener(v -> linkButtonClicked());
+        strikethroughButton.setOnClickListener(v -> strikethroughButtonClicked());
+        italicButton.setOnClickListener(v -> italicButtonClicked());
+        boldButton.setOnClickListener(v -> boldButtonClicked());
 
         TextView actionPhotoTake = findViewById(R.id.action_photo_take);
         TextView actionPhotoPick = findViewById(R.id.action_photo_pick);
@@ -444,6 +460,7 @@ public final class ComposeActivity
                 onCommitContentInternal(previousInputContentInfo, previousFlags);
             }
             photoUploadUri = savedInstanceState.getParcelable("photoUploadUri");
+            markdownMode = savedInstanceState.getBoolean("statusMarkdownMode");
         } else {
             statusMarkSensitive = activeAccount.getDefaultMediaSensitivity();
             startingHideText = false;
@@ -763,6 +780,27 @@ public final class ComposeActivity
     private void hashButtonClicked() {
         replaceTextAtCaret("#");
     }
+    
+    private void codeButtonClicked() {
+        MarkdownEdit.addCode(textEditor);
+    }
+    
+    private void linkButtonClicked() {
+        MarkdownEdit.addLink(textEditor);
+    }
+    
+    private void strikethroughButtonClicked() {
+        MarkdownEdit.addStrikeThrough(textEditor);
+    }
+    
+    private void italicButtonClicked() {
+        MarkdownEdit.addItalic(textEditor);
+    }
+    
+    private void boldButtonClicked() {
+        MarkdownEdit.addBold(textEditor);
+    }
+
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -783,6 +821,7 @@ public final class ComposeActivity
         currentFlags = 0;
         outState.putParcelable("photoUploadUri", photoUploadUri);
         outState.putInt("statusVisibility", statusVisibility.getNum());
+        outState.putBoolean("statusMarkdownMode", markdownMode);
         super.onSaveInstanceState(outState);
     }
 
@@ -809,16 +848,17 @@ public final class ComposeActivity
     }
     
     private void enableMarkdownMode(boolean enable) {
+        enableMarkdownWYSIWYGButtons(enable);
+     
         markdownMode = enable;
-
+     
         TransitionManager.beginDelayedTransition((ViewGroup) markdownButton.getParent());
         
         @ColorInt int color;
         color = ThemeUtils.getColor(this, markdownMode ? R.attr.colorPrimary : android.R.attr.textColorTertiary);
         
-        markdownButton.getDrawable().setColorFilter(color, PorterDuff.Mode.SRC_IN);
-
-    }
+        markdownButton.getDrawable().setColorFilter(color, PorterDuff.Mode.SRC_IN);   
+     }
     
     private void toggleMarkdownMode() {
         enableMarkdownMode(!markdownMode);
@@ -878,6 +918,16 @@ public final class ComposeActivity
         scheduleButton.setClickable(true);
         markdownButton.setClickable(true);
         tootButton.setEnabled(true);
+    }
+    
+    private void enableMarkdownWYSIWYGButtons(boolean enable) {
+        int visibility = enable ? View.VISIBLE : View.GONE;
+        
+        codeButton.setVisibility(visibility);
+        linkButton.setVisibility(visibility);
+        strikethroughButton.setVisibility(visibility);
+        italicButton.setVisibility(visibility);
+        boldButton.setVisibility(visibility);
     }
 
     private void setStatusVisibility(Status.Visibility visibility) {

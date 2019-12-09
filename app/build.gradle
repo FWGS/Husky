@@ -165,6 +165,7 @@ dependencies {
     implementation "com.evernote:android-job:1.4.2"
 
     implementation "de.c1710:filemojicompat:1.0.17"
+    implementation 'com.github.Tunous:MarkdownEdit:1.0.0'
 
 
     testImplementation "androidx.test.ext:junit:1.1.1"

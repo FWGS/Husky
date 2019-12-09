@@ -21,7 +21,7 @@
             android:padding="8dp"
             tools:ignore="ContentDescription" />
         <!--content description will be set in code -->
-
+      
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/atButton"
             style="?attr/image_button_style"
@@ -46,6 +46,61 @@
             android:textStyle="bold"
             android:textColor="?android:textColorTertiary"
             android:textSize="?attr/status_text_large"
+            />
+        
+        <ImageButton
+            android:id="@+id/codeButton"
+            style="?attr/image_button_style"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="end"
+            android:padding="8dp"
+            android:visibility="gone"
+            android:src="@drawable/md_code"
+            />
+        
+        <ImageButton
+            android:id="@+id/linkButton"
+            style="?attr/image_button_style"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="end"
+            android:padding="8dp"
+            android:visibility="gone"
+            android:src="@drawable/md_link"
+            />
+        
+        <ImageButton
+            android:id="@+id/strikethroughButton"
+            style="?attr/image_button_style"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="end"
+            android:padding="8dp"
+            android:visibility="gone"
+            android:src="@drawable/md_strikethrough"
+            />
+        
+        <ImageButton
+            android:id="@+id/italicButton"
+            style="?attr/image_button_style"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="end"
+            android:padding="8dp"
+            android:visibility="gone"
+            android:src="@drawable/md_italic"
+            />
+        
+        <ImageButton
+            android:id="@+id/boldButton"
+            style="?attr/image_button_style"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="end"
+            android:padding="8dp"
+            android:visibility="gone"
+            android:src="@drawable/md_bold"
             />
     </androidx.appcompat.widget.Toolbar>
 
