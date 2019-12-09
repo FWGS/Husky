@@ -15,6 +15,8 @@ cache:
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
     - $HOME/.android/build-cache
+script:
+  - ./gradlew build
 after_success:
   - $ANDROID_HOME/build-tools/28.0.3/apksigner sign --ks debug.keystore --ks-key-alias androiddebugkey --ks-pass "pass:android" --key-pass "pass:android" --in $(find -name "*-green-release-unsigned.apk") --out husky-green-release.apk
   - wget https://raw.githubusercontent.com/FWGS/uploadtool/master/upload.sh
