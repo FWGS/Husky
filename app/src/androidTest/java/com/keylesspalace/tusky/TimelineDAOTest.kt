@@ -235,6 +235,7 @@ class TimelineDAOTest {
                 reblogsCount = 0,
                 favouritesCount = 0,
                 reblogged = false,
+                bookmarked = false,
                 favourited = false,
                 sensitive = false,
                 spoilerText = null,
