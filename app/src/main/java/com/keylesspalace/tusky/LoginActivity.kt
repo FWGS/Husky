@@ -34,9 +34,6 @@ import com.keylesspalace.tusky.entity.AccessToken
 import com.keylesspalace.tusky.entity.AppCredentials
 import com.keylesspalace.tusky.network.MastodonApi
 import com.keylesspalace.tusky.util.ThemeUtils
-import com.keylesspalace.tusky.util.getNonNullString
-import com.keylesspalace.tusky.util.rickRoll
-import com.keylesspalace.tusky.util.shouldRickRoll
 import kotlinx.android.synthetic.main.activity_login.*
 import okhttp3.HttpUrl
 import retrofit2.Call
@@ -134,11 +131,6 @@ class LoginActivity : BaseActivity(), Injectable {
         } catch (e: IllegalArgumentException) {
             setLoading(false)
             domainTextInputLayout.error = getString(R.string.error_invalid_domain)
-            return
-        }
-
-        if (shouldRickRoll(this, domain)) {
-            rickRoll(this)
             return
         }
 
