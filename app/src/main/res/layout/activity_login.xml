@@ -52,16 +52,70 @@
                         android:ems="10"
                         android:inputType="textUri" />
                 </com.google.android.material.textfield.TextInputLayout>
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/loginButton"
-                    style="@style/TuskyButton"
-                    android:layout_width="250dp"
+                
+                <LinearLayout
+                    android:id="@+id/extendedSettings"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    android:orientation="vertical">
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/TuskyTextInput"
+                        android:layout_width="250dp"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/hint_appname"
+                        android:layout_marginTop="8dp"
+                        app:errorEnabled="true">
+                    
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/appNameEditText"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:ems="10"
+                            android:inputType="textUri" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                    
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/TuskyTextInput"
+                        android:layout_width="250dp"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/hint_website"
+                        android:layout_marginTop="8dp"
+                        app:errorEnabled="true">
+                        
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/websiteEditText"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:ems="10"
+                            android:inputType="textUri" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
+                
+                <LinearLayout
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:gravity="center"
-                    android:text="@string/action_login" />
+                    android:orientation="horizontal">
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/loginButton"
+                        style="@style/TuskyButton"
+                        android:layout_width="210dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="8dp"
+                        android:gravity="center"
+                        android:text="@string/action_login" />
 
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/settingsButton"
+                        style="@style/TuskyButton"
+                        android:padding="4dp"
+                        android:layout_width="32dp"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        app:icon="@drawable/ic_settings" />
+                </LinearLayout>
+                
                 <TextView
                     android:id="@+id/whatsAnInstanceTextView"
                     android:layout_width="250dp"

@@ -55,15 +55,22 @@ class LoginActivity : BaseActivity(), Injectable {
             val host = BuildConfig.APPLICATION_ID
             return "$scheme://$host/"
         }
-
+    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_login)
 
-        if(savedInstanceState == null && BuildConfig.CUSTOM_INSTANCE.isNotBlank() && !isAdditionalLogin()) {
-            domainEditText.setText(BuildConfig.CUSTOM_INSTANCE)
-            domainEditText.setSelection(BuildConfig.CUSTOM_INSTANCE.length)
+        if(savedInstanceState == null ) {
+            if(BuildConfig.CUSTOM_INSTANCE.isNotBlank() && !isAdditionalLogin()) {
+                domainEditText.setText(BuildConfig.CUSTOM_INSTANCE)
+                domainEditText.setSelection(BuildConfig.CUSTOM_INSTANCE.length)
+            }
+            appNameEditText.setText(getString(R.string.app_name))
+            appNameEditText.setSelection(getString(R.string.app_name).length)
+            
+            websiteEditText.setText(getString(R.string.tusky_website))
+            websiteEditText.setSelection(getString(R.string.tusky_website).length)
         }
 
         if(BuildConfig.CUSTOM_LOGO_URL.isNotBlank()) {
@@ -77,6 +84,7 @@ class LoginActivity : BaseActivity(), Injectable {
                 getString(R.string.preferences_file_key), Context.MODE_PRIVATE)
 
         loginButton.setOnClickListener { onButtonClick() }
+        settingsButton.setOnClickListener { onSettingsButtonClick() }
 
         whatsAnInstanceTextView.setOnClickListener {
             val dialog = AlertDialog.Builder(this)
@@ -114,6 +122,15 @@ class LoginActivity : BaseActivity(), Injectable {
             return true
         }
         return super.onOptionsItemSelected(item)
+    }
+    
+    private fun onSettingsButtonClick() {
+        if(extendedSettings.visibility == View.GONE) {
+            extendedSettings.visibility = View.VISIBLE
+        } else {
+            extendedSettings.visibility = View.GONE
+        }
+
     }
 
     /**
@@ -165,10 +182,17 @@ class LoginActivity : BaseActivity(), Injectable {
                 Log.e(TAG, Log.getStackTraceString(t))
             }
         }
-
+        
+        var appname = getString(R.string.app_name)
+        var website = getString(R.string.tusky_website)
+        if(extendedSettings.visibility == View.VISIBLE) {
+            appname = appNameEditText.text.toString()
+            website = websiteEditText.text.toString()
+        }
+        
         mastodonApi
-                .authenticateApp(domain, getString(R.string.app_name), oauthRedirectUri,
-                        OAUTH_SCOPES, getString(R.string.tusky_website))
+                .authenticateApp(domain, appname, oauthRedirectUri,
+                        OAUTH_SCOPES, website)
                 .enqueue(callback)
         setLoading(true)
 
