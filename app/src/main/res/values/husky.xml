@@ -1,0 +1,9 @@
+<resources>
+    
+    <string name="action_markdown">Markdown</string>
+    
+    <string name="hint_appname">Application name</string>
+    <string name="hint_website">Application website</string>
+
+</resources>
+        
