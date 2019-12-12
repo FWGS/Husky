@@ -27,6 +27,7 @@ android {
 
         resValue "string", "app_name", APP_NAME
 
+	buildConfigField("String", "APPLICATION_NAME", "\"$APP_NAME\"")
         buildConfigField("String", "CUSTOM_LOGO_URL", "\"$CUSTOM_LOGO_URL\"")
         buildConfigField("String", "CUSTOM_INSTANCE", "\"$CUSTOM_INSTANCE\"")
         buildConfigField("String", "SUPPORT_ACCOUNT_URL", "\"$SUPPORT_ACCOUNT_URL\"")
