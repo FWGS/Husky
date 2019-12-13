@@ -29,6 +29,7 @@ import android.content.pm.PackageManager;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
@@ -49,12 +50,15 @@ import android.text.TextWatcher;
 import android.text.style.URLSpan;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Gravity;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.provider.OpenableColumns;
 import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -119,14 +123,7 @@ import com.keylesspalace.tusky.util.SpanUtilsKt;
 import com.keylesspalace.tusky.util.StringUtils;
 import com.keylesspalace.tusky.util.ThemeUtils;
 import com.keylesspalace.tusky.util.VersionUtils;
-import com.keylesspalace.tusky.view.AddPollDialog;
-import com.keylesspalace.tusky.view.ComposeOptionsListener;
-import com.keylesspalace.tusky.view.ComposeOptionsView;
-import com.keylesspalace.tusky.view.ComposeScheduleView;
-import com.keylesspalace.tusky.view.EditTextTyped;
-import com.keylesspalace.tusky.view.PollPreviewView;
-import com.keylesspalace.tusky.view.ProgressImageView;
-import com.keylesspalace.tusky.view.TootButton;
+import com.keylesspalace.tusky.view.*;
 import com.mikepenz.google_material_typeface_library.GoogleMaterial;
 import com.mikepenz.iconics.IconicsDrawable;
 
@@ -685,12 +682,12 @@ public final class ComposeActivity
                         break;
                     }
                 }
-                addMediaToQueue(media.getId(), type, media.getPreviewUrl(), media.getDescription());
+                addMediaToQueue(media.getId(), type, media.getPreviewUrl(), media.getDescription(), null);
             }
         } else if (savedMediaQueued != null) {
             for (SavedQueuedMedia item : savedMediaQueued) {
                 Bitmap preview = getImageThumbnail(getContentResolver(), item.uri, thumbnailViewSize);
-                addMediaToQueue(item.id, item.type, preview, item.uri, item.mediaSize, item.readyStage, item.description);
+                addMediaToQueue(item.id, item.type, preview, item.uri, item.mediaSize, item.readyStage, item.description, null);
             }
         } else if (intent != null && savedInstanceState == null) {
             /* Get incoming images being sent through a share action from another app. Only do this
@@ -1362,9 +1359,11 @@ public final class ComposeActivity
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
 
-        String[] mimeTypes = new String[]{"image/*", "video/*"};
+        if(!isPleroma) {
+            String[] mimeTypes = new String[]{"image/*", "video/*"};
+            intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
+        }
         intent.setType("*/*");
-        intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
         startActivityForResult(intent, MEDIA_PICK_RESULT);
     }
 
@@ -1386,22 +1385,24 @@ public final class ComposeActivity
         actionAddPoll.getCompoundDrawablesRelative()[0].setColorFilter(textColor, PorterDuff.Mode.SRC_IN);
     }
 
-    private void addMediaToQueue(QueuedMedia.Type type, Bitmap preview, Uri uri, long mediaSize, @Nullable String description) {
-        addMediaToQueue(null, type, preview, uri, mediaSize, null, description);
+    private void addMediaToQueue(QueuedMedia.Type type, Bitmap preview, Uri uri, long mediaSize, @Nullable String description, @Nullable String trueFileName) {
+        addMediaToQueue(null, type, preview, uri, mediaSize, null, description, trueFileName);
     }
 
-    private void addMediaToQueue(String id, QueuedMedia.Type type, String previewUrl, @Nullable String description) {
+    private void addMediaToQueue(String id, QueuedMedia.Type type, String previewUrl, @Nullable String description, @Nullable String trueFileName) {
         addMediaToQueue(id, type, null, Uri.parse(previewUrl), 0,
-                QueuedMedia.ReadyStage.UPLOADED, description);
+                        QueuedMedia.ReadyStage.UPLOADED, description, trueFileName);
     }
 
     private void addMediaToQueue(@Nullable String id, QueuedMedia.Type type, Bitmap preview, Uri uri,
-                                 long mediaSize, QueuedMedia.ReadyStage readyStage, @Nullable String description) {
-        final QueuedMedia item = new QueuedMedia(type, uri, new ProgressImageView(this),
-                mediaSize, description);
+                                 long mediaSize, QueuedMedia.ReadyStage readyStage, @Nullable String description,
+                                 @Nullable String trueFileName) {
+        final boolean showAsText = type == QueuedMedia.Type.UNKNOWN;
+        final View view = showAsText ? new ProgressTextView(this) : new ProgressImageView(this);
+        final QueuedMedia item = new QueuedMedia(type, uri,
+            (IProgressView)view, mediaSize, description, view);
         item.id = id;
         item.readyStage = readyStage;
-        ImageView view = item.preview;
         Resources resources = getResources();
         int margin = resources.getDimensionPixelSize(R.dimen.compose_media_preview_margin);
         int marginBottom = resources.getDimensionPixelSize(
@@ -1409,14 +1410,31 @@ public final class ComposeActivity
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(thumbnailViewSize, thumbnailViewSize);
         layoutParams.setMargins(margin, 0, margin, marginBottom);
         view.setLayoutParams(layoutParams);
-        view.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        if (preview != null) {
-            view.setImageBitmap(preview);
+        if (showAsText) {
+            if(trueFileName != null) {
+                ((TextView)view).setText(trueFileName);
+            }
+            // else text will be set later
+
+            view.setBackgroundColor(ThemeUtils.getColor(this, R.attr.card_background_color));
+            ((TextView)view).setGravity(Gravity.CENTER);
+            ((TextView)view).setHorizontallyScrolling(true);
+            ((TextView)view).setEllipsize(TextUtils.TruncateAt.MARQUEE);
+            ((TextView)view).setMarqueeRepeatLimit(-1);
+            ((TextView)view).setSingleLine();
+            ((TextView)view).setSelected(true);
+            ((TextView)view).setMaxLines(1);
+            ((TextView)view).setTextSize(16.0f);
         } else {
-            Glide.with(this)
-                    .load(uri)
-                    .placeholder(null)
-                    .into(view);
+            ((ImageView)view).setScaleType(ImageView.ScaleType.CENTER_CROP);
+            if (preview != null) {
+                ((ImageView)view).setImageBitmap(preview);
+            } else {
+                Glide.with(this)
+                        .load(uri)
+                        .placeholder(null)
+                        .into((ImageView)view);
+            }
         }
         view.setOnClickListener(v -> onMediaClick(item, v));
         mediaPreviewBar.addView(view);
@@ -1443,7 +1461,7 @@ public final class ComposeActivity
             waitForMediaLatch.countUp();
 
             try {
-                if (type == QueuedMedia.Type.IMAGE &&
+                if (!isPleroma && type == QueuedMedia.Type.IMAGE &&
                         (mediaSize > STATUS_IMAGE_SIZE_LIMIT || getImageSquarePixels(getContentResolver(), item.uri) > STATUS_IMAGE_PIXEL_SIZE_LIMIT)) {
                     downsizeMedia(item);
                 } else {
@@ -1474,7 +1492,7 @@ public final class ComposeActivity
                 else
                     imageId = Integer.toString(idx + 1);
             }
-            item.preview.setContentDescription(getString(R.string.compose_preview_image_description, imageId));
+            item.previewView.setContentDescription(getString(R.string.compose_preview_image_description, imageId));
         }
     }
 
@@ -1602,7 +1620,7 @@ public final class ComposeActivity
     }
 
     private void removeMediaFromQueue(QueuedMedia item) {
-        mediaPreviewBar.removeView(item.preview);
+        mediaPreviewBar.removeView(item.previewView);
         mediaQueued.remove(item);
         if (mediaQueued.size() == 0) {
             updateHideMediaToggle();
@@ -1646,7 +1664,7 @@ public final class ComposeActivity
         displayTransientError(R.string.error_image_upload_size);
         removeMediaFromQueue(item);
     }
-
+           
     private void uploadMedia(final QueuedMedia item) {
         item.readyStage = QueuedMedia.ReadyStage.UPLOADING;
 
@@ -1658,6 +1676,12 @@ public final class ComposeActivity
                 String.valueOf(new Date().getTime()),
                 StringUtils.randomAlphanumericString(10),
                 fileExtension);
+        
+        if(item.type == item.type.UNKNOWN) {
+            if(((TextView)item.previewView).getText().length() <= 0) {
+                ((TextView)item.previewView).setText(filename);
+            }
+        }
 
         InputStream stream;
 
@@ -1759,7 +1783,21 @@ public final class ComposeActivity
         }
     }
 
-
+    private String getFileNameFromUri(Uri uri) {
+        String result = null;
+        if (uri.getScheme().equals("content")) {
+            Cursor cursor = getContentResolver().query(uri, null, null, null, null);
+            try {
+                if (cursor != null && cursor.moveToFirst()) {
+                    result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+                }
+            } finally {
+                cursor.close();
+            }
+        }
+        return result;
+    }
+        
     private void pickMedia(Uri inUri, long mediaSize, String description) {
         Uri uri = inUri;
         ContentResolver contentResolver = getContentResolver();
@@ -1768,6 +1806,7 @@ public final class ComposeActivity
         InputStream tempInput = null;
         FileOutputStream out = null;
         String filename = inUri.toString().substring(inUri.toString().lastIndexOf("/"));
+        String trueFileName = getFileNameFromUri(inUri);
         int suffixPosition = filename.lastIndexOf(".");
         String suffix = "";
         if(suffixPosition > 0) suffix = filename.substring(suffixPosition);
@@ -1813,7 +1852,7 @@ public final class ComposeActivity
                     }
                     Bitmap bitmap = getVideoThumbnail(this, uri, thumbnailViewSize);
                     if (bitmap != null) {
-                        addMediaToQueue(QueuedMedia.Type.VIDEO, bitmap, uri, mediaSize, description);
+                        addMediaToQueue(QueuedMedia.Type.VIDEO, bitmap, uri, mediaSize, description, trueFileName);
                     } else {
                         displayTransientError(R.string.error_media_upload_opening);
                     }
@@ -1822,14 +1861,18 @@ public final class ComposeActivity
                 case "image": {
                     Bitmap bitmap = getImageThumbnail(contentResolver, uri, thumbnailViewSize);
                     if (bitmap != null) {
-                        addMediaToQueue(QueuedMedia.Type.IMAGE, bitmap, uri, mediaSize, description);
+                        addMediaToQueue(QueuedMedia.Type.IMAGE, bitmap, uri, mediaSize, description, trueFileName);
                     } else {
                         displayTransientError(R.string.error_media_upload_opening);
                     }
                     break;
                 }
                 default: {
-                    displayTransientError(R.string.error_media_upload_type);
+                    if(isPleroma) {
+                        addMediaToQueue(QueuedMedia.Type.UNKNOWN, null, uri, mediaSize, description, trueFileName);
+                    } else {
+                        displayTransientError(R.string.error_media_upload_type);
+                    }
                     break;
                 }
             }
@@ -2112,7 +2155,7 @@ public final class ComposeActivity
 
     public static final class QueuedMedia {
         Type type;
-        ProgressImageView preview;
+        IProgressView preview;
         Uri uri;
         String id;
         Call<Attachment> uploadRequest;
@@ -2120,19 +2163,22 @@ public final class ComposeActivity
         long mediaSize;
         String description;
         Runnable updateDescription;
+        View previewView; // view associated with this preview
 
-        QueuedMedia(Type type, Uri uri, ProgressImageView preview, long mediaSize,
-                    String description) {
+        QueuedMedia(Type type, Uri uri, IProgressView preview, long mediaSize,
+                    String description, View previewView) {
             this.type = type;
             this.uri = uri;
             this.preview = preview;
             this.mediaSize = mediaSize;
             this.description = description;
+            this.previewView = previewView;
         }
 
         public enum Type {
             IMAGE,
-            VIDEO
+            VIDEO,
+            UNKNOWN
         }
 
         enum ReadyStage {
