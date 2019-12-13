@@ -197,6 +197,10 @@ public final class ViewThreadFragment extends SFragment implements
                         handleStatusDeletedEvent((StatusDeletedEvent) event);
                     }
                 });
+                
+        if(thisThreadsStatusPosition != -1) {
+            recyclerView.scrollToPosition(thisThreadsStatusPosition);
+        }
     }
 
     public void onRevealPressed() {
@@ -680,9 +684,13 @@ public final class ViewThreadFragment extends SFragment implements
         }
     }
 
+    private int thisThreadsStatusPosition = -1;
     private void insertStatus(Status status, int at) {
         statuses.add(at, status);
         adapter.addItem(at, statuses.getPairedItem(at));
+        if(status.getId().equals(thisThreadsStatusId)) {
+            thisThreadsStatusPosition = at;
+        }
     }
 
     private void handleStatusDeletedEvent(StatusDeletedEvent event) {
