@@ -96,13 +96,14 @@ public class CustomEmojiHelper {
                it covers the whole text */
             Paint.FontMetricsInt metrics = paint.getFontMetricsInt();
             if (fm != null) {
-                fm.top = metrics.top;
-                fm.ascent = metrics.ascent;
-                fm.descent = metrics.descent;
-                fm.bottom = metrics.bottom;
+                fm.top = (int)((float)metrics.top * 1.3);
+                fm.ascent = (int)((float)metrics.ascent * 1.3);
+                fm.descent = (int)((float)metrics.descent * 2.0);
+                fm.bottom = (int)((float)metrics.bottom * 3.5);
+                // fm.leading = (int)((float)metrics.leading); // useless to change
             }
 
-            return (int) (paint.getTextSize()*1.2);
+            return (int) (paint.getTextSize()*2.0);
         }
 
         @Override
@@ -111,7 +112,7 @@ public class CustomEmojiHelper {
             if (imageDrawable == null) return;
             canvas.save();
 
-            int emojiSize = (int) (paint.getTextSize() * 1.1);
+            int emojiSize = (int) (paint.getTextSize() * 2.0);
             imageDrawable.setBounds(0, 0, emojiSize, emojiSize);
 
             int transY = bottom - imageDrawable.getBounds().bottom;
