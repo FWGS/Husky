@@ -88,7 +88,7 @@ public abstract class SFragment extends BaseFragment implements Injectable {
     protected abstract void removeItem(int position);
 
     protected abstract void onReblog(final boolean reblog, final int position);
-
+    
     private BottomSheetActivity bottomSheetActivity;
 
     private static List<Filter> filters;
@@ -136,6 +136,10 @@ public abstract class SFragment extends BaseFragment implements Injectable {
 
     public void onViewUrl(String url) {
         bottomSheetActivity.viewUrl(url, PostLookupFallbackBehavior.OPEN_IN_BROWSER);
+    }
+    
+    protected void onShowReplyTo(String replyToId) {
+        bottomSheetActivity.viewThread(replyToId, null);
     }
 
     protected void reply(Status status) {
@@ -227,6 +231,12 @@ public abstract class SFragment extends BaseFragment implements Injectable {
                 break;
         }
         openAsItem.setTitle(openAsTitle);
+        
+        if(status.getInReplyToId() == null) {
+            MenuItem replyToItem = menu.findItem(R.id.status_reply_to);
+            
+            replyToItem.setVisible(false);
+        }
 
         popup.setOnMenuItemClickListener(item -> {
             switch (item.getItemId()) {
@@ -258,6 +268,10 @@ public abstract class SFragment extends BaseFragment implements Injectable {
                             getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
                     ClipData clip = ClipData.newPlainText(null, statusUrl);
                     clipboard.setPrimaryClip(clip);
+                    return true;
+                }
+                case R.id.status_reply_to: {
+                    onShowReplyTo(status.getInReplyToId());
                     return true;
                 }
                 case R.id.status_open_as: {
