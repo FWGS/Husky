@@ -1,15 +1,17 @@
 # Husky
 [![Build Status](https://api.travis-ci.org/FWGS/xash3d-fwgs.svg?branch=master)](https://travis-ci.org/FWGS/Husky)
 
-Husky is a fork of Tusky that aimed to support [Pleroma's Mastodon API extensions](https://git.pleroma.social/pleroma/pleroma/blob/develop/docs/API/differences_in_mastoapi_responses.md).
+Husky is a fork of Tusky that aimed to support [Pleroma's Mastodon API extensions](https://git.pleroma.social/pleroma/pleroma/blob/develop/docs/API/differences_in_mastoapi_responses.md) and some ideas that I may come up with.
 
 ## Main changes so far
 - Removed attachment limits for Pleroma
+- Support for attaching anything on Pleroma
+- Support for changing OAuth application name
 - Markdown support with WYSIWYG editor
+- Bigger emojis!
 
 Note on Mastodon support: \
-As I don't have Mastodon account anymore, I can't guarantee that this fork would be compatible, although I'm not dropping Mastodon support. \
-If you have issues on Mastodon, you can send me a bugreport anyway. But while you waiting, you can use original Tusky.
+Mastodon is NOT a second class citizen for me, it's still supported and will be.
 
 ---------------------------------------------------------
 
