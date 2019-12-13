@@ -53,6 +53,7 @@
             android:layout_height="wrap_content"
             android:layout_toStartOf="@+id/status_timestamp_info"
             android:layout_toEndOf="@id/status_display_name"
+            android:layout_alignBaseline="@id/status_display_name"
             android:ellipsize="end"
             android:maxLines="1"
             android:textColor="?android:textColorTertiary"
