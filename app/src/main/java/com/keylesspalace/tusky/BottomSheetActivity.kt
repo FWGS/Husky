@@ -102,9 +102,7 @@ abstract class BottomSheetActivity : BaseActivity() {
 
     open fun viewThread(statusId: String, url: String?) {
         if (!isSearching()) {
-            val intent = Intent(this, ViewThreadActivity::class.java)
-            intent.putExtra("id", statusId)
-            intent.putExtra("url", url)
+            val intent = ViewThreadActivity.startIntent(this, statusId, url)
             startActivityWithSlideInAnimation(intent)
         }
     }
