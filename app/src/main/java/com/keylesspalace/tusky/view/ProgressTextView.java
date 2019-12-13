@@ -26,13 +26,13 @@ import android.graphics.drawable.Drawable;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.appcompat.content.res.AppCompatResources;
-import androidx.appcompat.widget.AppCompatImageView;
+import androidx.appcompat.widget.AppCompatTextView;
 import android.util.AttributeSet;
 
 import com.keylesspalace.tusky.R;
 import at.connyduck.sparkbutton.helpers.Utils;
 
-public final class ProgressImageView extends AppCompatImageView implements IProgressView {
+public final class ProgressTextView extends AppCompatTextView implements IProgressView {
 
     private int progress = -1;
     private final RectF progressRect = new RectF();
@@ -42,17 +42,17 @@ public final class ProgressImageView extends AppCompatImageView implements IProg
     private final Paint markBgPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private Drawable captionDrawable;
 
-    public ProgressImageView(Context context) {
+    public ProgressTextView(Context context) {
         super(context);
         init();
     }
 
-    public ProgressImageView(Context context, @Nullable AttributeSet attrs) {
+    public ProgressTextView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         init();
     }
 
-    public ProgressImageView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+    public ProgressTextView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init();
     }
@@ -73,11 +73,6 @@ public final class ProgressImageView extends AppCompatImageView implements IProg
     @Override
     public void setProgress(int progress) {
         this.progress = progress;
-        if (progress != -1) {
-            setColorFilter(Color.rgb(123, 123, 123), PorterDuff.Mode.MULTIPLY);
-        } else {
-            clearColorFilter();
-        }
         invalidate();
     }
 
@@ -91,7 +86,7 @@ public final class ProgressImageView extends AppCompatImageView implements IProg
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-
+        
         float angle = (progress / 100f) * 360 - 90;
         float halfWidth = getWidth() / 2;
         float halfHeight = getHeight() / 2;
