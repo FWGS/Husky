@@ -421,8 +421,8 @@ class ComposeActivity : BaseActivity(),
         composeEditField.setSelection(start + text.length)
     }
     
-    private fun toggleMarkdownMode() {
-        viewModel.toggleMarkdownMode()
+    private fun enableMarkdownMode(enable: Boolean) {
+        viewModel.markdownMode = enable
         
         enableMarkdownWYSIWYGButtons(viewModel.markdownMode)
         
@@ -430,6 +430,10 @@ class ComposeActivity : BaseActivity(),
         
         @ColorInt val color = ThemeUtils.getColor(this, if(viewModel.markdownMode) R.attr.colorPrimary else android.R.attr.textColorTertiary);
         composeMarkdownButton.drawable.colorFilter = PorterDuffColorFilter(color, PorterDuff.Mode.SRC_IN);
+    }
+    
+    private fun toggleMarkdownMode() {
+        enableMarkdownMode(!viewModel.markdownMode)
     }
     
     private fun enableMarkdownWYSIWYGButtons(visible: Boolean) {
@@ -478,7 +482,7 @@ class ComposeActivity : BaseActivity(),
         currentInputContentInfo = null
         currentFlags = 0
         outState.putParcelable("photoUploadUri", photoUploadUri)
-        outState.putParcelable("markdownMode", viewModel.markdownMode)
+        outState.putBoolean("markdownMode", viewModel.markdownMode)
         super.onSaveInstanceState(outState)
     }
 

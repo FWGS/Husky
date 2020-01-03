@@ -62,7 +62,7 @@ class ComposeViewModel
     private var inReplyToId: String? = null
     private var startingVisibility: Status.Visibility = Status.Visibility.UNKNOWN
     private val instance: MutableLiveData<InstanceEntity?> = MutableLiveData()
-    public val markdownMode: Boolean = false
+    public var markdownMode: Boolean = false
 
     val instanceParams: LiveData<ComposeInstanceParams> = instance.map { instance ->
         ComposeInstanceParams(
@@ -87,10 +87,6 @@ class ComposeViewModel
     val poll: MutableLiveData<NewPoll?> = mutableLiveData(null)
     val scheduledAt: MutableLiveData<String?> = mutableLiveData(null)
     
-    fun toggleMarkdownMode() {
-        this.markdownMode = !this.markdownMode!!
-    }
-
     val media = mutableLiveData<List<QueuedMedia>>(listOf())
     val uploadError = MutableLiveData<Throwable>()
 
