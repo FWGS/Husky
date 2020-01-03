@@ -26,7 +26,7 @@
 	<color name="status_divider_dark">#1c2737</color> <!-- -->
 	<color name="tab_page_margin_dark">#121a24</color><!-- -->
     <color name="account_toolbar_icon_collapsed_dark">#ffffff</color>
-	<color name="compose_media_button_disabled_dark">#505D6E</color> <!-- -->
+	<color name="image_button_disabled_dark">#505D6E</color> <!-- -->
 	<color name="custom_tab_toolbar_dark">#121a24</color> <!-- -->
 	<color name="compose_reply_content_background_dark">#121a24</color>
 	<color name="autocomplete_divider_dark">#1c2737</color> <!-- -->

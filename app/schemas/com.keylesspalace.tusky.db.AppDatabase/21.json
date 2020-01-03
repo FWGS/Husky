@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 21,
-    "identityHash": "4645108ec2ec8d4e8cec2db02753ecb8",
+    "identityHash": "7570c84ffeb4f90521f91dc7ef3e7da1",
     "entities": [
       {
         "tableName": "TootEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uid` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `text` TEXT, `urls` TEXT, `descriptions` TEXT, `contentWarning` TEXT, `inReplyToId` TEXT, `inReplyToText` TEXT, `inReplyToUsername` TEXT, `visibility` INTEGER, `poll` TEXT, `markdownMode` INTEGER)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uid` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `text` TEXT, `urls` TEXT, `descriptions` TEXT, `contentWarning` TEXT, `inReplyToId` TEXT, `inReplyToText` TEXT, `inReplyToUsername` TEXT, `visibility` INTEGER, `poll` TEXT)",
         "fields": [
           {
             "fieldPath": "uid",
@@ -66,12 +66,6 @@
             "fieldPath": "poll",
             "columnName": "poll",
             "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "markdownMode",
-            "columnName": "markdownMode",
-            "affinity": "INTEGER",
             "notNull": false
           }
         ],
@@ -272,7 +266,7 @@
       },
       {
         "tableName": "InstanceEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`instance` TEXT NOT NULL, `emojiList` TEXT, `maximumTootCharacters` INTEGER, `maxPollOptions` INTEGER, `maxPollOptionLength` INTEGER, PRIMARY KEY(`instance`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`instance` TEXT NOT NULL, `emojiList` TEXT, `maximumTootCharacters` INTEGER, `maxPollOptions` INTEGER, `maxPollOptionLength` INTEGER, `version` TEXT, PRIMARY KEY(`instance`))",
         "fields": [
           {
             "fieldPath": "instance",
@@ -302,6 +296,12 @@
             "fieldPath": "maxPollOptionLength",
             "columnName": "maxPollOptionLength",
             "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "version",
+            "columnName": "version",
+            "affinity": "TEXT",
             "notNull": false
           }
         ],
@@ -723,7 +723,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4645108ec2ec8d4e8cec2db02753ecb8')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '7570c84ffeb4f90521f91dc7ef3e7da1')"
     ]
   }
 }

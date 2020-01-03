@@ -38,7 +38,12 @@ import androidx.paging.PagedListAdapter
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.keylesspalace.tusky.*
+import com.keylesspalace.tusky.BaseActivity
+import com.keylesspalace.tusky.MainActivity
+import com.keylesspalace.tusky.R
+import com.keylesspalace.tusky.ViewMediaActivity
+import com.keylesspalace.tusky.components.compose.ComposeActivity
+import com.keylesspalace.tusky.components.compose.ComposeActivity.ComposeOptions
 import com.keylesspalace.tusky.components.report.ReportActivity
 import com.keylesspalace.tusky.components.search.adapter.SearchStatusesAdapter
 import com.keylesspalace.tusky.db.AccountEntity
@@ -47,6 +52,7 @@ import com.keylesspalace.tusky.entity.Status
 import com.keylesspalace.tusky.interfaces.AccountSelectionListener
 import com.keylesspalace.tusky.interfaces.StatusActionListener
 import com.keylesspalace.tusky.util.NetworkState
+import com.keylesspalace.tusky.util.StatusDisplayOptions
 import com.keylesspalace.tusky.viewdata.AttachmentViewData
 import com.keylesspalace.tusky.viewdata.StatusViewData
 import com.uber.autodispose.android.lifecycle.AndroidLifecycleScopeProvider.from
@@ -66,13 +72,17 @@ class SearchStatusesFragment : SearchFragment<Pair<Status, StatusViewData.Concre
 
     override fun createAdapter(): PagedListAdapter<Pair<Status, StatusViewData.Concrete>, *> {
         val preferences = PreferenceManager.getDefaultSharedPreferences(searchRecyclerView.context)
-        val useAbsoluteTime = preferences.getBoolean("absoluteTimeView", false)
-        val showBotOverlay = preferences.getBoolean("showBotOverlay", true)
-        val animateAvatar = preferences.getBoolean("animateGifAvatars", false)
+        val statusDisplayOptions = StatusDisplayOptions(
+                animateAvatars = preferences.getBoolean("animateGifAvatars", false),
+                mediaPreviewEnabled = viewModel.mediaPreviewEnabled,
+                useAbsoluteTime = preferences.getBoolean("absoluteTimeView", false),
+                showBotOverlay = preferences.getBoolean("showBotOverlay", true),
+                useBlurhash = preferences.getBoolean("useBlurhash", true)
+        )
 
         searchRecyclerView.addItemDecoration(DividerItemDecoration(searchRecyclerView.context, DividerItemDecoration.VERTICAL))
         searchRecyclerView.layoutManager = LinearLayoutManager(searchRecyclerView.context)
-        return SearchStatusesAdapter(useAbsoluteTime, viewModel.mediaPreviewEnabled, showBotOverlay, animateAvatar, this)
+        return SearchStatusesAdapter(statusDisplayOptions, this)
     }
 
 
@@ -195,14 +205,14 @@ class SearchStatusesFragment : SearchFragment<Pair<Status, StatusViewData.Concre
             mentionedUsernames.add(username)
         }
         mentionedUsernames.remove(loggedInUsername)
-        val intent = ComposeActivity.IntentBuilder()
-                .inReplyToId(inReplyToId)
-                .replyVisibility(replyVisibility)
-                .contentWarning(contentWarning)
-                .mentionedUsernames(mentionedUsernames)
-                .replyingStatusAuthor(actionableStatus.account.localUsername)
-                .replyingStatusContent(actionableStatus.content.toString())
-                .build(context)
+        val intent = ComposeActivity.startIntent(context!!, ComposeOptions(
+                inReplyToId = inReplyToId,
+                replyVisibility = replyVisibility,
+                contentWarning = contentWarning,
+                mentionedUsernames = mentionedUsernames,
+                replyingStatusAuthor = actionableStatus.account.localUsername,
+                replyingStatusContent = actionableStatus.content.toString()
+        ))
         requireActivity().startActivity(intent)
     }
 
@@ -398,24 +408,24 @@ class SearchStatusesFragment : SearchFragment<Pair<Status, StatusViewData.Concre
                         viewModel.deleteStatus(id)
                                 .observeOn(AndroidSchedulers.mainThread())
                                 .autoDispose(from(this, Lifecycle.Event.ON_DESTROY))
-                                .subscribe ({ deletedStatus ->
+                                .subscribe({ deletedStatus ->
                                     removeItem(position)
 
-                                    val redraftStatus = if(deletedStatus.isEmpty()) {
+                                    val redraftStatus = if (deletedStatus.isEmpty()) {
                                         status.toDeletedStatus()
                                     } else {
                                         deletedStatus
                                     }
 
-                                    val intent = ComposeActivity.IntentBuilder()
-                                            .tootText(redraftStatus.text)
-                                            .inReplyToId(redraftStatus.inReplyToId)
-                                            .visibility(redraftStatus.visibility)
-                                            .contentWarning(redraftStatus.spoilerText)
-                                            .mediaAttachments(redraftStatus.attachments)
-                                            .sensitive(redraftStatus.sensitive)
-                                            .poll(redraftStatus.poll?.toNewPoll(status.createdAt))
-                                            .build(context)
+                                    val intent = ComposeActivity.startIntent(context!!, ComposeOptions(
+                                            tootText = redraftStatus.text ?: "",
+                                            inReplyToId = redraftStatus.inReplyToId,
+                                            visibility = redraftStatus.visibility,
+                                            contentWarning = redraftStatus.spoilerText,
+                                            mediaAttachments = redraftStatus.attachments,
+                                            sensitive = redraftStatus.sensitive,
+                                            poll = redraftStatus.poll?.toNewPoll(status.createdAt)
+                                    ))
                                     startActivity(intent)
                                 }, { error ->
                                     Log.w("SearchStatusesFragment", "error deleting status", error)
