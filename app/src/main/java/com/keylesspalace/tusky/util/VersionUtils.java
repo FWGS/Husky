@@ -25,8 +25,10 @@ public class VersionUtils {
     private int major;
     private int minor;
     private int patch;
+    private String versionString;
 
     public VersionUtils(@NonNull String versionString) {
+        this.versionString = versionString;
         String regex = "([0-9]+)\\.([0-9]+)\\.([0-9]+).*";
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(versionString);
@@ -41,4 +43,7 @@ public class VersionUtils {
         return (major == 2) ? ( (minor == 7) ? (patch >= 0) : (minor > 7) ) : (major > 2);
     }
 
+    public boolean isPleroma() {
+        return versionString.contains(" (compatible; Pleroma ");
+    }
 }

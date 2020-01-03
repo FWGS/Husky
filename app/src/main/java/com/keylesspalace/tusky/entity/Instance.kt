@@ -43,10 +43,6 @@ data class Instance (
         val instance = other as Instance?
         return instance?.uri.equals(uri)
     }
-    
-    fun isPleroma(): Boolean {
-        return version.contains(" (compatible; Pleroma ");
-    }
 }
 
 data class PollLimits (
