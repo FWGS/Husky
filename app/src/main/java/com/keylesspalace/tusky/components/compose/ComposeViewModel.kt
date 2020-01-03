@@ -70,7 +70,7 @@ class ComposeViewModel
                 pollMaxOptions = instance?.maxPollOptions ?: DEFAULT_MAX_OPTION_COUNT,
                 pollMaxLength = instance?.maxPollOptionLength ?: DEFAULT_MAX_OPTION_LENGTH,
                 supportsScheduled = instance?.version?.let { VersionUtils(it).supportsScheduledToots() } ?: false,
-                supportsFormatting = instance?.version?.let { VersionUtils(it).isPleroma() } ?: false
+                supportsFormatting = instance?.version?.let { VersionUtils(it).isPleroma() } ?: false,
                 hasNoAttachmentLimits = instance?.version?.let { VersionUtils(it).isPleroma() } ?: false
         )
     }
@@ -459,5 +459,5 @@ data class ComposeInstanceParams(
         val pollMaxLength: Int,
         val supportsScheduled: Boolean,
         val supportsFormatting: Boolean,
-        val hasNoAttachmentLimits: Boolean,
+        val hasNoAttachmentLimits: Boolean
 )
