@@ -323,14 +323,7 @@ public abstract class AppDatabase extends RoomDatabase {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase database) {
             database.execSQL("ALTER TABLE `InstanceEntity` ADD COLUMN `version` TEXT");
-        }
-    };
-    
-    public static final Migration MIGRATION_20_21 = new Migration(20, 21) {
-        @Override
-        public void migrate(@NonNull SupportSQLiteDatabase database) {
             database.execSQL("ALTER TABLE `TootEntity` ADD COLUMN `markdownMode` INTEGER");
         }
     };
-
 }
