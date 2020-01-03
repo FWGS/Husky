@@ -388,6 +388,7 @@
             android:contentDescription="@string/action_markdown"
             android:padding="4dp"
             android:tooltipText="@string/action_markdown"
+			android:visibility="gone"
             app:srcCompat="@drawable/ic_markdown" />
 
         <Space
