@@ -157,6 +157,7 @@ class ComposeActivity : BaseActivity(),
             if (!tootText.isNullOrEmpty()) {
                 composeEditField.setText(tootText)
             }
+            enableMarkdownMode(composeOptions?.markdownMode ?: false);
         }
 
         if (!TextUtils.isEmpty(composeOptions?.scheduledAt)) {
@@ -1018,7 +1019,8 @@ class ComposeActivity : BaseActivity(),
             var mediaAttachments: List<Attachment>? = null,
             var scheduledAt: String? = null,
             var sensitive: Boolean? = null,
-            var poll: NewPoll? = null
+            var poll: NewPoll? = null,
+            var markdownMode: Boolean? = null
     ) : Parcelable
 
     companion object {
