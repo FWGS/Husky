@@ -290,6 +290,14 @@ class ComposeActivity : BaseActivity(),
             composeEditField.setLayerType(View.LAYER_TYPE_SOFTWARE, null)
         }
     }
+    
+    private fun reenableAttachments() {
+        // in case of we already had disabled attachments
+        // but got information about extension later
+        enableButton(composeAddMediaButton, true, true)
+        if(viewModel.poll == null)
+            enablePollButton(true)
+    }
 
     private fun subscribeToUpdates(mediaAdapter: MediaPreviewAdapter) {
         withLifecycleContext {
@@ -298,6 +306,8 @@ class ComposeActivity : BaseActivity(),
                 updateVisibleCharactersLeft()
                 composeScheduleButton.visible(instanceData.supportsScheduled)
                 composeMarkdownButton.visible(instanceData.supportsFormatting)
+                if(instanceData.hasNoAttachmentLimits)
+                    reenableAttachments()
             }
             viewModel.emoji.observe { emoji -> setEmojiList(emoji) }
             combineLiveData(viewModel.markMediaAsSensitive, viewModel.showContentWarning) { markSensitive, showContentWarning ->
@@ -325,9 +335,9 @@ class ComposeActivity : BaseActivity(),
                 updateScheduleButton()
             }
             combineOptionalLiveData(viewModel.media, viewModel.poll) { media, poll ->
-                val active = poll == null
+                val active = viewModel.instanceParams.value!!.hasNoAttachmentLimits || (poll == null
                         && media!!.size != 4
-                        && media.firstOrNull()?.type != QueuedMedia.Type.VIDEO
+                        && media.firstOrNull()?.type != QueuedMedia.Type.VIDEO)
                 enableButton(composeAddMediaButton, active, active)
                 enablePollButton(media.isNullOrEmpty())
             }.subscribe()
