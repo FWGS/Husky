@@ -85,6 +85,7 @@ import javax.inject.Inject
 import kotlin.collections.ArrayList
 import kotlin.math.max
 import kotlin.math.min
+import me.thanel.markdownedit.MarkdownEdit
 
 class ComposeActivity : BaseActivity(),
         ComposeOptionsListener,
@@ -295,6 +296,7 @@ class ComposeActivity : BaseActivity(),
                 maximumTootCharacters = instanceData.maxChars
                 updateVisibleCharactersLeft()
                 composeScheduleButton.visible(instanceData.supportsScheduled)
+                composeMarkdownButton.visible(instanceData.supportsFormatting)
             }
             viewModel.emoji.observe { emoji -> setEmojiList(emoji) }
             combineLiveData(viewModel.markMediaAsSensitive, viewModel.showContentWarning) { markSensitive, showContentWarning ->
@@ -354,8 +356,14 @@ class ComposeActivity : BaseActivity(),
         composeHideMediaButton.setOnClickListener { toggleHideMedia() }
         composeScheduleButton.setOnClickListener { onScheduleClick() }
         composeScheduleView.setResetOnClickListener { resetSchedule() }
+        composeMarkdownButton.setOnClickListener { toggleMarkdownMode() }
         atButton.setOnClickListener { atButtonClicked() }
         hashButton.setOnClickListener { hashButtonClicked() }
+        codeButton.setOnClickListener { codeButtonClicked() }
+        linkButton.setOnClickListener { linkButtonClicked() }
+        strikethroughButton.setOnClickListener { strikethroughButtonClicked() }
+        italicButton.setOnClickListener { italicButtonClicked() }
+        boldButton.setOnClickListener { boldButtonClicked() }
 
         val textColor = ThemeUtils.getColor(this, android.R.attr.textColorTertiary)
 
@@ -412,6 +420,26 @@ class ComposeActivity : BaseActivity(),
         // Set the cursor after the inserted text
         composeEditField.setSelection(start + text.length)
     }
+    
+    private fun toggleMarkdownMode() {
+        viewModel.toggleMarkdownMode()
+        
+        enableMarkdownWYSIWYGButtons(viewModel.markdownMode)
+        
+        TransitionManager.beginDelayedTransition(composeMarkdownButton.parent as ViewGroup);
+        
+        @ColorInt val color = ThemeUtils.getColor(this, if(viewModel.markdownMode) R.attr.colorPrimary else android.R.attr.textColorTertiary);
+        composeMarkdownButton.drawable.colorFilter = PorterDuffColorFilter(color, PorterDuff.Mode.SRC_IN);
+    }
+    
+    private fun enableMarkdownWYSIWYGButtons(visible: Boolean) {
+        val visibility = if(visible) View.VISIBLE else View.GONE
+        codeButton.visibility = visibility
+        linkButton.visibility = visibility
+        strikethroughButton.visibility = visibility
+        italicButton.visibility = visibility
+        boldButton.visibility = visibility
+    }
 
     private fun atButtonClicked() {
         replaceTextAtCaret("@")
@@ -419,6 +447,26 @@ class ComposeActivity : BaseActivity(),
 
     private fun hashButtonClicked() {
         replaceTextAtCaret("#")
+    }
+    
+    private fun codeButtonClicked() {
+        MarkdownEdit.addCode(composeEditField);
+    }
+    
+    private fun linkButtonClicked() {
+        MarkdownEdit.addLink(composeEditField);
+    }
+    
+    private fun strikethroughButtonClicked() {
+        MarkdownEdit.addStrikeThrough(composeEditField);
+    }
+    
+    private fun italicButtonClicked() {
+        MarkdownEdit.addItalic(composeEditField);
+    }
+    
+    private fun boldButtonClicked() {
+        MarkdownEdit.addBold(composeEditField);
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -430,6 +478,7 @@ class ComposeActivity : BaseActivity(),
         currentInputContentInfo = null
         currentFlags = 0
         outState.putParcelable("photoUploadUri", photoUploadUri)
+        outState.putParcelable("markdownMode", viewModel.markdownMode)
         super.onSaveInstanceState(outState)
     }
 
@@ -485,6 +534,7 @@ class ComposeActivity : BaseActivity(),
         composeEmojiButton.isClickable = enable
         composeHideMediaButton.isClickable = enable
         composeScheduleButton.isClickable = enable
+        composeMarkdownButton.isClickable = enable
         composeTootButton.isEnabled = enable
     }
 

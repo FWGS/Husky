@@ -61,15 +61,17 @@ class ComposeViewModel
     private var startingContentWarning: String? = null
     private var inReplyToId: String? = null
     private var startingVisibility: Status.Visibility = Status.Visibility.UNKNOWN
-
     private val instance: MutableLiveData<InstanceEntity?> = MutableLiveData()
+    public val markdownMode: Boolean = false
 
     val instanceParams: LiveData<ComposeInstanceParams> = instance.map { instance ->
         ComposeInstanceParams(
                 maxChars = instance?.maximumTootCharacters ?: DEFAULT_CHARACTER_LIMIT,
                 pollMaxOptions = instance?.maxPollOptions ?: DEFAULT_MAX_OPTION_COUNT,
                 pollMaxLength = instance?.maxPollOptionLength ?: DEFAULT_MAX_OPTION_LENGTH,
-                supportsScheduled = instance?.version?.let { VersionUtils(it).supportsScheduledToots() } ?: false
+                supportsScheduled = instance?.version?.let { VersionUtils(it).supportsScheduledToots() } ?: false,
+                supportsFormatting = instance?.version?.let { VersionUtils(it).isPleroma() } ?: false
+                hasNoAttachmentLimits = instance?.version?.let { VersionUtils(it).isPleroma() } ?: false
         )
     }
     val emoji: MutableLiveData<List<Emoji>?> = MutableLiveData()
@@ -84,6 +86,10 @@ class ComposeViewModel
     val showContentWarning = mutableLiveData(false)
     val poll: MutableLiveData<NewPoll?> = mutableLiveData(null)
     val scheduledAt: MutableLiveData<String?> = mutableLiveData(null)
+    
+    fun toggleMarkdownMode() {
+        this.markdownMode = !this.markdownMode!!
+    }
 
     val media = mutableLiveData<List<QueuedMedia>>(listOf())
     val uploadError = MutableLiveData<Throwable>()
@@ -219,7 +225,8 @@ class ComposeViewModel
                 replyingStatusContent,
                 replyingStatusAuthor,
                 statusVisibility.value!!,
-                poll.value
+                poll.value,
+                markdownMode
         )
     }
 
@@ -257,6 +264,7 @@ class ComposeViewModel
                             poll = poll.value,
                             replyingStatusContent = null,
                             replyingStatusAuthorUsername = null,
+                            markdownMode = markdownMode,
                             savedJsonUrls = null,
                             accountId = accountManager.activeAccount!!.id,
                             savedTootUid = 0,
@@ -449,5 +457,7 @@ data class ComposeInstanceParams(
         val maxChars: Int,
         val pollMaxOptions: Int,
         val pollMaxLength: Int,
-        val supportsScheduled: Boolean
+        val supportsScheduled: Boolean,
+        val supportsFormatting: Boolean,
+        val hasNoAttachmentLimits: Boolean,
 )
