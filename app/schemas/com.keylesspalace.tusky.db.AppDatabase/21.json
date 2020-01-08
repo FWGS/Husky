@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 21,
-    "identityHash": "7570c84ffeb4f90521f91dc7ef3e7da1",
+    "identityHash": "f0db2430c0e36a26264ffb4ac5bb20de",
     "entities": [
       {
         "tableName": "TootEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uid` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `text` TEXT, `urls` TEXT, `descriptions` TEXT, `contentWarning` TEXT, `inReplyToId` TEXT, `inReplyToText` TEXT, `inReplyToUsername` TEXT, `visibility` INTEGER, `poll` TEXT)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uid` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `text` TEXT, `urls` TEXT, `descriptions` TEXT, `contentWarning` TEXT, `inReplyToId` TEXT, `inReplyToText` TEXT, `inReplyToUsername` TEXT, `visibility` INTEGER, `poll` TEXT, `markdownMode` INTEGER)",
         "fields": [
           {
             "fieldPath": "uid",
@@ -66,6 +66,12 @@
             "fieldPath": "poll",
             "columnName": "poll",
             "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "markdownMode",
+            "columnName": "markdownMode",
+            "affinity": "INTEGER",
             "notNull": false
           }
         ],
@@ -723,7 +729,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '7570c84ffeb4f90521f91dc7ef3e7da1')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'f0db2430c0e36a26264ffb4ac5bb20de')"
     ]
   }
 }
