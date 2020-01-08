@@ -13,7 +13,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ToggleButton;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
@@ -23,6 +22,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.google.android.material.button.MaterialButton;
 import com.keylesspalace.tusky.R;
 import com.keylesspalace.tusky.entity.Attachment;
 import com.keylesspalace.tusky.entity.Attachment.Focus;
@@ -73,7 +73,7 @@ public abstract class StatusBaseViewHolder extends RecyclerView.ViewHolder {
     private TextView sensitiveMediaWarning;
     private View sensitiveMediaShow;
     protected TextView[] mediaLabels;
-    private ToggleButton contentWarningButton;
+    private MaterialButton contentWarningButton;
     private ImageView avatarInset;
 
     public ImageView avatar;
@@ -87,7 +87,6 @@ public abstract class StatusBaseViewHolder extends RecyclerView.ViewHolder {
 
     private PollAdapter pollAdapter;
 
-    private boolean useAbsoluteTime;
     private SimpleDateFormat shortSdf;
     private SimpleDateFormat longSdf;
 
@@ -111,6 +110,8 @@ public abstract class StatusBaseViewHolder extends RecyclerView.ViewHolder {
         favouriteButton = itemView.findViewById(R.id.status_favourite);
         bookmarkButton = itemView.findViewById(R.id.status_bookmark);
         moreButton = itemView.findViewById(R.id.status_more);
+
+        itemView.findViewById(R.id.status_media_preview_container).setClipToOutline(true);
 
         mediaPreviews = new MediaPreviewImageView[]{
                 itemView.findViewById(R.id.status_media_preview_0),
@@ -145,7 +146,6 @@ public abstract class StatusBaseViewHolder extends RecyclerView.ViewHolder {
         pollOptions.setLayoutManager(new LinearLayoutManager(pollOptions.getContext()));
         ((DefaultItemAnimator) pollOptions.getItemAnimator()).setSupportsChangeAnimations(false);
 
-        this.useAbsoluteTime = useAbsoluteTime;
         this.shortSdf = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
         this.longSdf = new SimpleDateFormat("MM/dd HH:mm:ss", Locale.getDefault());
 
@@ -173,7 +173,7 @@ public abstract class StatusBaseViewHolder extends RecyclerView.ViewHolder {
     }
 
     public void toggleContentWarning() {
-        contentWarningButton.toggle();
+        contentWarningButton.performClick();
     }
 
     protected void setSpoilerAndContent(boolean expanded,
@@ -182,25 +182,36 @@ public abstract class StatusBaseViewHolder extends RecyclerView.ViewHolder {
                                         @Nullable Status.Mention[] mentions,
                                         @NonNull List<Emoji> emojis,
                                         @Nullable PollViewData poll,
+                                        @NonNull StatusDisplayOptions statusDisplayOptions,
                                         final StatusActionListener listener) {
         if (TextUtils.isEmpty(spoilerText)) {
             contentWarningDescription.setVisibility(View.GONE);
             contentWarningButton.setVisibility(View.GONE);
-            this.setTextVisible(true, content, mentions, emojis, poll, listener);
+            this.setTextVisible(true, content, mentions, emojis, poll, statusDisplayOptions, listener);
         } else {
             CharSequence emojiSpoiler = CustomEmojiHelper.emojifyString(spoilerText, emojis, contentWarningDescription);
             contentWarningDescription.setText(emojiSpoiler);
             contentWarningDescription.setVisibility(View.VISIBLE);
             contentWarningButton.setVisibility(View.VISIBLE);
-            contentWarningButton.setChecked(expanded);
-            contentWarningButton.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            setContentWarningButtonText(expanded);
+            contentWarningButton.setOnClickListener( view -> {
                 contentWarningDescription.invalidate();
                 if (getAdapterPosition() != RecyclerView.NO_POSITION) {
-                    listener.onExpandedChange(isChecked, getAdapterPosition());
+                    listener.onExpandedChange(!expanded, getAdapterPosition());
                 }
-                this.setTextVisible(isChecked, content, mentions, emojis, poll, listener);
+                setContentWarningButtonText(!expanded);
+
+                this.setTextVisible(!expanded, content, mentions, emojis, poll, statusDisplayOptions, listener);
             });
-            this.setTextVisible(expanded, content, mentions, emojis, poll, listener);
+            this.setTextVisible(expanded, content, mentions, emojis, poll, statusDisplayOptions, listener);
+        }
+    }
+
+    private void setContentWarningButtonText(boolean expanded) {
+        if(expanded) {
+            contentWarningButton.setText(R.string.status_content_warning_show_less);
+        } else {
+            contentWarningButton.setText(R.string.status_content_warning_show_more);
         }
     }
 
@@ -209,12 +220,13 @@ public abstract class StatusBaseViewHolder extends RecyclerView.ViewHolder {
                                 Status.Mention[] mentions,
                                 List<Emoji> emojis,
                                 @Nullable PollViewData poll,
+                                StatusDisplayOptions statusDisplayOptions,
                                 final StatusActionListener listener) {
         if (expanded) {
             Spanned emojifiedText = CustomEmojiHelper.emojifyText(content, emojis, this.content);
             LinkHelper.setClickableText(this.content, emojifiedText, mentions, listener);
             if (poll != null) {
-                setupPoll(poll, emojis, listener);
+                setupPoll(poll, emojis, statusDisplayOptions, listener);
             } else {
                 hidePoll();
             }
@@ -274,8 +286,8 @@ public abstract class StatusBaseViewHolder extends RecyclerView.ViewHolder {
 
     }
 
-    protected void setCreatedAt(Date createdAt) {
-        if (useAbsoluteTime) {
+    protected void setCreatedAt(Date createdAt, StatusDisplayOptions statusDisplayOptions) {
+        if (statusDisplayOptions.useAbsoluteTime()) {
             timestampInfo.setText(getAbsoluteTime(createdAt));
         } else {
             if (createdAt == null) {
@@ -300,8 +312,9 @@ public abstract class StatusBaseViewHolder extends RecyclerView.ViewHolder {
         }
     }
 
-    private CharSequence getCreatedAtDescription(Date createdAt) {
-        if (useAbsoluteTime) {
+    private CharSequence getCreatedAtDescription(Date createdAt,
+                                                 StatusDisplayOptions statusDisplayOptions) {
+        if (statusDisplayOptions.useAbsoluteTime()) {
             return getAbsoluteTime(createdAt);
         } else {
             /* This one is for screen-readers. Frequently, they would mispronounce timestamps like "17m"
@@ -470,15 +483,11 @@ public abstract class StatusBaseViewHolder extends RecyclerView.ViewHolder {
             setAttachmentClickListener(imageView, listener, i, attachment, true);
         }
 
-
-        final String hiddenContentText;
         if (sensitive) {
-            hiddenContentText = context.getString(R.string.status_sensitive_media_title);
+            sensitiveMediaWarning.setText(R.string.status_sensitive_media_title);
         } else {
-            hiddenContentText = context.getString(R.string.status_media_hidden_title);
+            sensitiveMediaWarning.setText(R.string.status_media_hidden_title);
         }
-
-        sensitiveMediaWarning.setText(HtmlUtils.fromHtml(hiddenContentText));
 
         sensitiveMediaWarning.setVisibility(showingContent ? View.GONE : View.VISIBLE);
         sensitiveMediaShow.setVisibility(showingContent ? View.VISIBLE : View.GONE);
@@ -646,7 +655,7 @@ public abstract class StatusBaseViewHolder extends RecyclerView.ViewHolder {
         if (payloads == null) {
             setDisplayName(status.getUserFullName(), status.getAccountEmojis());
             setUsername(status.getNickname());
-            setCreatedAt(status.getCreatedAt());
+            setCreatedAt(status.getCreatedAt(), statusDisplayOptions);
             setIsReply(status.getInReplyToId() != null);
             setAvatar(status.getAvatar(), status.getRebloggedAvatar(), status.isBot(), statusDisplayOptions);
             setReblogged(status.isReblogged());
@@ -677,9 +686,9 @@ public abstract class StatusBaseViewHolder extends RecyclerView.ViewHolder {
             setupButtons(listener, status.getSenderId());
             setRebloggingEnabled(status.getRebloggingEnabled(), status.getVisibility());
 
-            setSpoilerAndContent(status.isExpanded(), status.getContent(), status.getSpoilerText(), status.getMentions(), status.getStatusEmojis(), status.getPoll(), listener);
+            setSpoilerAndContent(status.isExpanded(), status.getContent(), status.getSpoilerText(), status.getMentions(), status.getStatusEmojis(), status.getPoll(), statusDisplayOptions, listener);
 
-            setDescriptionForStatus(status);
+            setDescriptionForStatus(status, statusDisplayOptions);
 
             // Workaround for RecyclerView 1.0.0 / androidx.core 1.0.0
             // RecyclerView tries to set AccessibilityDelegateCompat to null
@@ -691,7 +700,7 @@ public abstract class StatusBaseViewHolder extends RecyclerView.ViewHolder {
             if (payloads instanceof List)
                 for (Object item : (List) payloads) {
                     if (Key.KEY_CREATED.equals(item)) {
-                        setCreatedAt(status.getCreatedAt());
+                        setCreatedAt(status.getCreatedAt(), statusDisplayOptions);
                     }
                 }
 
@@ -707,14 +716,15 @@ public abstract class StatusBaseViewHolder extends RecyclerView.ViewHolder {
         return false;
     }
 
-    private void setDescriptionForStatus(@NonNull StatusViewData.Concrete status) {
+    private void setDescriptionForStatus(@NonNull StatusViewData.Concrete status,
+                                         StatusDisplayOptions statusDisplayOptions) {
         Context context = itemView.getContext();
 
         String description = context.getString(R.string.description_status,
                 status.getUserFullName(),
                 getContentWarningDescription(context, status),
                 (TextUtils.isEmpty(status.getSpoilerText()) || !status.isSensitive() || status.isExpanded() ? status.getContent() : ""),
-                getCreatedAtDescription(status.getCreatedAt()),
+                getCreatedAtDescription(status.getCreatedAt(), statusDisplayOptions),
                 getReblogDescription(context, status),
                 status.getNickname(),
                 status.isReblogged() ? context.getString(R.string.description_status_reblogged) : "",
@@ -724,7 +734,7 @@ public abstract class StatusBaseViewHolder extends RecyclerView.ViewHolder {
                 getVisibilityDescription(context, status.getVisibility()),
                 getFavsText(context, status.getFavouritesCount()),
                 getReblogsText(context, status.getReblogsCount()),
-                getPollDescription(context, status)
+                getPollDescription(status, context, statusDisplayOptions)
         );
         itemView.setContentDescription(description);
     }
@@ -796,8 +806,9 @@ public abstract class StatusBaseViewHolder extends RecyclerView.ViewHolder {
         return context.getString(resource);
     }
 
-    private CharSequence getPollDescription(Context context,
-                                            @NonNull StatusViewData.Concrete status) {
+    private CharSequence getPollDescription(@NonNull StatusViewData.Concrete status,
+                                            Context context,
+                                            StatusDisplayOptions statusDisplayOptions) {
         PollViewData poll = status.getPoll();
         if (poll == null) {
             return "";
@@ -812,7 +823,8 @@ public abstract class StatusBaseViewHolder extends RecyclerView.ViewHolder {
                     args[i] = "";
                 }
             }
-            args[4] = getPollInfoText(System.currentTimeMillis(), poll, context);
+            args[4] = getPollInfoText(System.currentTimeMillis(), poll, statusDisplayOptions,
+                    context);
             return context.getString(R.string.description_poll, args);
         }
     }
@@ -835,7 +847,9 @@ public abstract class StatusBaseViewHolder extends RecyclerView.ViewHolder {
         }
     }
 
-    private void setupPoll(PollViewData poll, List<Emoji> emojis, StatusActionListener listener) {
+    private void setupPoll(PollViewData poll, List<Emoji> emojis,
+                           StatusDisplayOptions statusDisplayOptions,
+                           StatusActionListener listener) {
         long timestamp = System.currentTimeMillis();
 
         boolean expired = poll.getExpired() || (poll.getExpiresAt() != null && timestamp > poll.getExpiresAt().getTime());
@@ -872,10 +886,12 @@ public abstract class StatusBaseViewHolder extends RecyclerView.ViewHolder {
         }
 
         pollDescription.setVisibility(View.VISIBLE);
-        pollDescription.setText(getPollInfoText(timestamp, poll, context));
+        pollDescription.setText(getPollInfoText(timestamp, poll, statusDisplayOptions, context));
     }
 
-    private CharSequence getPollInfoText(long timestamp, PollViewData poll, Context context) {
+    private CharSequence getPollInfoText(long timestamp, PollViewData poll,
+                                         StatusDisplayOptions statusDisplayOptions,
+                                         Context context) {
         String votes = numberFormat.format(poll.getVotesCount());
         String votesText = context.getResources().getQuantityString(R.plurals.poll_info_votes, poll.getVotesCount(), votes);
         CharSequence pollDurationInfo;
@@ -884,7 +900,7 @@ public abstract class StatusBaseViewHolder extends RecyclerView.ViewHolder {
         } else if (poll.getExpiresAt() == null) {
             return votesText;
         } else {
-            if (useAbsoluteTime) {
+            if (statusDisplayOptions.useAbsoluteTime()) {
                 pollDurationInfo = context.getString(R.string.poll_info_time_absolute, getAbsoluteTime(poll.getExpiresAt()));
             } else {
                 String pollDuration = TimestampUtils.formatPollDuration(pollDescription.getContext(), poll.getExpiresAt().getTime(), timestamp);

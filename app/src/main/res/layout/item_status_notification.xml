@@ -84,7 +84,7 @@
         android:textSize="?attr/status_text_medium"
         tools:text="Example CW text" />
 
-    <ToggleButton
+    <Button
         android:id="@+id/notification_content_warning_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -92,7 +92,6 @@
         android:layout_marginTop="4dp"
         android:layout_marginBottom="4dp"
         android:layout_toEndOf="@id/notification_status_avatar"
-        android:background="?attr/content_warning_button"
         android:minWidth="150dp"
         android:minHeight="0dp"
         android:paddingLeft="16dp"
@@ -100,8 +99,8 @@
         android:paddingRight="16dp"
         android:paddingBottom="4dp"
         android:textAllCaps="true"
-        android:textOff="@string/status_content_warning_show_more"
-        android:textOn="@string/status_content_warning_show_less"
+        tools:text="@string/status_content_warning_show_more"
+        style="@style/TuskyButton.Outlined"
         android:textSize="?attr/status_text_medium" />
 
     <androidx.emoji.widget.EmojiTextView
@@ -117,8 +116,7 @@
         android:textSize="?attr/status_text_medium"
         tools:text="Example status here" />
 
-
-    <ToggleButton
+    <Button
         android:id="@+id/button_toggle_notification_content"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -126,7 +124,6 @@
         android:layout_marginTop="4dp"
         android:layout_marginBottom="4dp"
         android:layout_toEndOf="@id/notification_status_avatar"
-        android:background="?attr/content_warning_button"
         android:minWidth="150dp"
         android:minHeight="0dp"
         android:paddingLeft="16dp"
@@ -134,8 +131,8 @@
         android:paddingRight="16dp"
         android:paddingBottom="4dp"
         android:textAllCaps="true"
-        android:textOff="@string/status_content_show_less"
-        android:textOn="@string/status_content_show_more"
+        tools:text="@string/status_content_show_less"
+        style="@style/TuskyButton.Outlined"
         android:textSize="?attr/status_text_medium"
         android:visibility="gone" />
 
