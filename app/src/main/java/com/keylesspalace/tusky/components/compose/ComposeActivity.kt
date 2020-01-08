@@ -291,12 +291,13 @@ class ComposeActivity : BaseActivity(),
         }
     }
     
+    private var hasNoAttachmentLimits: Boolean = false
     private fun reenableAttachments() {
         // in case of we already had disabled attachments
         // but got information about extension later
         enableButton(composeAddMediaButton, true, true)
-        if(viewModel.poll == null)
-            enablePollButton(true)
+        enablePollButton(viewModel.poll == null)
+        hasNoAttachmentLimits = true
     }
 
     private fun subscribeToUpdates(mediaAdapter: MediaPreviewAdapter) {
@@ -335,11 +336,11 @@ class ComposeActivity : BaseActivity(),
                 updateScheduleButton()
             }
             combineOptionalLiveData(viewModel.media, viewModel.poll) { media, poll ->
-                val active = viewModel.instanceParams.value!!.hasNoAttachmentLimits || (poll == null
+                val active = (hasNoAttachmentLimits) || (poll == null
                         && media!!.size != 4
                         && media.firstOrNull()?.type != QueuedMedia.Type.VIDEO)
                 enableButton(composeAddMediaButton, active, active)
-                enablePollButton(media.isNullOrEmpty())
+                enablePollButton(active && poll == null)
             }.subscribe()
             viewModel.uploadError.observe {
                 displayTransientError(R.string.error_media_upload_sending)
