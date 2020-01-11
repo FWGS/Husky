@@ -56,10 +56,10 @@ fun createNewImageFile(context: Context): File {
     )
 }
 
-data class PreparedMedia(val type: QueuedMedia.Type, val uri: Uri, val size: Long)
+data class PreparedMedia(val type: Int, val uri: Uri, val size: Long)
 
 interface MediaUploader {
-    fun prepareMedia(inUri: Uri): Single<PreparedMedia>
+    fun prepareMedia(inUri: Uri, hasNoLimits: Boolean): Single<PreparedMedia>
     fun uploadMedia(media: QueuedMedia): Observable<UploadEvent>
 }
 
@@ -83,7 +83,7 @@ class MediaUploaderImpl(
                 .subscribeOn(Schedulers.io())
     }
 
-    override fun prepareMedia(inUri: Uri): Single<PreparedMedia> {
+    override fun prepareMedia(inUri: Uri, hasNoLimits: Boolean): Single<PreparedMedia> {
         return Single.fromCallable {
             var mediaSize = getMediaSize(contentResolver, inUri)
             var uri = inUri
@@ -120,7 +120,7 @@ class MediaUploaderImpl(
                 val topLevelType = mimeType.substring(0, mimeType.indexOf('/'))
                 when (topLevelType) {
                     "video" -> {
-                        if (mediaSize > STATUS_VIDEO_SIZE_LIMIT) {
+                        if (!hasNoLimits && mediaSize > STATUS_VIDEO_SIZE_LIMIT) {
                             throw VideoSizeException()
                         }
                         PreparedMedia(QueuedMedia.Type.VIDEO, uri, mediaSize)
@@ -129,7 +129,8 @@ class MediaUploaderImpl(
                         PreparedMedia(QueuedMedia.Type.IMAGE, uri, mediaSize)
                     }
                     else -> {
-                        throw MediaTypeException()
+                        PreparedMedia(QueuedMedia.Type.UNKNOWN, uri, mediaSize)
+                        // throw MediaTypeException()
                     }
                 }
             } else {
@@ -139,17 +140,17 @@ class MediaUploaderImpl(
     }
 
     private val contentResolver = context.contentResolver
-
+    
     private fun upload(media: QueuedMedia): Observable<UploadEvent> {
         return Observable.create { emitter ->
             var mimeType = contentResolver.getType(media.uri)
             val map = MimeTypeMap.getSingleton()
             val fileExtension = map.getExtensionFromMimeType(mimeType)
             val filename = String.format("%s_%s_%s.%s",
-                    context.getString(R.string.app_name),
-                    Date().time.toString(),
-                    randomAlphanumericString(10),
-                    fileExtension)
+                        context.getString(R.string.app_name),
+                        Date().time.toString(),
+                        randomAlphanumericString(10),
+                        fileExtension)
 
             val stream = contentResolver.openInputStream(media.uri)
 
@@ -188,7 +189,7 @@ class MediaUploaderImpl(
     }
 
     private fun shouldResizeMedia(media: QueuedMedia): Boolean {
-        return media.type == QueuedMedia.Type.IMAGE
+        return !media.noChanges && media.type == QueuedMedia.Type.IMAGE
                 && (media.mediaSize > STATUS_IMAGE_SIZE_LIMIT
                 || getImageSquarePixels(context.contentResolver, media.uri) > STATUS_IMAGE_PIXEL_SIZE_LIMIT)
     }

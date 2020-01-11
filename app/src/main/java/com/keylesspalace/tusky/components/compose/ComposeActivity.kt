@@ -23,6 +23,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
+import android.content.ContentResolver
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffColorFilter
 import android.net.Uri
@@ -31,6 +32,7 @@ import android.os.Bundle
 import android.os.Parcelable
 import androidx.preference.PreferenceManager
 import android.provider.MediaStore
+import android.provider.OpenableColumns
 import android.text.TextUtils
 import android.util.Log
 import android.view.KeyEvent
@@ -171,6 +173,35 @@ class ComposeActivity : BaseActivity(),
 
         composeEditField.requestFocus()
     }
+    
+    private fun uriToFilename(uri: Uri): String {
+        var result: String = "unknown"
+        if(uri.scheme.equals("content")) {
+            val cursor = contentResolver.query(uri, null, null, null, null)
+            if(cursor != null) {
+                try {
+                    if(cursor.moveToFirst()) {
+                        result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME))
+                    }
+                }
+                finally {
+                    cursor.close()
+                }   
+            }
+        }
+        if(result.equals("unknown")) {
+            val path = uri.getPath()
+            if(path != null) {
+                result = path
+                val cut = result.lastIndexOf('/')
+                if (cut != -1) {
+                    result = result.substring(cut + 1)
+                }
+            }
+        }
+        return result
+    }
+            
 
     private fun applyShareIntent(intent: Intent?, savedInstanceState: Bundle?) {
         if (intent != null && savedInstanceState == null) {
@@ -831,9 +862,11 @@ class ComposeActivity : BaseActivity(),
         val intent = Intent(Intent.ACTION_GET_CONTENT)
         intent.addCategory(Intent.CATEGORY_OPENABLE)
 
-        val mimeTypes = arrayOf("image/*", "video/*")
+        if(!hasNoAttachmentLimits) {
+            val mimeTypes = arrayOf("image/*", "video/*")
+            intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes)
+        }
         intent.type = "*/*"
-        intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes)
         startActivityForResult(intent, MEDIA_PICK_RESULT)
     }
 
@@ -867,8 +900,8 @@ class ComposeActivity : BaseActivity(),
     }
 
     private fun pickMedia(uri: Uri) {
-        withLifecycleContext {
-            viewModel.pickMedia(uri).observe { exceptionOrItem ->
+         withLifecycleContext {
+            viewModel.pickMedia(uri, uriToFilename(uri)).observe { exceptionOrItem ->
                 exceptionOrItem.asLeftOrNull()?.let {
                     val errorId = when (it) {
                         is VideoSizeException -> {
@@ -991,14 +1024,18 @@ class ComposeActivity : BaseActivity(),
     data class QueuedMedia(
             val localId: Long,
             val uri: Uri,
-            val type: Type,
+            val type: Int,
             val mediaSize: Long,
+            val originalFileName: String,
+            val noChanges: Boolean = false,
             val uploadPercent: Int = 0,
             val id: String? = null,
             val description: String? = null
     ) {
-        enum class Type {
-            IMAGE, VIDEO;
+        companion object Type {
+            public const val IMAGE: Int = 0
+            public const val VIDEO: Int = 1
+            public const val UNKNOWN: Int = 2
         }
     }
 

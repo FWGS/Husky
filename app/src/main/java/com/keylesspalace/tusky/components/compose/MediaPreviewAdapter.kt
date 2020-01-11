@@ -20,6 +20,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.PopupMenu
+import android.view.Gravity
+import android.text.TextUtils
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
@@ -27,13 +29,14 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.keylesspalace.tusky.R
+import com.keylesspalace.tusky.components.compose.view.ProgressTextView
 import com.keylesspalace.tusky.components.compose.view.ProgressImageView
 
 class MediaPreviewAdapter(
         context: Context,
         private val onAddCaption: (ComposeActivity.QueuedMedia) -> Unit,
         private val onRemove: (ComposeActivity.QueuedMedia) -> Unit
-) : RecyclerView.Adapter<MediaPreviewAdapter.PreviewViewHolder>() {
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     fun submitList(list: List<ComposeActivity.QueuedMedia>) {
         this.differ.submitList(list)
@@ -60,20 +63,43 @@ class MediaPreviewAdapter(
             context.resources.getDimensionPixelSize(R.dimen.compose_media_preview_size)
 
     override fun getItemCount(): Int = differ.currentList.size
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PreviewViewHolder {
-        return PreviewViewHolder(ProgressImageView(parent.context))
+    
+    override fun getItemViewType(position: Int): Int {
+        val item = differ.currentList[position]
+        return item.type
     }
 
-    override fun onBindViewHolder(holder: PreviewViewHolder, position: Int) {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        when(viewType) {
+            ComposeActivity.QueuedMedia.Type.UNKNOWN -> {
+                return TextViewHolder(ProgressTextView(parent.context))
+            }
+            else -> {
+                return PreviewViewHolder(ProgressImageView(parent.context))
+            }
+        }
+    }
+
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val item = differ.currentList[position]
-        holder.progressImageView.setChecked(!item.description.isNullOrEmpty())
-        holder.progressImageView.setProgress(item.uploadPercent)
-        Glide.with(holder.itemView.context)
-                .load(item.uri)
-                .diskCacheStrategy(DiskCacheStrategy.NONE)
-                .dontAnimate()
-                .into(holder.progressImageView)
+        
+        when(item.type) {
+            ComposeActivity.QueuedMedia.Type.UNKNOWN -> {
+                (holder as TextViewHolder).view.setText(item.originalFileName)
+                holder.view.setChecked(!item.description.isNullOrEmpty())
+                holder.view.setProgress(item.uploadPercent)
+            }
+            else -> {
+                (holder as PreviewViewHolder).view.setChecked(!item.description.isNullOrEmpty())
+                holder.view.setProgress(item.uploadPercent)
+                
+                Glide.with(holder.itemView.context)
+                    .load(item.uri)
+                    .diskCacheStrategy(DiskCacheStrategy.NONE)
+                    .dontAnimate()
+                    .into(holder.view)
+            }
+        }
     }
 
     private val differ = AsyncListDiffer(this, object : DiffUtil.ItemCallback<ComposeActivity.QueuedMedia>() {
@@ -85,9 +111,33 @@ class MediaPreviewAdapter(
             return oldItem == newItem
         }
     })
+    
+    inner class TextViewHolder(val view: ProgressTextView)
+        : RecyclerView.ViewHolder(view) {
+            init {
+                val layoutParams = ConstraintLayout.LayoutParams(thumbnailViewSize, thumbnailViewSize)
+                val margin = itemView.context.resources
+                    .getDimensionPixelSize(R.dimen.compose_media_preview_margin)
+                val marginBottom = itemView.context.resources
+                    .getDimensionPixelSize(R.dimen.compose_media_preview_margin_bottom)
+                layoutParams.setMargins(margin, 0, margin, marginBottom)
+                view.layoutParams = layoutParams
+                view.gravity = Gravity.CENTER
+                view.setHorizontallyScrolling(true)
+                view.ellipsize = TextUtils.TruncateAt.MARQUEE
+                view.marqueeRepeatLimit = -1
+                view.setSingleLine()
+                view.setSelected(true)
+                view.maxLines = 1
+                view.textSize = 16.0f
+                view.setOnClickListener {
+                    onMediaClick(adapterPosition, view)
+                }
+            }
+        }
 
-    inner class PreviewViewHolder(val progressImageView: ProgressImageView)
-        : RecyclerView.ViewHolder(progressImageView) {
+    inner class PreviewViewHolder(val view: ProgressImageView)
+        : RecyclerView.ViewHolder(view) {
         init {
             val layoutParams = ConstraintLayout.LayoutParams(thumbnailViewSize, thumbnailViewSize)
             val margin = itemView.context.resources
@@ -95,10 +145,10 @@ class MediaPreviewAdapter(
             val marginBottom = itemView.context.resources
                     .getDimensionPixelSize(R.dimen.compose_media_preview_margin_bottom)
             layoutParams.setMargins(margin, 0, margin, marginBottom)
-            progressImageView.layoutParams = layoutParams
-            progressImageView.scaleType = ImageView.ScaleType.CENTER_CROP
-            progressImageView.setOnClickListener {
-                onMediaClick(adapterPosition, progressImageView)
+            view.layoutParams = layoutParams
+            view.scaleType = ImageView.ScaleType.CENTER_CROP
+            view.setOnClickListener {
+                onMediaClick(adapterPosition, view)
             }
         }
     }

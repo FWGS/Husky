@@ -121,19 +121,20 @@ class ComposeViewModel
                 .autoDispose()
     }
 
-    fun pickMedia(uri: Uri): LiveData<Either<Throwable, QueuedMedia>> {
+    fun pickMedia(uri: Uri, filename: String?): LiveData<Either<Throwable, QueuedMedia>> {
         // We are not calling .toLiveData() here because we don't want to stop the process when
         // the Activity goes away temporarily (like on screen rotation).
         val liveData = MutableLiveData<Either<Throwable, QueuedMedia>>()
-        mediaUploader.prepareMedia(uri)
+        mediaUploader.prepareMedia(uri, instanceParams.value!!.hasNoAttachmentLimits)
                 .map { (type, uri, size) ->
                     val mediaItems = media.value!!
-                    if (type == QueuedMedia.Type.VIDEO
+                    if (!instanceParams.value!!.hasNoAttachmentLimits
+                            && type == QueuedMedia.Type.VIDEO
                             && mediaItems.isNotEmpty()
                             && mediaItems[0].type == QueuedMedia.Type.IMAGE) {
                         throw VideoOrImageException()
                     } else {
-                        addMediaToQueue(type, uri, size)
+                        addMediaToQueue(type, uri, size, if(filename != null) filename else "unknown")
                     }
                 }
                 .subscribe({ queuedMedia ->
@@ -144,9 +145,10 @@ class ComposeViewModel
                 .autoDispose()
         return liveData
     }
-
-    private fun addMediaToQueue(type: QueuedMedia.Type, uri: Uri, mediaSize: Long): QueuedMedia {
-        val mediaItem = QueuedMedia(System.currentTimeMillis(), uri, type, mediaSize)
+    
+    private fun addMediaToQueue(type: Int, uri: Uri, mediaSize: Long, filename: String): QueuedMedia {
+        val mediaItem = QueuedMedia(System.currentTimeMillis(), uri, type, mediaSize, filename,
+            instanceParams.value!!.hasNoAttachmentLimits)
         media.value = media.value!! + mediaItem
         mediaToDisposable[mediaItem.localId] = mediaUploader
                 .uploadMedia(mediaItem)
@@ -175,8 +177,9 @@ class ComposeViewModel
         return mediaItem
     }
 
-    private fun addUploadedMedia(id: String, type: QueuedMedia.Type, uri: Uri, description: String?) {
-        val mediaItem = QueuedMedia(System.currentTimeMillis(), uri, type, 0, -1, id, description)
+    private fun addUploadedMedia(id: String, type: Int, uri: Uri, description: String?) {
+        val mediaItem = QueuedMedia(System.currentTimeMillis(), uri, type, 0, "unknown",
+            instanceParams.value!!.hasNoAttachmentLimits, -1, id, description)
         media.value = media.value!! + mediaItem
     }
 
@@ -379,7 +382,7 @@ class ComposeViewModel
         if (loadedDraftMediaUris != null && loadedDraftMediaDescriptions != null) {
             loadedDraftMediaUris.zip(loadedDraftMediaDescriptions)
                     .forEach { (uri, description) ->
-                        pickMedia(uri.toUri()).observeForever { errorOrItem ->
+                        pickMedia(uri.toUri(), null).observeForever { errorOrItem ->
                             if (errorOrItem.isRight() && description != null) {
                                 updateDescription(errorOrItem.asRight().localId, description)
                             }
