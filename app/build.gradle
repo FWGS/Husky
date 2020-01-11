@@ -59,6 +59,7 @@ android {
 
     lintOptions {
         disable 'MissingTranslation'
+        disable 'ExtraTranslation'
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
