@@ -8,6 +8,10 @@ Husky is a fork of Tusky that aimed to support [Pleroma's Mastodon API extension
 - Support for attaching anything on Pleroma
 - Support for changing OAuth application name
 - Markdown support with WYSIWYG editor
+- Support for extended accounts fields, so you can see who is admin or moderator on your instance
+- Subscribing support to annoy you with incoming notification from every post
+- Support for seen notifications to less annoy you
+- "Reply to" feature that allows to jump to replied status, useful for hellthreading ;)
 - Bigger emojis!
 
 Note on Mastodon support: \
