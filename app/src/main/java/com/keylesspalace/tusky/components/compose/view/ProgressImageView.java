@@ -32,7 +32,7 @@ import android.util.AttributeSet;
 import com.keylesspalace.tusky.R;
 import at.connyduck.sparkbutton.helpers.Utils;
 
-public final class ProgressImageView extends AppCompatImageView implements IProgressView {
+public final class ProgressImageView extends AppCompatImageView {
 
     private int progress = -1;
     private final RectF progressRect = new RectF();
@@ -70,7 +70,6 @@ public final class ProgressImageView extends AppCompatImageView implements IProg
         captionDrawable = AppCompatResources.getDrawable(getContext(), R.drawable.spellcheck);
     }
 
-    @Override
     public void setProgress(int progress) {
         this.progress = progress;
         if (progress != -1) {
@@ -81,7 +80,6 @@ public final class ProgressImageView extends AppCompatImageView implements IProg
         invalidate();
     }
 
-    @Override
     public void setChecked(boolean checked) {
         this.markBgPaint.setColor(ContextCompat.getColor(getContext(),
                 checked ? R.color.tusky_blue : R.color.description_marker_unselected));
