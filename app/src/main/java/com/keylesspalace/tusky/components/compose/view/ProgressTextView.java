@@ -23,6 +23,7 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
+import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.appcompat.content.res.AppCompatResources;
@@ -32,7 +33,7 @@ import android.util.AttributeSet;
 import com.keylesspalace.tusky.R;
 import at.connyduck.sparkbutton.helpers.Utils;
 
-public final class ProgressTextView extends AppCompatTextView {
+public final class ProgressTextView extends TextView {
 
     private int progress = -1;
     private final RectF progressRect = new RectF();
@@ -84,6 +85,9 @@ public final class ProgressTextView extends AppCompatTextView {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        
+        // https://stackoverflow.com/questions/25501185/
+        canvas.translate(getScrollX(), 0);        
         
         float angle = (progress / 100f) * 360 - 90;
         float halfWidth = getWidth() / 2;
