@@ -155,6 +155,14 @@ class AccountViewModel @Inject constructor(
             changeRelationship(RelationShipAction.MUTE)
         }
     }
+    
+    fun changeSubscribingState() {
+        if (relationshipData.value?.data?.subscribing == true) {
+            changeRelationship(RelationShipAction.UNSUBSCRIBE)
+        } else {
+            changeRelationship(RelationShipAction.SUBSCRIBE)
+        }
+    }
 
     fun muteDomain(instance: String) {
         mastodonApi.blockDomain(instance).enqueue(object: Callback<Any> {
@@ -200,6 +208,8 @@ class AccountViewModel @Inject constructor(
                 RelationShipAction.UNBLOCK -> relation.copy(blocking = false)
                 RelationShipAction.MUTE -> relation.copy(muting = true)
                 RelationShipAction.UNMUTE -> relation.copy(muting = false)
+                RelationShipAction.SUBSCRIBE -> relation.copy(subscribing = true)
+                RelationShipAction.UNSUBSCRIBE -> relation.copy(subscribing = false)
             }
             relationshipData.postValue(Loading(newRelation))
         }
@@ -237,6 +247,8 @@ class AccountViewModel @Inject constructor(
             RelationShipAction.UNBLOCK -> mastodonApi.unblockAccount(accountId)
             RelationShipAction.MUTE -> mastodonApi.muteAccount(accountId)
             RelationShipAction.UNMUTE -> mastodonApi.unmuteAccount(accountId)
+            RelationShipAction.SUBSCRIBE -> mastodonApi.subscribeAccount(accountId)
+            RelationShipAction.UNSUBSCRIBE -> mastodonApi.unsubscribeAccount(accountId)
         }
 
         call.enqueue(callback)
@@ -274,7 +286,7 @@ class AccountViewModel @Inject constructor(
     }
 
     enum class RelationShipAction {
-        FOLLOW, UNFOLLOW, BLOCK, UNBLOCK, MUTE, UNMUTE
+        FOLLOW, UNFOLLOW, BLOCK, UNBLOCK, MUTE, UNMUTE, SUBSCRIBE, UNSUBSCRIBE
     }
 
     companion object {

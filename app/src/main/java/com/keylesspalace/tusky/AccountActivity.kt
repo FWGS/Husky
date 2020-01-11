@@ -83,6 +83,7 @@ class AccountActivity : BottomSheetActivity(), ActionButtonActivity, HasAndroidI
     private var blocking: Boolean = false
     private var muting: Boolean = false
     private var showingReblogs: Boolean = false
+    private var subscribing: Boolean = false
     private var loadedAccount: Account? = null
 
     private var animateAvatar: Boolean = false
@@ -185,7 +186,6 @@ class AccountActivity : BottomSheetActivity(), ActionButtonActivity, HasAndroidI
             poorTabView.isPressed = true
             accountTabLayout.postDelayed({ poorTabView.isPressed = false }, 300)
         }
-
     }
 
     /**
@@ -390,7 +390,6 @@ class AccountActivity : BottomSheetActivity(), ActionButtonActivity, HasAndroidI
         accountFieldAdapter.emojis = account.emojis ?: emptyList()
         accountFieldAdapter.notifyDataSetChanged()
 
-
         accountLockedImageView.visible(account.locked)
         accountBadgeTextView.visible(account.bot)
         accountAdminTextView.visible(account.pleroma?.isAdmin ?: false)
@@ -554,6 +553,15 @@ class AccountActivity : BottomSheetActivity(), ActionButtonActivity, HasAndroidI
         showingReblogs = relation.showingReblogs
 
         accountFollowsYouTextView.visible(relation.followedBy)
+        
+        // because subscribing is Pleroma extension, enable it __only__ when we have non-null subscribing field
+        if(!viewModel.isSelf && followState == FollowState.FOLLOWING && relation.subscribing != null) {
+            accountSubscribeButton.show()
+            accountSubscribeButton.setOnClickListener {
+                viewModel.changeSubscribingState()
+            }
+            subscribing = relation.subscribing
+        }
 
         updateButtons()
     }
@@ -578,6 +586,7 @@ class AccountActivity : BottomSheetActivity(), ActionButtonActivity, HasAndroidI
                 accountFollowButton.setText(R.string.action_unfollow)
             }
         }
+        updateSubscribeButton()                  
     }
 
     private fun updateMuteButton() {
@@ -587,7 +596,19 @@ class AccountActivity : BottomSheetActivity(), ActionButtonActivity, HasAndroidI
             accountMuteButton.hide()
         }
     }
-
+    
+    private fun updateSubscribeButton() {
+        if(followState != FollowState.FOLLOWING) {
+            accountSubscribeButton.hide()
+        }
+        
+        if(subscribing) {
+            accountSubscribeButton.setIconResource(R.drawable.ic_notifications_active_24dp)
+        } else {
+            accountSubscribeButton.setIconResource(R.drawable.ic_notifications_24dp)
+        }
+    }
+    
     private fun updateButtons() {
         invalidateOptionsMenu()
 
@@ -599,6 +620,7 @@ class AccountActivity : BottomSheetActivity(), ActionButtonActivity, HasAndroidI
             if (blocking || viewModel.isSelf) {
                 accountFloatingActionButton.hide()
                 accountMuteButton.hide()
+                accountSubscribeButton.hide()
             } else {
                 accountFloatingActionButton.show()
                 if (muting)
@@ -612,6 +634,7 @@ class AccountActivity : BottomSheetActivity(), ActionButtonActivity, HasAndroidI
             accountFloatingActionButton.hide()
             accountFollowButton.hide()
             accountMuteButton.hide()
+            accountSubscribeButton.hide()
         }
     }
 
