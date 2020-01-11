@@ -325,6 +325,16 @@ interface MastodonApi {
     fun identityProofs(
             @Path("id") accountId: String
     ): Call<List<IdentityProof>>
+    
+    @POST("api/v1/pleroma/accounts/{id}/subscribe")
+    fun subscribeAccount(
+        @Path("id") accountId: String
+    ): Call<Relationship>
+    
+    @POST("api/v1/pleroma/accounts/{id}/unsubscribe")
+    fun unsubscribeAccount(
+        @Path("id") accountId: String
+    ): Call<Relationship>
 
     @GET("api/v1/blocks")
     fun blocks(
@@ -497,6 +507,16 @@ interface MastodonApi {
     @POST("api/v1/accounts/{id}/unmute")
     fun unmuteAccountObservable(
             @Path("id") accountId: String
+    ): Single<Relationship>
+    
+    @POST("api/v1/pleroma/accounts/{id}/subscribe")
+    fun subscribeAccountObservable(
+        @Path("id") accountId: String
+    ): Single<Relationship>
+    
+    @POST("api/v1/pleroma/accounts/{id}/unsubscribe")
+    fun unsubscribeAccountObservable(
+        @Path("id") accountId: String
     ): Single<Relationship>
 
     @GET("api/v1/accounts/relationships")
