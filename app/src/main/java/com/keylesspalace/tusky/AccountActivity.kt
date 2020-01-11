@@ -392,8 +392,11 @@ class AccountActivity : BottomSheetActivity(), ActionButtonActivity, HasAndroidI
 
         accountLockedImageView.visible(account.locked)
         accountBadgeTextView.visible(account.bot)
-        accountAdminTextView.visible(account.pleroma?.isAdmin ?: false)
-        accountModeratorTextView.visible(account.pleroma?.isModerator ?: false)
+        // API can return user is both admin and mod
+        // but admin rights already implies moderator, so just ignore it
+        val isAdmin = account.pleroma?.isAdmin ?: false
+        accountAdminTextView.visible(isAdmin)
+        accountModeratorTextView.visible(!isAdmin && account.pleroma?.isModerator ?: false)
 
         updateAccountAvatar()
         updateToolbar()
