@@ -138,6 +138,11 @@ public class NotificationHelper {
         if (!filterNotification(account, body, context)) {
             return;
         }
+        
+        // Pleroma extension: don't notify about seen notifications
+        if (body.getPleroma() != null && body.getPleroma().getSeen()) {
+            return;
+        }
 
         String rawCurrentNotifications = account.getActiveNotifications();
         JSONArray currentNotifications;

@@ -16,13 +16,19 @@
 package com.keylesspalace.tusky.entity
 
 import com.google.gson.*
+import com.google.gson.annotations.SerializedName
 import com.google.gson.annotations.JsonAdapter
+
+data class PleromaNotification(
+    @SerializedName("is_seen") val seen: Boolean
+)
 
 data class Notification(
         val type: Type,
         val id: String,
         val account: Account,
-        val status: Status?) {
+        val status: Status?,
+        val pleroma: PleromaNotification? = null) {
 
     @JsonAdapter(NotificationTypeAdapter::class)
     enum class Type(val presentation: String) {
