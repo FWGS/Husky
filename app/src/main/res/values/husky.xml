@@ -6,5 +6,8 @@
     <string name="hint_appname">Application name</string>
     <string name="hint_website">Application website</string>
 
+    <string name="admin">Admin</string>
+    <string name="moderator">Moderator</string>
+
 </resources>
         

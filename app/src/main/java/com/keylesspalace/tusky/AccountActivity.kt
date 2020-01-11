@@ -152,6 +152,8 @@ class AccountActivity : BottomSheetActivity(), ActionButtonActivity, HasAndroidI
      */
     private fun setupAccountViews() {
         // Initialise the default UI states.
+        accountAdminTextView.hide()
+        accountModeratorTextView.hide()
         accountFloatingActionButton.hide()
         accountFollowButton.hide()
         accountMuteButton.hide()
@@ -391,6 +393,8 @@ class AccountActivity : BottomSheetActivity(), ActionButtonActivity, HasAndroidI
 
         accountLockedImageView.visible(account.locked)
         accountBadgeTextView.visible(account.bot)
+        accountAdminTextView.visible(account.pleroma?.isAdmin ?: false)
+        accountModeratorTextView.visible(account.pleroma?.isModerator ?: false)
 
         updateAccountAvatar()
         updateToolbar()

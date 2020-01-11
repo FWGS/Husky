@@ -44,8 +44,8 @@ data class Account(
         val bot: Boolean = false,
         val emojis: List<Emoji>? = emptyList(),  // nullable for backward compatibility
         val fields: List<Field>? = emptyList(),  //nullable for backward compatibility
-        val moved: Account? = null
-
+        val moved: Account? = null,
+        val pleroma: PleromaAccount? = null
 ) : Parcelable {
 
     val name: String
@@ -81,6 +81,7 @@ data class Account(
                 && emojis == other.emojis
                 && fields == other.fields
                 && moved == other.moved
+                && pleroma == other.pleroma
     }
 
     fun isRemote(): Boolean = this.username != this.localUsername
@@ -105,6 +106,12 @@ data class Field (
 data class StringField (
         val name: String,
         val value: String
+): Parcelable
+
+@Parcelize
+data class PleromaAccount(
+    @SerializedName("is_moderator") val isModerator: Boolean? = null,
+    @SerializedName("is_admin") val isAdmin: Boolean? = null
 ): Parcelable
 
 object SpannedParceler : Parceler<Spanned> {
