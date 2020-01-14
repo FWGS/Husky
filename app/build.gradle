@@ -60,6 +60,7 @@ android {
     lintOptions {
         disable 'MissingTranslation'
         disable 'ExtraTranslation'
+        disable 'AppCompatCustomView' // I don't care about AppCompat bloat
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
