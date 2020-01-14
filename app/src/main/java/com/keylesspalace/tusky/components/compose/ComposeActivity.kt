@@ -30,7 +30,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
-import androidx.preference.PreferenceManager
 import android.provider.MediaStore
 import android.provider.OpenableColumns
 import android.text.TextUtils
@@ -54,6 +53,7 @@ import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.transition.TransitionManager
@@ -66,6 +66,7 @@ import com.keylesspalace.tusky.adapter.ComposeAutoCompleteAdapter
 import com.keylesspalace.tusky.adapter.EmojiAdapter
 import com.keylesspalace.tusky.adapter.OnEmojiSelectedListener
 import com.keylesspalace.tusky.components.compose.dialog.makeCaptionDialog
+import com.keylesspalace.tusky.components.compose.dialog.showAddPollDialog
 import com.keylesspalace.tusky.components.compose.view.ComposeOptionsListener
 import com.keylesspalace.tusky.db.AccountEntity
 import com.keylesspalace.tusky.di.Injectable
@@ -75,7 +76,6 @@ import com.keylesspalace.tusky.entity.Emoji
 import com.keylesspalace.tusky.entity.NewPoll
 import com.keylesspalace.tusky.entity.Status
 import com.keylesspalace.tusky.util.*
-import com.keylesspalace.tusky.components.compose.dialog.showAddPollDialog
 import com.mikepenz.google_material_typeface_library.GoogleMaterial
 import com.mikepenz.iconics.IconicsDrawable
 import kotlinx.android.parcel.Parcelize
@@ -170,8 +170,7 @@ class ComposeActivity : BaseActivity(),
         setupContentWarningField(composeOptions?.contentWarning)
         setupPollView()
         applyShareIntent(intent, savedInstanceState)
-
-        composeEditField.requestFocus()
+        viewModel.setupComplete.value = true
     }
     
     private fun uriToFilename(uri: Uri): String {
@@ -376,6 +375,10 @@ class ComposeActivity : BaseActivity(),
             viewModel.uploadError.observe {
                 displayTransientError(R.string.error_media_upload_sending)
             }
+            viewModel.setupComplete.observe {
+                // Focus may have changed during view model setup, ensure initial focus is on the edit field
+                composeEditField.requestFocus()
+            }
         }
     }
 
@@ -458,7 +461,11 @@ class ComposeActivity : BaseActivity(),
         // If you select "backward" in an editable, you get SelectionStart > SelectionEnd
         val start = composeEditField.selectionStart.coerceAtMost(composeEditField.selectionEnd)
         val end = composeEditField.selectionStart.coerceAtLeast(composeEditField.selectionEnd)
-        composeEditField.text.replace(start, end, text)
+        val textToInsert = if (
+                composeEditField.text.isNotEmpty()
+                && !composeEditField.text[start - 1].isWhitespace()
+        ) " $text" else text
+        composeEditField.text.replace(start, end, textToInsert)
 
         // Set the cursor after the inserted text
         composeEditField.setSelection(start + text.length)
@@ -488,12 +495,53 @@ class ComposeActivity : BaseActivity(),
         boldButton.visibility = visibility
     }
 
+    fun prependSelectedWordsWith(text: CharSequence) {
+        // If you select "backward" in an editable, you get SelectionStart > SelectionEnd
+        val start = composeEditField.selectionStart.coerceAtMost(composeEditField.selectionEnd)
+        val end = composeEditField.selectionStart.coerceAtLeast(composeEditField.selectionEnd)
+        val editorText = composeEditField.text
+
+        if (start == end) {
+            // No selection, just insert text at caret
+            editorText.insert(start, text)
+            // Set the cursor after the inserted text
+            composeEditField.setSelection(start + text.length)
+        } else {
+            var wasWord: Boolean
+            var isWord = end < editorText.length && !Character.isWhitespace(editorText[end])
+            var newEnd = end
+
+            // Iterate the selection backward so we don't have to juggle indices on insertion
+            var index = end - 1
+            while (index >= start - 1 && index >= 0) {
+                wasWord = isWord
+                isWord = !Character.isWhitespace(editorText[index])
+                if (wasWord && !isWord) {
+                    // We've reached the beginning of a word, perform insert
+                    editorText.insert(index + 1, text)
+                    newEnd += text.length
+                }
+                --index
+            }
+
+            if (start == 0 && isWord) {
+                // Special case when the selection includes the start of the text
+                editorText.insert(0, text)
+                newEnd += text.length
+            }
+
+            // Keep the same text (including insertions) selected
+            composeEditField.setSelection(start, newEnd)
+        }
+    }
+
+
     private fun atButtonClicked() {
-        replaceTextAtCaret("@")
+        prependSelectedWordsWith("@")
     }
 
     private fun hashButtonClicked() {
-        replaceTextAtCaret("#")
+        prependSelectedWordsWith("#")
     }
     
     private fun codeButtonClicked() {

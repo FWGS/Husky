@@ -84,6 +84,7 @@ class ComposeViewModel
 
     val statusVisibility = mutableLiveData(Status.Visibility.UNKNOWN)
     val showContentWarning = mutableLiveData(false)
+    val setupComplete = mutableLiveData(false)
     val poll: MutableLiveData<NewPoll?> = mutableLiveData(null)
     val scheduledAt: MutableLiveData<String?> = mutableLiveData(null)
     
@@ -374,6 +375,7 @@ class ComposeViewModel
         if (contentWarning != null) {
             startingContentWarning = contentWarning
         }
+        showContentWarning.value = !contentWarning.isNullOrBlank()
 
         // recreate media list
         // when coming from SavedTootActivity
