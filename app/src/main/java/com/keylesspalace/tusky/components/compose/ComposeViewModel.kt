@@ -62,17 +62,50 @@ class ComposeViewModel
     private var inReplyToId: String? = null
     private var startingVisibility: Status.Visibility = Status.Visibility.UNKNOWN
     private val instance: MutableLiveData<InstanceEntity?> = MutableLiveData()
+    private val nodeinfo: MutableLiveData<NodeInfo?> = MutableLiveData()
     public var markdownMode: Boolean = false
+    public var hasNoAttachmentLimits = false
 
     val instanceParams: LiveData<ComposeInstanceParams> = instance.map { instance ->
         ComposeInstanceParams(
                 maxChars = instance?.maximumTootCharacters ?: DEFAULT_CHARACTER_LIMIT,
                 pollMaxOptions = instance?.maxPollOptions ?: DEFAULT_MAX_OPTION_COUNT,
                 pollMaxLength = instance?.maxPollOptionLength ?: DEFAULT_MAX_OPTION_LENGTH,
-                supportsScheduled = instance?.version?.let { VersionUtils(it).supportsScheduledToots() } ?: false,
-                supportsFormatting = instance?.version?.let { VersionUtils(it).isPleroma() } ?: false,
-                hasNoAttachmentLimits = instance?.version?.let { VersionUtils(it).isPleroma() } ?: false
+                supportsScheduled = instance?.version?.let { VersionUtils(it).supportsScheduledToots() } ?: false
         )
+    }
+    val instanceMetadata: LiveData<ComposeInstanceMetadata> = nodeinfo.map { nodeinfo ->
+        val software = nodeinfo?.software?.name ?: "mastodon"
+        
+        if(software.equals("pleroma")) {
+            hasNoAttachmentLimits = true
+            ComposeInstanceMetadata(
+                software = "pleroma",
+                supportsMarkdown = nodeinfo?.metadata?.postFormats?.contains("text/markdown") ?: false,
+                supportsBBcode = nodeinfo?.metadata?.postFormats?.contains("text/bbcode") ?: false,
+                supportsHTML = nodeinfo?.metadata?.postFormats?.contains("text/html") ?: false,
+                videoLimit = nodeinfo?.metadata?.uploadLimits?.general ?: STATUS_VIDEO_SIZE_LIMIT,
+                imageLimit = nodeinfo?.metadata?.uploadLimits?.general ?: STATUS_IMAGE_SIZE_LIMIT
+            )
+        } else if(software.equals("pixelfed")) {
+            ComposeInstanceMetadata(
+                software = "pixelfed",
+                supportsMarkdown = false,
+                supportsBBcode = false,
+                supportsHTML = false,
+                videoLimit = nodeinfo?.metadata?.config?.uploader?.maxPhotoSize ?: STATUS_VIDEO_SIZE_LIMIT,
+                imageLimit = nodeinfo?.metadata?.config?.uploader?.maxPhotoSize ?: STATUS_IMAGE_SIZE_LIMIT
+            )
+        } else {
+            ComposeInstanceMetadata(
+                software = "mastodon",
+                supportsMarkdown = false,
+                supportsBBcode = false,
+                supportsHTML = false,
+                videoLimit = STATUS_VIDEO_SIZE_LIMIT,
+                imageLimit = STATUS_IMAGE_SIZE_LIMIT
+            )
+        }
     }
     val emoji: MutableLiveData<List<Emoji>?> = MutableLiveData()
     val markMediaAsSensitive =
@@ -110,7 +143,7 @@ class ComposeViewModel
                     db.instanceDao().insertOrReplace(it)
                 }
                 .onErrorResumeNext(
-                        db.instanceDao().loadMetadataForInstance(accountManager.activeAccount?.domain!!)
+                    db.instanceDao().loadMetadataForInstance(accountManager.activeAccount?.domain!!)
                 )
                 .subscribe ({ instanceEntity ->
                     emoji.postValue(instanceEntity.emojiList)
@@ -120,16 +153,34 @@ class ComposeViewModel
                     Log.w(TAG, "error loading instance data", throwable)
                 })
                 .autoDispose()
+                
+                
+        api.getNodeinfoLinks().subscribe({ links ->
+                if(links.links.size > 0) {
+                    api.getNodeinfo(links.links[0].href).subscribe({ni ->
+                            nodeinfo.postValue(ni)
+                        }, {
+                            err -> Log.d(TAG, "Failed to get nodeinfo", err)
+                        }
+                    )
+                }
+            }, {
+                err -> Log.d(TAG, "Failed to get nodeinfo links", err)
+            }
+        )
     }
 
     fun pickMedia(uri: Uri, filename: String?): LiveData<Either<Throwable, QueuedMedia>> {
         // We are not calling .toLiveData() here because we don't want to stop the process when
         // the Activity goes away temporarily (like on screen rotation).
         val liveData = MutableLiveData<Either<Throwable, QueuedMedia>>()
-        mediaUploader.prepareMedia(uri, instanceParams.value!!.hasNoAttachmentLimits)
+        val imageLimit = instanceMetadata.value?.videoLimit ?: STATUS_VIDEO_SIZE_LIMIT
+        val videoLimit = instanceMetadata.value?.imageLimit ?: STATUS_IMAGE_SIZE_LIMIT
+        
+        mediaUploader.prepareMedia(uri, videoLimit, imageLimit)
                 .map { (type, uri, size) ->
                     val mediaItems = media.value!!
-                    if (!instanceParams.value!!.hasNoAttachmentLimits
+                    if (!hasNoAttachmentLimits
                             && type == QueuedMedia.Type.VIDEO
                             && mediaItems.isNotEmpty()
                             && mediaItems[0].type == QueuedMedia.Type.IMAGE) {
@@ -149,10 +200,13 @@ class ComposeViewModel
     
     private fun addMediaToQueue(type: Int, uri: Uri, mediaSize: Long, filename: String): QueuedMedia {
         val mediaItem = QueuedMedia(System.currentTimeMillis(), uri, type, mediaSize, filename,
-            instanceParams.value!!.hasNoAttachmentLimits)
+            hasNoAttachmentLimits)
+        val imageLimit = instanceMetadata.value?.videoLimit ?: STATUS_VIDEO_SIZE_LIMIT
+        val videoLimit = instanceMetadata.value?.imageLimit ?: STATUS_IMAGE_SIZE_LIMIT        
+        
         media.value = media.value!! + mediaItem
         mediaToDisposable[mediaItem.localId] = mediaUploader
-                .uploadMedia(mediaItem)
+                .uploadMedia(mediaItem, videoLimit, imageLimit )
                 .subscribe ({ event ->
                     val item = media.value?.find { it.localId == mediaItem.localId }
                             ?: return@subscribe
@@ -180,7 +234,7 @@ class ComposeViewModel
 
     private fun addUploadedMedia(id: String, type: Int, uri: Uri, description: String?) {
         val mediaItem = QueuedMedia(System.currentTimeMillis(), uri, type, 0, "unknown",
-            instanceParams.value!!.hasNoAttachmentLimits, -1, id, description)
+            hasNoAttachmentLimits, -1, id, description)
         media.value = media.value!! + mediaItem
     }
 
@@ -453,12 +507,22 @@ fun <T> mutableLiveData(default: T) = MutableLiveData<T>().apply { value = defau
 const val DEFAULT_CHARACTER_LIMIT = 500
 private const val DEFAULT_MAX_OPTION_COUNT = 4
 private const val DEFAULT_MAX_OPTION_LENGTH = 25
+private const val STATUS_VIDEO_SIZE_LIMIT = 41943040 // 40MiB
+private const val STATUS_IMAGE_SIZE_LIMIT = 8388608 // 8MiB
+                
 
 data class ComposeInstanceParams(
         val maxChars: Int,
         val pollMaxOptions: Int,
         val pollMaxLength: Int,
-        val supportsScheduled: Boolean,
-        val supportsFormatting: Boolean,
-        val hasNoAttachmentLimits: Boolean
+        val supportsScheduled: Boolean
+)
+
+data class ComposeInstanceMetadata(
+        val software: String,
+        val supportsMarkdown: Boolean,
+        val supportsBBcode: Boolean,
+        val supportsHTML: Boolean,
+        val videoLimit: Int,
+        val imageLimit: Int
 )

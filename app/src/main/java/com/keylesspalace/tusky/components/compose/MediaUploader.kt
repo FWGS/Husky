@@ -59,8 +59,8 @@ fun createNewImageFile(context: Context): File {
 data class PreparedMedia(val type: Int, val uri: Uri, val size: Long)
 
 interface MediaUploader {
-    fun prepareMedia(inUri: Uri, hasNoLimits: Boolean): Single<PreparedMedia>
-    fun uploadMedia(media: QueuedMedia): Observable<UploadEvent>
+    fun prepareMedia(inUri: Uri, videoLimit: Int, imageLimit: Int): Single<PreparedMedia>
+    fun uploadMedia(media: QueuedMedia, videoLimit: Int, imageLimit: Int): Observable<UploadEvent>
 }
 
 class VideoSizeException : Exception()
@@ -71,19 +71,19 @@ class MediaUploaderImpl(
         private val context: Context,
         private val mastodonApi: MastodonApi
 ) : MediaUploader {
-    override fun uploadMedia(media: QueuedMedia): Observable<UploadEvent> {
+    override fun uploadMedia(media: QueuedMedia, videoLimit: Int, imageLimit: Int): Observable<UploadEvent> {
         return Observable
                 .fromCallable {
-                    if (shouldResizeMedia(media)) {
-                        downsize(media)
+                    if (shouldResizeMedia(media, imageLimit)) {
+                        downsize(media, imageLimit)
                     }
                     media
                 }
-                .switchMap { upload(it) }
+                .switchMap { upload(it, videoLimit, imageLimit) }
                 .subscribeOn(Schedulers.io())
     }
 
-    override fun prepareMedia(inUri: Uri, hasNoLimits: Boolean): Single<PreparedMedia> {
+	override fun prepareMedia(inUri: Uri, videoLimit: Int, imageLimit: Int): Single<PreparedMedia> {
         return Single.fromCallable {
             var mediaSize = getMediaSize(contentResolver, inUri)
             var uri = inUri
@@ -120,7 +120,7 @@ class MediaUploaderImpl(
                 val topLevelType = mimeType.substring(0, mimeType.indexOf('/'))
                 when (topLevelType) {
                     "video" -> {
-                        if (!hasNoLimits && mediaSize > STATUS_VIDEO_SIZE_LIMIT) {
+                        if (mediaSize > videoLimit) {
                             throw VideoSizeException()
                         }
                         PreparedMedia(QueuedMedia.Type.VIDEO, uri, mediaSize)
@@ -141,7 +141,7 @@ class MediaUploaderImpl(
 
     private val contentResolver = context.contentResolver
     
-    private fun upload(media: QueuedMedia): Observable<UploadEvent> {
+    private fun upload(media: QueuedMedia, videoLimit: Int, imageLimit: Int): Observable<UploadEvent> {
         return Observable.create { emitter ->
             var mimeType = contentResolver.getType(media.uri)
             val map = MimeTypeMap.getSingleton()
@@ -155,7 +155,6 @@ class MediaUploaderImpl(
             val stream = contentResolver.openInputStream(media.uri)
 
             if (mimeType == null) mimeType = "multipart/form-data"
-
 
             var lastProgress = -1
             val fileBody = ProgressRequestBody(stream, media.mediaSize,
@@ -181,24 +180,33 @@ class MediaUploaderImpl(
         }
     }
 
-    private fun downsize(media: QueuedMedia): QueuedMedia {
+    private fun downsize(media: QueuedMedia, imageLimit: Int): QueuedMedia {
         val file = createNewImageFile(context)
-        DownsizeImageTask.resize(arrayOf(media.uri),
-                STATUS_IMAGE_SIZE_LIMIT, context.contentResolver, file)
+        DownsizeImageTask.resize(arrayOf(media.uri), imageLimit, context.contentResolver, file)
         return media.copy(uri = file.toUri(), mediaSize = file.length())
     }
 
-    private fun shouldResizeMedia(media: QueuedMedia): Boolean {
-        return !media.noChanges && media.type == QueuedMedia.Type.IMAGE
-                && (media.mediaSize > STATUS_IMAGE_SIZE_LIMIT
-                || getImageSquarePixels(context.contentResolver, media.uri) > STATUS_IMAGE_PIXEL_SIZE_LIMIT)
+    private fun shouldResizeMedia(media: QueuedMedia, imageLimit: Int): Boolean {
+        // resize only images 
+        if(media.type == QueuedMedia.Type.IMAGE) {
+            // resize when exceed image limit
+            if(media.mediaSize < imageLimit)
+                return true
+            
+            // don't resize when instance permits any image resolution(Pleroma)
+            if(media.noChanges)
+                return false
+            
+            // resize when exceed pixel limit
+            if(getImageSquarePixels(context.contentResolver, media.uri) > STATUS_IMAGE_PIXEL_SIZE_LIMIT)
+                return true
+        }
+        
+        return false
     }
 
     private companion object {
         private const val TAG = "MediaUploaderImpl"
-        private const val STATUS_VIDEO_SIZE_LIMIT = 41943040 // 40MiB
-        private const val STATUS_IMAGE_SIZE_LIMIT = 8388608 // 8MiB
         private const val STATUS_IMAGE_PIXEL_SIZE_LIMIT = 16777216 // 4096^2 Pixels
-
     }
 }

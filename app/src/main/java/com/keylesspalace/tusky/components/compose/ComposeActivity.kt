@@ -321,13 +321,11 @@ class ComposeActivity : BaseActivity(),
         }
     }
     
-    private var hasNoAttachmentLimits: Boolean = false
     private fun reenableAttachments() {
         // in case of we already had disabled attachments
         // but got information about extension later
         enableButton(composeAddMediaButton, true, true)
-        enablePollButton(viewModel.poll == null)
-        hasNoAttachmentLimits = true
+        enablePollButton(viewModel.poll != null)
     }
 
     private fun subscribeToUpdates(mediaAdapter: MediaPreviewAdapter) {
@@ -336,9 +334,12 @@ class ComposeActivity : BaseActivity(),
                 maximumTootCharacters = instanceData.maxChars
                 updateVisibleCharactersLeft()
                 composeScheduleButton.visible(instanceData.supportsScheduled)
-                composeMarkdownButton.visible(instanceData.supportsFormatting)
-                if(instanceData.hasNoAttachmentLimits)
+            }
+            viewModel.instanceMetadata.observe { instanceData ->
+                composeMarkdownButton.visible(instanceData.supportsMarkdown)
+                if(instanceData.software.equals("pleroma")) {
                     reenableAttachments()
+                }
             }
             viewModel.emoji.observe { emoji -> setEmojiList(emoji) }
             combineLiveData(viewModel.markMediaAsSensitive, viewModel.showContentWarning) { markSensitive, showContentWarning ->
@@ -366,11 +367,12 @@ class ComposeActivity : BaseActivity(),
                 updateScheduleButton()
             }
             combineOptionalLiveData(viewModel.media, viewModel.poll) { media, poll ->
-                val active = (hasNoAttachmentLimits) || (poll == null
-                        && media!!.size != 4
-                        && media.firstOrNull()?.type != QueuedMedia.Type.VIDEO)
-                enableButton(composeAddMediaButton, active, active)
-                enablePollButton(active && poll == null)
+                if(!viewModel.hasNoAttachmentLimits) {
+                    val active = (poll == null && media!!.size != 4
+                            && media.firstOrNull()?.type != QueuedMedia.Type.VIDEO)
+                    enableButton(composeAddMediaButton, active, active)
+                    enablePollButton(media.isNullOrEmpty())
+                }
             }.subscribe()
             viewModel.uploadError.observe {
                 displayTransientError(R.string.error_media_upload_sending)
@@ -910,7 +912,7 @@ class ComposeActivity : BaseActivity(),
         val intent = Intent(Intent.ACTION_GET_CONTENT)
         intent.addCategory(Intent.CATEGORY_OPENABLE)
 
-        if(!hasNoAttachmentLimits) {
+        if(!viewModel.hasNoAttachmentLimits) {
             val mimeTypes = arrayOf("image/*", "video/*")
             intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes)
         }
