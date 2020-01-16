@@ -45,7 +45,8 @@ data class Status(
         var pinned: Boolean?,
         val poll: Poll?,
         val card: Card?,
-        var content_type: String? = null
+        var content_type: String? = null,
+        val pleroma: PleromaStatus? = null
 ) {
 
     val actionableId: String
@@ -153,6 +154,9 @@ data class Status(
         return id.hashCode()
     }
 
+    data class PleromaStatus(
+        @SerializedName("thread_muted") val threadMuted: Boolean?
+    )
 
     data class Mention (
         val id: String,
