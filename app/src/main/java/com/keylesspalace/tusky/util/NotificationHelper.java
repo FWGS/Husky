@@ -143,6 +143,12 @@ public class NotificationHelper {
         if (body.getPleroma() != null && body.getPleroma().getSeen()) {
             return;
         }
+        
+        if (body.getStatus() != null
+            && body.getStatus().getPleroma() != null
+            && body.getStatus().getPleroma().getThreadMuted() == true) {
+            return;
+        }
 
         String rawCurrentNotifications = account.getActiveNotifications();
         JSONArray currentNotifications;
