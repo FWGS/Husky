@@ -970,28 +970,29 @@ public class TimelineFragment extends SFragment implements
     private Call<List<Status>> getFetchCallByTimelineType(Kind kind, String tagOrId, String fromId,
                                                           String uptoId) {
         MastodonApi api = mastodonApi;
+        boolean withMuted = true; // TODO: configurable
         switch (kind) {
             default:
             case HOME:
-                return api.homeTimeline(fromId, uptoId, LOAD_AT_ONCE);
+                return api.homeTimeline(fromId, uptoId, LOAD_AT_ONCE, withMuted);
             case PUBLIC_FEDERATED:
-                return api.publicTimeline(null, fromId, uptoId, LOAD_AT_ONCE);
+                return api.publicTimeline(null, fromId, uptoId, LOAD_AT_ONCE, withMuted);
             case PUBLIC_LOCAL:
-                return api.publicTimeline(true, fromId, uptoId, LOAD_AT_ONCE);
+                return api.publicTimeline(true, fromId, uptoId, LOAD_AT_ONCE, withMuted);
             case TAG:
-                return api.hashtagTimeline(tagOrId, null, fromId, uptoId, LOAD_AT_ONCE);
+                return api.hashtagTimeline(tagOrId, null, fromId, uptoId, LOAD_AT_ONCE, withMuted);
             case USER:
-                return api.accountStatuses(tagOrId, fromId, uptoId, LOAD_AT_ONCE, true, null, null);
+                return api.accountStatuses(tagOrId, fromId, uptoId, LOAD_AT_ONCE, true, null, null, withMuted);
             case USER_PINNED:
-                return api.accountStatuses(tagOrId, fromId, uptoId, LOAD_AT_ONCE, null, null, true);
+                return api.accountStatuses(tagOrId, fromId, uptoId, LOAD_AT_ONCE, null, null, true, withMuted);
             case USER_WITH_REPLIES:
-                return api.accountStatuses(tagOrId, fromId, uptoId, LOAD_AT_ONCE, null, null, null);
+                return api.accountStatuses(tagOrId, fromId, uptoId, LOAD_AT_ONCE, null, null, null, withMuted);
             case FAVOURITES:
-                return api.favourites(fromId, uptoId, LOAD_AT_ONCE);
+                return api.favourites(fromId, uptoId, LOAD_AT_ONCE, withMuted);
             case BOOKMARKS:
-                return api.bookmarks(fromId, uptoId, LOAD_AT_ONCE);
+                return api.bookmarks(fromId, uptoId, LOAD_AT_ONCE, withMuted);
             case LIST:
-                return api.listTimeline(tagOrId, fromId, uptoId, LOAD_AT_ONCE);
+                return api.listTimeline(tagOrId, fromId, uptoId, LOAD_AT_ONCE, withMuted);
         }
     }
 

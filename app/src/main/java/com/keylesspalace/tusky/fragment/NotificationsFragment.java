@@ -920,7 +920,9 @@ public class NotificationsFragment extends SFragment implements
             bottomLoading = true;
         }
 
-        Call<List<Notification>> call = mastodonApi.notifications(fromId, uptoId, LOAD_AT_ONCE, showNotificationsFilter ? notificationFilter : null);
+        boolean withMuted = true; // TODO: configurable
+
+        Call<List<Notification>> call = mastodonApi.notifications(fromId, uptoId, LOAD_AT_ONCE, showNotificationsFilter ? notificationFilter : null, withMuted);
 
         call.enqueue(new Callback<List<Notification>>() {
             @Override

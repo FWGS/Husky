@@ -85,6 +85,7 @@ public final class NotificationPullJobCreator implements JobCreator {
         @Override
         protected Result onRunJob(@NonNull Params params) {
             List<AccountEntity> accountList = new ArrayList<>(accountManager.getAllAccountsOrderedByActive());
+            boolean withMuted = true; // TODO: configurable
             for (AccountEntity account : accountList) {
                 if (account.getNotificationsEnabled()) {
                     try {
@@ -92,7 +93,8 @@ public final class NotificationPullJobCreator implements JobCreator {
                         Response<List<Notification>> notifications =
                                 mastodonApi.notificationsWithAuth(
                                         String.format("Bearer %s", account.getAccessToken()),
-                                        account.getDomain()
+                                        account.getDomain(),
+                                        withMuted
                                         )
                                         .execute();
                         if (notifications.isSuccessful()) {

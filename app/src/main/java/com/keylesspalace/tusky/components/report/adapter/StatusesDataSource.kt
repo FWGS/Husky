@@ -73,11 +73,12 @@ class StatusesDataSource(private val accountId: String,
         retryInitial = null
         initialLoad.postValue(NetworkState.LOADING)
         val initialKey = params.requestedInitialKey
+        val withMuted = true // TODO: configurable
         if (initialKey == null) {
-            mastodonApi.accountStatusesObservable(accountId, null, null, params.requestedLoadSize, true)
+            mastodonApi.accountStatusesObservable(accountId, null, null, params.requestedLoadSize, true, withMuted)
         } else {
             mastodonApi.statusObservable(initialKey).zipWith(
-                    mastodonApi.accountStatusesObservable(accountId, params.requestedInitialKey, null, params.requestedLoadSize - 1, true),
+                    mastodonApi.accountStatusesObservable(accountId, params.requestedInitialKey, null, params.requestedLoadSize - 1, true, withMuted),
                     BiFunction { status: Status, list: List<Status> ->
                         val ret = ArrayList<Status>()
                         ret.add(status)
@@ -106,7 +107,8 @@ class StatusesDataSource(private val accountId: String,
     override fun loadAfter(params: LoadParams<String>, callback: LoadCallback<Status>) {
         networkStateAfter.postValue(NetworkState.LOADING)
         retryAfter = null
-        mastodonApi.accountStatusesObservable(accountId, params.key, null, params.requestedLoadSize, true)
+        val withMuted = true // TODO: configurable
+        mastodonApi.accountStatusesObservable(accountId, params.key, null, params.requestedLoadSize, true, withMuted)
                 .doOnSubscribe {
                     disposables.add(it)
                 }
@@ -128,7 +130,8 @@ class StatusesDataSource(private val accountId: String,
     override fun loadBefore(params: LoadParams<String>, callback: LoadCallback<Status>) {
         networkStateBefore.postValue(NetworkState.LOADING)
         retryBefore = null
-        mastodonApi.accountStatusesObservable(accountId, null, params.key, params.requestedLoadSize, true)
+        val withMuted = true // TODO: configurable
+        mastodonApi.accountStatusesObservable(accountId, null, params.key, params.requestedLoadSize, true, withMuted)
                 .doOnSubscribe {
                     disposables.add(it)
                 }
