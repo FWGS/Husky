@@ -55,14 +55,16 @@ interface MastodonApi {
     fun homeTimeline(
             @Query("max_id") maxId: String?,
             @Query("since_id") sinceId: String?,
-            @Query("limit") limit: Int?
+            @Query("limit") limit: Int?,
+            @Query("with_muted") withMuted: Boolean?
     ): Call<List<Status>>
 
     @GET("api/v1/timelines/home")
     fun homeTimelineSingle(
             @Query("max_id") maxId: String?,
             @Query("since_id") sinceId: String?,
-            @Query("limit") limit: Int?
+            @Query("limit") limit: Int?,
+            @Query("with_muted") withMuted: Boolean?
     ): Single<List<Status>>
 
     @GET("api/v1/timelines/public")
@@ -70,7 +72,8 @@ interface MastodonApi {
             @Query("local") local: Boolean?,
             @Query("max_id") maxId: String?,
             @Query("since_id") sinceId: String?,
-            @Query("limit") limit: Int?
+            @Query("limit") limit: Int?,
+            @Query("with_muted") withMuted: Boolean?
     ): Call<List<Status>>
 
     @GET("api/v1/timelines/tag/{hashtag}")
@@ -79,7 +82,8 @@ interface MastodonApi {
             @Query("local") local: Boolean?,
             @Query("max_id") maxId: String?,
             @Query("since_id") sinceId: String?,
-            @Query("limit") limit: Int?
+            @Query("limit") limit: Int?,
+            @Query("with_muted") withMuted: Boolean?
     ): Call<List<Status>>
 
     @GET("api/v1/timelines/list/{listId}")
@@ -87,7 +91,8 @@ interface MastodonApi {
             @Path("listId") listId: String,
             @Query("max_id") maxId: String?,
             @Query("since_id") sinceId: String?,
-            @Query("limit") limit: Int?
+            @Query("limit") limit: Int?,
+            @Query("with_muted") withMuted: Boolean?
     ): Call<List<Status>>
 
     @GET("api/v1/notifications")
@@ -95,13 +100,15 @@ interface MastodonApi {
             @Query("max_id") maxId: String?,
             @Query("since_id") sinceId: String?,
             @Query("limit") limit: Int?,
-            @Query("exclude_types[]") excludes: Set<Notification.Type>?
+            @Query("exclude_types[]") excludes: Set<Notification.Type>?,
+            @Query("with_muted") withMuted: Boolean?
     ): Call<List<Notification>>
 
     @GET("api/v1/notifications")
     fun notificationsWithAuth(
             @Header("Authorization") auth: String,
-            @Header(DOMAIN_HEADER) domain: String
+            @Header(DOMAIN_HEADER) domain: String,
+            @Query("with_muted") withMuted: Boolean?
     ): Call<List<Notification>>
 
     @POST("api/v1/notifications/clear")
@@ -269,7 +276,8 @@ interface MastodonApi {
             @Query("limit") limit: Int?,
             @Query("exclude_replies") excludeReplies: Boolean?,
             @Query("only_media") onlyMedia: Boolean?,
-            @Query("pinned") pinned: Boolean?
+            @Query("pinned") pinned: Boolean?,
+            @Query("with_muted") withMuted: Boolean?
     ): Call<List<Status>>
 
     @GET("api/v1/accounts/{id}/followers")
@@ -368,14 +376,16 @@ interface MastodonApi {
     fun favourites(
             @Query("max_id") maxId: String?,
             @Query("since_id") sinceId: String?,
-            @Query("limit") limit: Int?
+            @Query("limit") limit: Int?,
+            @Query("with_muted") withMuted: Boolean?
     ): Call<List<Status>>
 
     @GET("api/v1/bookmarks")
     fun bookmarks(
             @Query("max_id") maxId: String?,
             @Query("since_id") sinceId: String?,
-            @Query("limit") limit: Int?
+            @Query("limit") limit: Int?,
+            @Query("with_muted") withMuted: Boolean?
     ): Call<List<Status>>
 
     @GET("api/v1/follow_requests")
@@ -539,7 +549,8 @@ interface MastodonApi {
             @Query("max_id") maxId: String?,
             @Query("since_id") sinceId: String?,
             @Query("limit") limit: Int?,
-            @Query("exclude_reblogs") excludeReblogs: Boolean?
+            @Query("exclude_reblogs") excludeReblogs: Boolean?,
+            @Query("with_muted") withMuted: Boolean?
     ): Single<List<Status>>
 
     @GET("api/v1/statuses/{id}")
