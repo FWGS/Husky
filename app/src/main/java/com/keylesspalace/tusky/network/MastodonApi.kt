@@ -556,5 +556,10 @@ interface MastodonApi {
             @Query("offset") offset: Int? = null,
             @Query("following") following: Boolean? = null
     ): Single<SearchResult>
-
+    
+    @GET(".well-known/nodeinfo")
+    fun getNodeinfoLinks() : Single<NodeInfoLinks>
+    
+    @GET
+    fun getNodeinfo(@Url url: String) : Single<NodeInfo>
 }
