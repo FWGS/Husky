@@ -25,8 +25,7 @@ import com.keylesspalace.tusky.components.compose.DEFAULT_CHARACTER_LIMIT
 import com.keylesspalace.tusky.components.compose.MediaUploader
 import com.keylesspalace.tusky.db.*
 import com.keylesspalace.tusky.di.ViewModelFactory
-import com.keylesspalace.tusky.entity.Account
-import com.keylesspalace.tusky.entity.Instance
+import com.keylesspalace.tusky.entity.*
 import com.keylesspalace.tusky.network.MastodonApi
 import com.keylesspalace.tusky.service.ServiceClient
 import com.keylesspalace.tusky.util.SaveTootHelper
@@ -75,6 +74,9 @@ class ComposeActivityTest {
             notificationLight = true
     )
     var instanceResponseCallback: (()->Instance)? = null
+    private val nodeinfoLinks = NodeInfoLinks(
+        links = arrayListOf<NodeInfoLink>()
+    )
 
     @Before
     fun setupActivity() {
@@ -86,6 +88,7 @@ class ComposeActivityTest {
 
         apiMock = mock(MastodonApi::class.java)
         `when`(apiMock.getCustomEmojis()).thenReturn(Single.just(emptyList()))
+        `when`(apiMock.getNodeinfoLinks()).thenReturn(Single.just(nodeinfoLinks))
         `when`(apiMock.getInstance()).thenReturn(object: Single<Instance>() {
             override fun subscribeActual(observer: SingleObserver<in Instance>) {
                 val instance = instanceResponseCallback?.invoke()
