@@ -9,5 +9,6 @@
     <string name="admin">Admin</string>
     <string name="moderator">Moderator</string>
 
+    <string name="error_media_upload_size">File size exceeds instance limits</string>
 </resources>
         

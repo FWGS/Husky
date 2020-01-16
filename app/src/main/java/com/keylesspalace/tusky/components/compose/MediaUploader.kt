@@ -64,6 +64,7 @@ interface MediaUploader {
 }
 
 class VideoSizeException : Exception()
+class MediaSizeException : Exception()
 class MediaTypeException : Exception()
 class CouldNotOpenFileException : Exception()
 
@@ -129,6 +130,9 @@ class MediaUploaderImpl(
                         PreparedMedia(QueuedMedia.Type.IMAGE, uri, mediaSize)
                     }
                     else -> {
+                        if (mediaSize > videoLimit) {
+                            throw MediaSizeException()
+                        }
                         PreparedMedia(QueuedMedia.Type.UNKNOWN, uri, mediaSize)
                         // throw MediaTypeException()
                     }

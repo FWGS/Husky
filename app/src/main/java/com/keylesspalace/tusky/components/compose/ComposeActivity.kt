@@ -957,6 +957,9 @@ class ComposeActivity : BaseActivity(),
                         is VideoSizeException -> {
                             R.string.error_video_upload_size
                         }
+                        is MediaSizeException -> {
+                            R.string.error_media_upload_size
+                        }
                         is VideoOrImageException -> {
                             R.string.error_media_upload_image_or_video
                         }
