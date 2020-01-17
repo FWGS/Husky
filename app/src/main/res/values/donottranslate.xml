@@ -132,4 +132,9 @@
     </integer-array>
 
     <string name="poll_percent_format"><!-- 15% --> &lt;b>%1$d%%&lt;/b></string>
+
+    <string name="description_muted_status" translatable="false">
+        <!-- Display name, relative date, username -->
+        %1$s; %2$s; %3$s
+    </string>
 </resources>
