@@ -593,6 +593,21 @@ public class NotificationsFragment extends SFragment implements
         notifications.setPairedItem(position, notificationViewData);
         updateAdapter();
     }
+    
+    @Override
+    public void onMute(int position, boolean isMuted) {
+        NotificationViewData.Concrete old =
+                (NotificationViewData.Concrete) notifications.getPairedItem(position);
+        StatusViewData.Concrete statusViewData =
+                new StatusViewData.Builder(old.getStatusViewData())
+                        .setMuted(isMuted)
+                        .createStatusViewData();
+        Log.d("ASDASDASD", "position = " + position + " isMuted = " + isMuted);
+        NotificationViewData notificationViewData = new NotificationViewData.Concrete(old.getType(),
+                old.getId(), old.getAccount(), statusViewData, old.isExpanded());
+        notifications.setPairedItem(position, notificationViewData);
+        updateAdapter();
+    }
 
     @Override
     public void onLoadMore(int position) {

@@ -72,7 +72,8 @@ public class NotificationsAdapter extends RecyclerView.Adapter {
     private static final int VIEW_TYPE_STATUS_NOTIFICATION = 1;
     private static final int VIEW_TYPE_FOLLOW = 2;
     private static final int VIEW_TYPE_PLACEHOLDER = 3;
-    private static final int VIEW_TYPE_UNKNOWN = 4;
+    private static final int VIEW_TYPE_MUTED_STATUS = 4;
+    private static final int VIEW_TYPE_UNKNOWN = 6;
 
     private static final InputFilter[] COLLAPSE_INPUT_FILTER = new InputFilter[]{SmartLengthInputFilter.INSTANCE};
     private static final InputFilter[] NO_INPUT_FILTER = new InputFilter[0];
@@ -107,6 +108,11 @@ public class NotificationsAdapter extends RecyclerView.Adapter {
                 View view = inflater
                         .inflate(R.layout.item_status, parent, false);
                 return new StatusViewHolder(view);
+            }
+            case VIEW_TYPE_MUTED_STATUS: {
+                View view = inflater
+                        .inflate(R.layout.item_status_muted, parent, false);
+                return new MutedStatusViewHolder(view);
             }
             case VIEW_TYPE_STATUS_NOTIFICATION: {
                 View view = inflater
@@ -173,6 +179,13 @@ public class NotificationsAdapter extends RecyclerView.Adapter {
                     } else {
                         holder.hideStatusInfo();
                     }
+                    break;
+                }
+                case VIEW_TYPE_MUTED_STATUS: {
+                    MutedStatusViewHolder holder = (MutedStatusViewHolder) viewHolder;
+                    StatusViewData.Concrete status = concreteNotificaton.getStatusViewData();
+                    holder.setupWithStatus(status,
+                            statusListener, statusDisplayOptions, payloadForHolder);
                     break;
                 }
                 case VIEW_TYPE_STATUS_NOTIFICATION: {
@@ -246,6 +259,8 @@ public class NotificationsAdapter extends RecyclerView.Adapter {
             switch (concrete.getType()) {
                 case MENTION:
                 case POLL: {
+                    if(concrete.getStatusViewData() != null && concrete.getStatusViewData().isMuted())
+                        return VIEW_TYPE_MUTED_STATUS;
                     return VIEW_TYPE_STATUS;
                 }
                 case FAVOURITE:
@@ -329,7 +344,8 @@ public class NotificationsAdapter extends RecyclerView.Adapter {
             avatar.setOnClickListener(v -> listener.onViewAccount(accountId));
         }
     }
-
+    
+    
     private static class StatusNotificationViewHolder extends RecyclerView.ViewHolder
             implements View.OnClickListener {
         private final TextView message;
@@ -344,14 +360,14 @@ public class NotificationsAdapter extends RecyclerView.Adapter {
         private final Button contentWarningButton;
         private final Button contentCollapseButton; // TODO: This code SHOULD be based on StatusBaseViewHolder
         private StatusDisplayOptions statusDisplayOptions;
-
+    
         private String accountId;
         private String notificationId;
         private NotificationActionListener notificationActionListener;
         private StatusViewData.Concrete statusViewData;
         private SimpleDateFormat shortSdf;
         private SimpleDateFormat longSdf;
-
+    
         StatusNotificationViewHolder(View itemView, StatusDisplayOptions statusDisplayOptions) {
             super(itemView);
             message = itemView.findViewById(R.id.notification_top_text);
@@ -511,7 +527,7 @@ public class NotificationsAdapter extends RecyclerView.Adapter {
                     .getDimensionPixelSize(R.dimen.avatar_radius_24dp);
 
             ImageLoadingHelper.loadAvatar(notificationAvatarUrl, notificationAvatar,
-                    notificationAvatarRadius, statusDisplayOptions.animateAvatars());
+                notificationAvatarRadius, statusDisplayOptions.animateAvatars());
         }
 
         @Override
@@ -530,7 +546,7 @@ public class NotificationsAdapter extends RecyclerView.Adapter {
         }
 
         private void setupContentAndSpoiler(NotificationViewData.Concrete notificationViewData, final LinkListener listener) {
-
+    
             boolean shouldShowContentIfSpoiler = notificationViewData.isExpanded();
             boolean hasSpoiler = !TextUtils.isEmpty(statusViewData.getSpoilerText());
             if (!shouldShowContentIfSpoiler && hasSpoiler) {
@@ -538,10 +554,10 @@ public class NotificationsAdapter extends RecyclerView.Adapter {
             } else {
                 statusContent.setVisibility(View.VISIBLE);
             }
-
+    
             Spanned content = statusViewData.getContent();
             List<Emoji> emojis = statusViewData.getStatusEmojis();
-
+    
             if (statusViewData.isCollapsible() && (notificationViewData.isExpanded() || !hasSpoiler)) {
                 contentCollapseButton.setOnClickListener(view -> {
                     int position = getAdapterPosition();
@@ -549,7 +565,7 @@ public class NotificationsAdapter extends RecyclerView.Adapter {
                         notificationActionListener.onNotificationContentCollapsedChange(statusViewData.isCollapsed(), position);
                     }
                 });
-
+    
                 contentCollapseButton.setVisibility(View.VISIBLE);
                 if (statusViewData.isCollapsed()) {
                     contentCollapseButton.setText(R.string.status_content_warning_show_more);
@@ -570,6 +586,5 @@ public class NotificationsAdapter extends RecyclerView.Adapter {
                     CustomEmojiHelper.emojifyString(statusViewData.getSpoilerText(), statusViewData.getStatusEmojis(), contentWarningDescriptionTextView);
             contentWarningDescriptionTextView.setText(emojifiedContentWarning);
         }
-
     }
 }

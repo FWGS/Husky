@@ -62,5 +62,7 @@ public interface StatusActionListener extends LinkListener {
     default void onShowFavs(int position) {}
 
     void onVoteInPoll(int position, @NonNull List<Integer> choices);
+    
+    default void onMute(int position, boolean isMuted) {}
 
 }
