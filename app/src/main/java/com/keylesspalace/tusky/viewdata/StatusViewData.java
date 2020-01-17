@@ -91,6 +91,7 @@ public abstract class StatusViewData {
         @Nullable
         private final PollViewData poll;
         private final boolean isBot;
+        private final boolean isMuted;
 
         public Concrete(String id, Spanned content, boolean reblogged, boolean favourited, boolean bookmarked,
                         @Nullable String spoilerText, Status.Visibility visibility, List<Attachment> attachments,
@@ -99,7 +100,7 @@ public abstract class StatusViewData {
                         Date createdAt, int reblogsCount, int favouritesCount, @Nullable String inReplyToId,
                         @Nullable Status.Mention[] mentions, String senderId, boolean rebloggingEnabled,
                         Status.Application application, List<Emoji> statusEmojis, List<Emoji> accountEmojis, @Nullable Card card,
-                        boolean isCollapsible, boolean isCollapsed, @Nullable PollViewData poll, boolean isBot) {
+                        boolean isCollapsible, boolean isCollapsed, @Nullable PollViewData poll, boolean isBot, boolean isMuted) {
 
             this.id = id;
             if (Build.VERSION.SDK_INT == 23) {
@@ -139,6 +140,7 @@ public abstract class StatusViewData {
             this.isCollapsed = isCollapsed;
             this.poll = poll;
             this.isBot = isBot;
+            this.isMuted = isMuted;
         }
 
         public String getId() {
@@ -286,6 +288,10 @@ public abstract class StatusViewData {
             // Chance of collision is super low and impact of mistake is low as well
             return id.hashCode();
         }
+        
+        public boolean isMuted() {
+            return isMuted;
+        }
 
         public boolean deepEquals(StatusViewData o) {
             if (this == o) return true;
@@ -319,8 +325,9 @@ public abstract class StatusViewData {
                     Objects.equals(statusEmojis, concrete.statusEmojis) &&
                     Objects.equals(accountEmojis, concrete.accountEmojis) &&
                     Objects.equals(card, concrete.card) &&
-                    Objects.equals(poll, concrete.poll)
-                    && isCollapsed == concrete.isCollapsed;
+                    Objects.equals(poll, concrete.poll) &&
+                    isCollapsed == concrete.isCollapsed &&
+                    isMuted == concrete.isMuted;
         }
 
         static Spanned replaceCrashingCharacters(Spanned content) {
@@ -427,6 +434,7 @@ public abstract class StatusViewData {
         private boolean isCollapsed; /** Whether the status is shown partially or fully */
         private PollViewData poll;
         private boolean isBot;
+        private boolean isMuted;
 
         public Builder() {
         }
@@ -463,6 +471,7 @@ public abstract class StatusViewData {
             isCollapsed = viewData.isCollapsed();
             poll = viewData.poll;
             isBot = viewData.isBot();
+            isMuted = viewData.isMuted;
         }
 
         public Builder setId(String id) {
@@ -604,7 +613,7 @@ public abstract class StatusViewData {
             this.card = card;
             return this;
         }
-
+        
         /**
          * Configure the {@link com.keylesspalace.tusky.viewdata.StatusViewData} to support collapsing
          * its content limiting the visible length when collapsed at 500 characters,
@@ -633,6 +642,11 @@ public abstract class StatusViewData {
             this.poll = PollViewDataKt.toViewData(poll);
             return this;
         }
+        
+        public Builder setMuted(Boolean isMuted) {
+            this.isMuted = isMuted;
+            return this;
+        }
 
         public StatusViewData.Concrete createStatusViewData() {
             if (this.statusEmojis == null) statusEmojis = Collections.emptyList();
@@ -643,7 +657,7 @@ public abstract class StatusViewData {
                     visibility, attachments, rebloggedByUsername, rebloggedAvatar, isSensitive, isExpanded,
                     isShowingContent, userFullName, nickname, avatar, createdAt, reblogsCount,
                     favouritesCount, inReplyToId, mentions, senderId, rebloggingEnabled, application,
-                    statusEmojis, accountEmojis, card, isCollapsible, isCollapsed, poll, isBot);
+                    statusEmojis, accountEmojis, card, isCollapsible, isCollapsed, poll, isBot, isMuted);
         }
     }
 }

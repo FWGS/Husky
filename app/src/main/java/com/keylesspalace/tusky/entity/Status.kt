@@ -55,7 +55,6 @@ data class Status(
     val actionableStatus: Status
         get() = reblog ?: this
 
-
     enum class Visibility(val num: Int) {
         UNKNOWN(0),
         @SerializedName("public")
@@ -124,6 +123,10 @@ data class Status(
                 poll = poll,
                 createdAt = createdAt
         )
+    }
+    
+    fun isMuted(): Boolean {
+        return pleroma?.threadMuted ?: false
     }
 
     private fun getEditableText(): String {
