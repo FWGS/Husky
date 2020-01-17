@@ -22,3 +22,7 @@ after_success:
   - wget https://raw.githubusercontent.com/FWGS/uploadtool/master/upload.sh
   - chmod +x upload.sh
   - ./upload.sh husky-green-release.apk
+branches:
+  except:
+# Do not build tags that we create when we upload to GitHub Releases
+    - /^(?i:continuous)/
