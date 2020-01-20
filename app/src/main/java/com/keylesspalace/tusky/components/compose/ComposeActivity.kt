@@ -209,7 +209,7 @@ class ComposeActivity : BaseActivity(),
              * instance state will be re-queued. */
             val type = intent.type
             if (type != null) {
-                if (type.startsWith("image/") || type.startsWith("video/")) {
+                if (type.startsWith("image/") || type.startsWith("video/") || type.startsWith("audio/")) {
                     val uriList = ArrayList<Uri>()
                     if (intent.action != null) {
                         when (intent.action) {
@@ -368,8 +368,8 @@ class ComposeActivity : BaseActivity(),
             }
             combineOptionalLiveData(viewModel.media, viewModel.poll) { media, poll ->
                 if(!viewModel.hasNoAttachmentLimits) {
-                    val active = (poll == null && media!!.size != 4
-                            && media.firstOrNull()?.type != QueuedMedia.Type.VIDEO)
+                    val active = poll == null && media!!.size != 4
+                            && (media.isEmpty() || media.first().type == QueuedMedia.Type.IMAGE)
                     enableButton(composeAddMediaButton, active, active)
                     enablePollButton(media.isNullOrEmpty())
                 }
@@ -913,7 +913,7 @@ class ComposeActivity : BaseActivity(),
         intent.addCategory(Intent.CATEGORY_OPENABLE)
 
         if(!viewModel.hasNoAttachmentLimits) {
-            val mimeTypes = arrayOf("image/*", "video/*")
+            val mimeTypes = arrayOf("image/*", "video/*", "audio/*")
             intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes)
         }
         intent.type = "*/*"
@@ -959,6 +959,9 @@ class ComposeActivity : BaseActivity(),
                         }
                         is MediaSizeException -> {
                             R.string.error_media_upload_size
+                        }
+                        is AudioSizeException -> {
+                            R.string.error_audio_upload_size
                         }
                         is VideoOrImageException -> {
                             R.string.error_media_upload_image_or_video
@@ -1088,7 +1091,8 @@ class ComposeActivity : BaseActivity(),
         companion object Type {
             public const val IMAGE: Int = 0
             public const val VIDEO: Int = 1
-            public const val UNKNOWN: Int = 2
+            public const val AUDIO: Int = 2
+            public const val UNKNOWN: Int = 3
         }
     }
 
@@ -1145,7 +1149,7 @@ class ComposeActivity : BaseActivity(),
 
         @JvmStatic
         fun canHandleMimeType(mimeType: String?): Boolean {
-            return mimeType != null && (mimeType.startsWith("image/") || mimeType.startsWith("video/") || mimeType == "text/plain")
+            return mimeType != null && (mimeType.startsWith("image/") || mimeType.startsWith("video/") || mimeType.startsWith("audio/") || mimeType == "text/plain")
         }
     }
 }

@@ -63,6 +63,7 @@ interface MediaUploader {
     fun uploadMedia(media: QueuedMedia, videoLimit: Int, imageLimit: Int): Observable<UploadEvent>
 }
 
+class AudioSizeException : Exception()
 class VideoSizeException : Exception()
 class MediaSizeException : Exception()
 class MediaTypeException : Exception()
@@ -128,6 +129,12 @@ class MediaUploaderImpl(
                     }
                     "image" -> {
                         PreparedMedia(QueuedMedia.Type.IMAGE, uri, mediaSize)
+                    }
+                    "audio" -> {
+                        if (mediaSize > videoLimit) { // TODO: CHANGE!!11
+                            throw AudioSizeException()
+                        }
+                        PreparedMedia(QueuedMedia.Type.AUDIO, uri, mediaSize)
                     }
                     else -> {
                         if (mediaSize > videoLimit) {

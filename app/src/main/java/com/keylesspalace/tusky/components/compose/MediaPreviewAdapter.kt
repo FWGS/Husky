@@ -89,6 +89,11 @@ class MediaPreviewAdapter(
                 holder.view.setChecked(!item.description.isNullOrEmpty())
                 holder.view.setProgress(item.uploadPercent)
             }
+            ComposeActivity.QueuedMedia.Type.AUDIO -> {
+                (holder as PreviewViewHolder).view.setChecked(!item.description.isNullOrEmpty())
+                holder.view.setProgress(item.uploadPercent)
+                holder.view.setImageResource(R.drawable.ic_music_box_preview_24dp)
+            }
             else -> {
                 (holder as PreviewViewHolder).view.setChecked(!item.description.isNullOrEmpty())
                 holder.view.setProgress(item.uploadPercent)

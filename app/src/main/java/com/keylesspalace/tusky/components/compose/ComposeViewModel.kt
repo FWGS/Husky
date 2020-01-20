@@ -181,7 +181,7 @@ class ComposeViewModel
                 .map { (type, uri, size) ->
                     val mediaItems = media.value!!
                     if (!hasNoAttachmentLimits
-                            && type == QueuedMedia.Type.VIDEO
+                            && type != QueuedMedia.Type.IMAGE
                             && mediaItems.isNotEmpty()
                             && mediaItems[0].type == QueuedMedia.Type.IMAGE) {
                         throw VideoOrImageException()
@@ -449,6 +449,7 @@ class ComposeViewModel
             val mediaType = when (a.type) {
                 Attachment.Type.VIDEO, Attachment.Type.GIFV -> QueuedMedia.Type.VIDEO
                 Attachment.Type.UNKNOWN, Attachment.Type.IMAGE -> QueuedMedia.Type.IMAGE
+                Attachment.Type.AUDIO -> QueuedMedia.Type.AUDIO
                 else -> QueuedMedia.Type.IMAGE
             }
             addUploadedMedia(a.id, mediaType, a.url.toUri(), a.description)
