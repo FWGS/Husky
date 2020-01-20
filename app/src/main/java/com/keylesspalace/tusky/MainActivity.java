@@ -57,6 +57,7 @@ import com.keylesspalace.tusky.pager.MainPagerAdapter;
 import com.keylesspalace.tusky.util.CustomEmojiHelper;
 import com.keylesspalace.tusky.util.NotificationHelper;
 import com.keylesspalace.tusky.util.ShareShortcutHelper;
+import com.keylesspalace.tusky.util.ViewPager2Fix;
 import com.mikepenz.google_material_typeface_library.GoogleMaterial;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
@@ -196,6 +197,7 @@ public final class MainActivity extends BottomSheetActivity implements ActionBut
         composeButton = findViewById(R.id.floating_btn);
         tabLayout = findViewById(R.id.tab_layout);
         viewPager = findViewById(R.id.pager);
+        ViewPager2Fix.reduceVelocity(viewPager, 2.0f);
 
         composeButton.setOnClickListener(v -> {
             Intent composeIntent = new Intent(getApplicationContext(), ComposeActivity.class);
