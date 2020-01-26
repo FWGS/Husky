@@ -10,13 +10,14 @@
     android:clipToPadding="false"
     android:focusable="true"
     android:paddingLeft="14dp"
-    android:paddingRight="14dp">
+    android:paddingRight="14dp"
+    android:paddingBottom="8dp">
 
     <androidx.emoji.widget.EmojiTextView
         android:id="@+id/status_display_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="14dp"
+        android:layout_marginStart="4dp"
         android:layout_marginTop="10dp"
         android:ellipsize="end"
         android:importantForAccessibility="no"
@@ -51,7 +52,7 @@
         android:id="@+id/status_unmute"
         style="?attr/image_button_style"
         android:layout_width="24dp"
-        android:layout_height="30dp"
+        android:layout_height="24dp"
         android:layout_marginEnd="8dp"
         android:contentDescription="@string/action_unmute"
         android:importantForAccessibility="no"
