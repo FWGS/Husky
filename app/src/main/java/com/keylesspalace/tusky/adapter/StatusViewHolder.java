@@ -21,6 +21,7 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.ImageButton;
 
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
@@ -39,11 +40,13 @@ public class StatusViewHolder extends StatusBaseViewHolder {
 
     private TextView statusInfo;
     private Button contentCollapseButton;
+    private ImageButton toggleVisibility;
 
     public StatusViewHolder(View itemView) {
         super(itemView);
         statusInfo = itemView.findViewById(R.id.status_info);
         contentCollapseButton = itemView.findViewById(R.id.button_toggle_content);
+        toggleVisibility = itemView.findViewById(R.id.status_toggle_mute); 
     }
 
     @Override
@@ -66,6 +69,13 @@ public class StatusViewHolder extends StatusBaseViewHolder {
             } else {
                 setRebloggedByDisplayName(rebloggedByDisplayName);
                 statusInfo.setOnClickListener(v -> listener.onOpenReblog(getAdapterPosition()));
+            }
+            
+            if(status.isThreadMutedOnBackend()) {
+                toggleVisibility.setVisibility(View.VISIBLE);
+                toggleVisibility.setOnClickListener(v -> listener.onMute(getAdapterPosition(), true));
+            } else {
+                toggleVisibility.setVisibility(View.GONE);
             }
 
         }

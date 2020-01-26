@@ -74,7 +74,7 @@ public class MutedStatusViewHolder extends RecyclerView.ViewHolder {
         displayName = itemView.findViewById(R.id.status_display_name);
         username = itemView.findViewById(R.id.status_username);
         timestampInfo = itemView.findViewById(R.id.status_timestamp_info);
-        unmuteButton = itemView.findViewById(R.id.status_unmute);
+        unmuteButton = itemView.findViewById(R.id.status_toggle_mute);
         
         this.shortSdf = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
         this.longSdf = new SimpleDateFormat("MM/dd HH:mm:ss", Locale.getDefault());

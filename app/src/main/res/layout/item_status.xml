@@ -69,7 +69,7 @@
         android:textSize="?attr/status_text_medium"
         android:textStyle="normal|bold"
         app:layout_constrainedWidth="true"
-        app:layout_constraintEnd_toStartOf="@id/status_timestamp_info"
+        app:layout_constraintEnd_toStartOf="@id/status_toggle_mute"
         app:layout_constraintHorizontal_bias="0"
         app:layout_constraintStart_toEndOf="@id/status_avatar"
         app:layout_constraintTop_toBottomOf="@id/status_info"
@@ -84,10 +84,24 @@
         android:maxLines="1"
         android:textColor="?android:textColorSecondary"
         android:textSize="?attr/status_text_medium"
-        app:layout_constraintEnd_toStartOf="@id/status_timestamp_info"
+        app:layout_constraintEnd_toStartOf="@id/status_toggle_mute"
         app:layout_constraintStart_toEndOf="@id/status_display_name"
-		app:layout_constraintBaseline_toBaselineOf="@id/status_display_name"
+        app:layout_constraintBaseline_toBaselineOf="@id/status_display_name"
         tools:text="\@Entenhausen@birbsarecooooooooooool.site" />
+
+    <ImageButton
+        android:id="@+id/status_toggle_mute"
+        style="?attr/image_button_style"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginEnd="8dp"
+        android:contentDescription="@string/action_unmute"
+        android:importantForAccessibility="no"
+        android:padding="4dp"
+        tools:visibility="gone"
+        app:layout_constraintEnd_toStartOf="@id/status_timestamp_info"
+        app:layout_constraintTop_toTopOf="@id/status_timestamp_info"
+        app:srcCompat="@drawable/ic_hide_media_24dp" />
 
     <TextView
         android:id="@+id/status_timestamp_info"

@@ -67,6 +67,8 @@ public final class ViewDataUtils {
                 .setIsBot(visibleStatus.getAccount().getBot())
                 .setUserMuted(visibleStatus.isUserMuted())
                 .setThreadMuted(visibleStatus.isThreadMuted())
+                .setThreadMutedOnBackend(visibleStatus.isThreadMuted())
+                .setConversationId(visibleStatus.getConversationId())
                 .createStatusViewData();
     }
 

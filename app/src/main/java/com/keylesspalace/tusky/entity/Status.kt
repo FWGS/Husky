@@ -138,6 +138,10 @@ data class Status(
         if(pleroma?.threadMuted != null)
             pleroma.threadMuted = mute
     }
+    
+    fun getConversationId(): Int {
+        return pleroma?.conversationId ?: -1
+    }
 
     private fun getEditableText(): String {
         val builder = SpannableStringBuilder(content)
@@ -168,7 +172,8 @@ data class Status(
     }
 
     data class PleromaStatus(
-        @SerializedName("thread_muted") var threadMuted: Boolean?
+        @SerializedName("thread_muted") var threadMuted: Boolean?,
+        @SerializedName("conversation_id") val conversationId: Int?
     )
 
     data class Mention (

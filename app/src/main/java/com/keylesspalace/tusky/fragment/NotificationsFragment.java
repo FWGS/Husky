@@ -329,9 +329,15 @@ public class NotificationsFragment extends SFragment implements
         Pair<Integer, Notification> posAndNotification = findReplyPosition(event.getStatusId());
         if (posAndNotification == null) return;
         //noinspection ConstantConditions
-        setMutedStatusForStatus(posAndNotification.first,
-                posAndNotification.second.getStatus(),
-                event.getMute());
+        // using iterator to safely remove items while iterating
+        for (int i = 0; i < notifications.size(); i++) {
+            Notification notification = notifications.get(i).asRightOrNull();
+            if (notification != null && notification.getStatus() != null
+                    && notification.getType() == Notification.Type.MENTION) {
+                setMutedStatusForStatus(i, notification.getStatus(), event.getMute());
+            }
+        }
+        updateAdapter();
     }
 
     @Override
@@ -621,13 +627,13 @@ public class NotificationsFragment extends SFragment implements
 
         StatusViewData.Builder viewDataBuilder = new StatusViewData.Builder(viewdata.getStatusViewData());
         viewDataBuilder.setThreadMuted(muted);
+        viewDataBuilder.setThreadMutedOnBackend(muted);
 
         NotificationViewData.Concrete newViewData = new NotificationViewData.Concrete(
                 viewdata.getType(), viewdata.getId(), viewdata.getAccount(),
                 viewDataBuilder.createStatusViewData(), viewdata.isExpanded());
 
         notifications.setPairedItem(position, newViewData);
-        updateAdapter();
     }
 
 
