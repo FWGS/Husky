@@ -140,13 +140,13 @@ public class NotificationHelper {
         }
         
         // Pleroma extension: don't notify about seen notifications
-        if (body.getPleroma() != null && body.getPleroma().getSeen()) {
+        if (body.getPleroma() != null && body.getPleroma().getSeen() == true) {
             return;
         }
         
-        if (body.getStatus() != null
-            && body.getStatus().getPleroma() != null
-            && body.getStatus().getPleroma().getThreadMuted() == true) {
+        if (body.getStatus() != null &&
+            (body.getStatus().isUserMuted() == true ||
+             body.getStatus().isThreadMuted() == true)) {
             return;
         }
 

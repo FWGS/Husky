@@ -27,6 +27,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.lang.IllegalStateException
+import android.util.Log
 
 /**
  * Created by charlag on 3/24/18.
@@ -36,6 +37,7 @@ interface TimelineCases {
     fun reblog(status: Status, reblog: Boolean): Single<Status>
     fun favourite(status: Status, favourite: Boolean): Single<Status>
     fun bookmark(status: Status, bookmark: Boolean): Single<Status>
+    fun muteStatus(status: Status, mute: Boolean)
     fun mute(id: String)
     fun block(id: String)
     fun delete(id: String): Single<DeletedStatus>
@@ -102,6 +104,18 @@ class TimelineCasesImpl(
             override fun onFailure(call: Call<Relationship>, t: Throwable) {}
         })
         eventHub.dispatch(MuteEvent(id))
+    }
+    
+    override fun muteStatus(status: Status, mute: Boolean) {
+        val id = status.actionableId
+        
+        (if (mute) {
+            mastodonApi.muteStatus(id)
+        } else {
+            mastodonApi.unmuteStatus(id)
+        }).subscribe( { status ->
+            eventHub.dispatch(MuteStatusEvent(status.id, mute))
+        }, {})
     }
 
     override fun block(id: String) {

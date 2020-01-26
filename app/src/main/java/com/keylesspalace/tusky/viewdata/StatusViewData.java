@@ -91,7 +91,8 @@ public abstract class StatusViewData {
         @Nullable
         private final PollViewData poll;
         private final boolean isBot;
-        private final boolean isMuted;
+        private final boolean isThreadMuted;
+        private final boolean isUserMuted;
 
         public Concrete(String id, Spanned content, boolean reblogged, boolean favourited, boolean bookmarked,
                         @Nullable String spoilerText, Status.Visibility visibility, List<Attachment> attachments,
@@ -100,7 +101,8 @@ public abstract class StatusViewData {
                         Date createdAt, int reblogsCount, int favouritesCount, @Nullable String inReplyToId,
                         @Nullable Status.Mention[] mentions, String senderId, boolean rebloggingEnabled,
                         Status.Application application, List<Emoji> statusEmojis, List<Emoji> accountEmojis, @Nullable Card card,
-                        boolean isCollapsible, boolean isCollapsed, @Nullable PollViewData poll, boolean isBot, boolean isMuted) {
+                        boolean isCollapsible, boolean isCollapsed, @Nullable PollViewData poll, boolean isBot, boolean isThreadMuted,
+                        boolean isUserMuted) {
 
             this.id = id;
             if (Build.VERSION.SDK_INT == 23) {
@@ -140,7 +142,8 @@ public abstract class StatusViewData {
             this.isCollapsed = isCollapsed;
             this.poll = poll;
             this.isBot = isBot;
-            this.isMuted = isMuted;
+            this.isThreadMuted = isThreadMuted;
+            this.isUserMuted = isUserMuted;
         }
 
         public String getId() {
@@ -289,8 +292,12 @@ public abstract class StatusViewData {
             return id.hashCode();
         }
         
-        public boolean isMuted() {
-            return isMuted;
+        public boolean isThreadMuted() {
+            return isThreadMuted;
+        }
+        
+        public boolean isUserMuted() {
+	        return isUserMuted;
         }
 
         public boolean deepEquals(StatusViewData o) {
@@ -327,7 +334,8 @@ public abstract class StatusViewData {
                     Objects.equals(card, concrete.card) &&
                     Objects.equals(poll, concrete.poll) &&
                     isCollapsed == concrete.isCollapsed &&
-                    isMuted == concrete.isMuted;
+                    isThreadMuted == concrete.isThreadMuted &&
+                    isUserMuted == concrete.isUserMuted;
         }
 
         static Spanned replaceCrashingCharacters(Spanned content) {
@@ -434,7 +442,8 @@ public abstract class StatusViewData {
         private boolean isCollapsed; /** Whether the status is shown partially or fully */
         private PollViewData poll;
         private boolean isBot;
-        private boolean isMuted;
+        private boolean isThreadMuted;
+        private boolean isUserMuted;
 
         public Builder() {
         }
@@ -471,7 +480,8 @@ public abstract class StatusViewData {
             isCollapsed = viewData.isCollapsed();
             poll = viewData.poll;
             isBot = viewData.isBot();
-            isMuted = viewData.isMuted;
+            isThreadMuted = viewData.isThreadMuted;
+            isUserMuted = viewData.isUserMuted;
         }
 
         public Builder setId(String id) {
@@ -643,8 +653,13 @@ public abstract class StatusViewData {
             return this;
         }
         
-        public Builder setMuted(Boolean isMuted) {
-            this.isMuted = isMuted;
+        public Builder setUserMuted(Boolean isUserMuted) {
+            this.isUserMuted = isUserMuted;
+            return this;
+        }
+        
+        public Builder setThreadMuted(Boolean isThreadMuted) {
+            this.isThreadMuted = isThreadMuted;
             return this;
         }
 
@@ -657,7 +672,7 @@ public abstract class StatusViewData {
                     visibility, attachments, rebloggedByUsername, rebloggedAvatar, isSensitive, isExpanded,
                     isShowingContent, userFullName, nickname, avatar, createdAt, reblogsCount,
                     favouritesCount, inReplyToId, mentions, senderId, rebloggingEnabled, application,
-                    statusEmojis, accountEmojis, card, isCollapsible, isCollapsed, poll, isBot, isMuted);
+                    statusEmojis, accountEmojis, card, isCollapsible, isCollapsed, poll, isBot, isThreadMuted, isUserMuted);
         }
     }
 }

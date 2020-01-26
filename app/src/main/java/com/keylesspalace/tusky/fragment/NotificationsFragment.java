@@ -54,12 +54,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.keylesspalace.tusky.R;
 import com.keylesspalace.tusky.adapter.NotificationsAdapter;
 import com.keylesspalace.tusky.adapter.StatusBaseViewHolder;
-import com.keylesspalace.tusky.appstore.BlockEvent;
-import com.keylesspalace.tusky.appstore.BookmarkEvent;
-import com.keylesspalace.tusky.appstore.EventHub;
-import com.keylesspalace.tusky.appstore.FavoriteEvent;
-import com.keylesspalace.tusky.appstore.PreferenceChangedEvent;
-import com.keylesspalace.tusky.appstore.ReblogEvent;
+import com.keylesspalace.tusky.appstore.*;
 import com.keylesspalace.tusky.db.AccountEntity;
 import com.keylesspalace.tusky.db.AccountManager;
 import com.keylesspalace.tusky.di.Injectable;
@@ -329,6 +324,15 @@ public class NotificationsFragment extends SFragment implements
                 posAndNotification.second.getStatus(),
                 event.getReblog());
     }
+    
+    private void handleMuteStatusEvent(MuteStatusEvent event) {
+        Pair<Integer, Notification> posAndNotification = findReplyPosition(event.getStatusId());
+        if (posAndNotification == null) return;
+        //noinspection ConstantConditions
+        setMutedStatusForStatus(posAndNotification.first,
+                posAndNotification.second.getStatus(),
+                event.getMute());
+    }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -381,6 +385,8 @@ public class NotificationsFragment extends SFragment implements
                         handleBookmarkEvent((BookmarkEvent) event);
                     } else if (event instanceof ReblogEvent) {
                         handleReblogEvent((ReblogEvent) event);
+                    } else if (event instanceof MuteStatusEvent) {
+	                    handleMuteStatusEvent((MuteStatusEvent) event);
                     } else if (event instanceof BlockEvent) {
                         removeAllByAccountId(((BlockEvent) event).getAccountId());
                     } else if (event instanceof PreferenceChangedEvent) {
@@ -441,7 +447,7 @@ public class NotificationsFragment extends SFragment implements
         notifications.setPairedItem(position, newViewData);
         updateAdapter();
     }
-
+    
     @Override
     public void onFavourite(final boolean favourite, final int position) {
         final Notification notification = notifications.get(position).asRight();
@@ -600,14 +606,30 @@ public class NotificationsFragment extends SFragment implements
                 (NotificationViewData.Concrete) notifications.getPairedItem(position);
         StatusViewData.Concrete statusViewData =
                 new StatusViewData.Builder(old.getStatusViewData())
-                        .setMuted(isMuted)
+                        .setThreadMuted(isMuted)
                         .createStatusViewData();
-        Log.d("ASDASDASD", "position = " + position + " isMuted = " + isMuted);
         NotificationViewData notificationViewData = new NotificationViewData.Concrete(old.getType(),
                 old.getId(), old.getAccount(), statusViewData, old.isExpanded());
         notifications.setPairedItem(position, notificationViewData);
         updateAdapter();
     }
+    
+    private void setMutedStatusForStatus(int position, Status status, boolean muted) {
+        status.setThreadMuted(muted);
+                
+        NotificationViewData.Concrete viewdata = (NotificationViewData.Concrete) notifications.getPairedItem(position);
+
+        StatusViewData.Builder viewDataBuilder = new StatusViewData.Builder(viewdata.getStatusViewData());
+        viewDataBuilder.setThreadMuted(muted);
+
+        NotificationViewData.Concrete newViewData = new NotificationViewData.Concrete(
+                viewdata.getType(), viewdata.getId(), viewdata.getAccount(),
+                viewDataBuilder.createStatusViewData(), viewdata.isExpanded());
+
+        notifications.setPairedItem(position, newViewData);
+        updateAdapter();
+    }
+
 
     @Override
     public void onLoadMore(int position) {

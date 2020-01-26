@@ -240,6 +240,20 @@ public abstract class SFragment extends BaseFragment implements Injectable {
             
             replyToItem.setVisible(false);
         }
+        
+        // maybe not a best check
+        if(status.getPleroma() != null) {
+            boolean showMute = true; // predict state
+            
+            if(status.isThreadMuted() == true) {
+                showMute = false;
+            }
+            
+            // show mutes only for Pleroma because Mastodon don't handle them in sane way
+            // e.g. why you can only mute threads where you were participated?
+            menu.findItem(R.id.status_mute_conversation).setVisible(showMute);
+            menu.findItem(R.id.status_unmute_conversation).setVisible(!showMute);
+        }
 
         popup.setOnMenuItemClickListener(item -> {
             switch (item.getItemId()) {
@@ -296,6 +310,14 @@ public abstract class SFragment extends BaseFragment implements Injectable {
                 }
                 case R.id.status_report: {
                     openReportPage(accountId, accountUsername, id);
+                    return true;
+                }
+                case R.id.status_mute_conversation: {
+                    timelineCases.muteStatus(status, true);
+                    return true;
+                }
+                case R.id.status_unmute_conversation: {
+                    timelineCases.muteStatus(status, false);
                     return true;
                 }
                 case R.id.status_unreblog_private: {

@@ -259,7 +259,7 @@ public class NotificationsAdapter extends RecyclerView.Adapter {
             switch (concrete.getType()) {
                 case MENTION:
                 case POLL: {
-                    if(concrete.getStatusViewData() != null && concrete.getStatusViewData().isMuted())
+                    if(concrete.getStatusViewData() != null && concrete.getStatusViewData().isThreadMuted())
                         return VIEW_TYPE_MUTED_STATUS;
                     return VIEW_TYPE_STATUS;
                 }

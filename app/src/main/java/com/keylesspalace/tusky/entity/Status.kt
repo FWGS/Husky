@@ -46,7 +46,8 @@ data class Status(
         val poll: Poll?,
         val card: Card?,
         var content_type: String? = null,
-        val pleroma: PleromaStatus? = null
+        val pleroma: PleromaStatus? = null,
+        var muted: Boolean = false /* set when either thread or user is muted */
 ) {
 
     val actionableId: String
@@ -125,8 +126,17 @@ data class Status(
         )
     }
     
-    fun isMuted(): Boolean {
+    fun isUserMuted(): Boolean {
+        return muted && !isThreadMuted()
+    }
+    
+    fun isThreadMuted(): Boolean {
         return pleroma?.threadMuted ?: false
+    }
+    
+    fun setThreadMuted(mute: Boolean) {
+        if(pleroma?.threadMuted != null)
+            pleroma.threadMuted = mute
     }
 
     private fun getEditableText(): String {
@@ -158,7 +168,7 @@ data class Status(
     }
 
     data class PleromaStatus(
-        @SerializedName("thread_muted") val threadMuted: Boolean?
+        @SerializedName("thread_muted") var threadMuted: Boolean?
     )
 
     data class Mention (

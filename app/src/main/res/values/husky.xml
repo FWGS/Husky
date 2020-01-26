@@ -2,7 +2,8 @@
     
     <string name="action_reply_to">Reply to</string>
     <string name="action_markdown">Markdown</string>
-    <!--<string name="action_mute">-->
+	<string name="action_mute_conversation">Mute conversation</string>
+	<string name="action_unmute_conversation">Unmute conversation</string>
     
     <string name="hint_appname">Application name</string>
     <string name="hint_website">Application website</string>
