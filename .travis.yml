@@ -4,6 +4,7 @@ android:
   components:
     - android-29
     - build-tools-28.0.3
+    - ndk-bundle
 before_script:
   - sed -i "s/blue {}//" app/build.gradle
 #  - sed -i "s/debug {}//" app/build.gradle
