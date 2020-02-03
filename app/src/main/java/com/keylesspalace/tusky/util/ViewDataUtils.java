@@ -84,7 +84,8 @@ public final class ViewDataUtils {
                         alwaysShowSensitiveData,
                         alwaysOpenSpoiler
                 ),
-                false
+                false,
+                notification.getEmoji()
         );
     }
 }

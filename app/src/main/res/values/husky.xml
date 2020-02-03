@@ -12,5 +12,11 @@
     <string name="moderator">Moderator</string>
 
     <string name="error_media_upload_size">File size exceeds instance limits</string>
+
+    <string name="notification_emoji_format">%s reacted to your post with %s</string>
+    <string name="notification_emoji_name">Emoji Reactions</string>
+    <string name="notification_emoji_description">Notifications about new emoji reactions</string>
+
+    <string name="pref_title_notification_filter_emoji">my posts are reacted with emojis</string>
 </resources>
         

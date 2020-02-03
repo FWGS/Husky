@@ -28,7 +28,8 @@ data class Notification(
         val id: String,
         val account: Account,
         val status: Status?,
-        val pleroma: PleromaNotification? = null) {
+        val pleroma: PleromaNotification? = null,
+        val emoji: String? = null) {
 
     @JsonAdapter(NotificationTypeAdapter::class)
     enum class Type(val presentation: String) {
@@ -37,7 +38,8 @@ data class Notification(
         REBLOG("reblog"),
         FAVOURITE("favourite"),
         FOLLOW("follow"),
-        POLL("poll");
+        POLL("poll"),
+        EMOJI_REACTION("pleroma:emoji_reaction");
 
         companion object {
 
@@ -49,7 +51,7 @@ data class Notification(
                 }
                 return UNKNOWN
             }
-            val asList = listOf(MENTION, REBLOG, FAVOURITE, FOLLOW, POLL)
+            val asList = listOf(MENTION, REBLOG, FAVOURITE, FOLLOW, POLL, EMOJI_REACTION)
         }
 
         override fun toString(): String {

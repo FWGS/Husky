@@ -264,7 +264,8 @@ public class NotificationsAdapter extends RecyclerView.Adapter {
                     return VIEW_TYPE_STATUS;
                 }
                 case FAVOURITE:
-                case REBLOG: {
+                case REBLOG:
+                case EMOJI_REACTION: {
                     return VIEW_TYPE_STATUS_NOTIFICATION;
                 }
                 case FOLLOW: {
@@ -458,7 +459,7 @@ public class NotificationsAdapter extends RecyclerView.Adapter {
             Notification.Type type = notificationViewData.getType();
 
             Context context = message.getContext();
-            String format;
+            String wholeMessage;
             Drawable icon;
             switch (type) {
                 default:
@@ -469,7 +470,8 @@ public class NotificationsAdapter extends RecyclerView.Adapter {
                                 R.color.tusky_orange), PorterDuff.Mode.SRC_ATOP);
                     }
 
-                    format = context.getString(R.string.notification_favourite_format);
+                    String format = context.getString(R.string.notification_favourite_format);
+                    wholeMessage = String.format(format, displayName);
                     break;
                 }
                 case REBLOG: {
@@ -479,12 +481,24 @@ public class NotificationsAdapter extends RecyclerView.Adapter {
                                 R.color.tusky_blue), PorterDuff.Mode.SRC_ATOP);
                     }
 
-                    format = context.getString(R.string.notification_reblog_format);
+                    String format = context.getString(R.string.notification_reblog_format);
+                    wholeMessage = String.format(format, displayName);
                     break;
                 }
+                case EMOJI_REACTION: {
+                    icon = ContextCompat.getDrawable(context, R.drawable.ic_emoji_24dp);
+                    if(icon != null) {
+                        icon.setColorFilter(ContextCompat.getColor(context,
+                            R.color.tusky_green), PorterDuff.Mode.SRC_ATOP);
+					}
+					
+					String format = context.getString(R.string.notification_emoji_format);
+					String emojiCode = notificationViewData.getEmoji();
+					wholeMessage = String.format(format, displayName, emojiCode);
+					break;
+				}
             }
             message.setCompoundDrawablesWithIntrinsicBounds(icon, null, null, null);
-            String wholeMessage = String.format(format, displayName);
             final SpannableStringBuilder str = new SpannableStringBuilder(wholeMessage);
             str.setSpan(new StyleSpan(Typeface.BOLD), 0, displayName.length(),
                     Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);

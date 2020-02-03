@@ -116,6 +116,7 @@ public class NotificationHelper {
     public static final String CHANNEL_BOOST = "CHANNEL_BOOST";
     public static final String CHANNEL_FAVOURITE = "CHANNEL_FAVOURITE";
     public static final String CHANNEL_POLL = "CHANNEL_POLL";
+    public static final String CHANNEL_EMOJI_REACTION = "CHANNEL_EMOJI_REACTION";
 
     /**
      * time in minutes between notification checks
@@ -362,20 +363,23 @@ public class NotificationHelper {
                     CHANNEL_BOOST + account.getIdentifier(),
                     CHANNEL_FAVOURITE + account.getIdentifier(),
                     CHANNEL_POLL + account.getIdentifier(),
+                    CHANNEL_EMOJI_REACTION + account.getIdentifier()
             };
             int[] channelNames = {
                     R.string.notification_mention_name,
                     R.string.notification_follow_name,
                     R.string.notification_boost_name,
                     R.string.notification_favourite_name,
-                    R.string.notification_poll_name
+                    R.string.notification_poll_name,
+                    R.string.notification_emoji_name,
             };
             int[] channelDescriptions = {
                     R.string.notification_mention_descriptions,
                     R.string.notification_follow_description,
                     R.string.notification_boost_description,
                     R.string.notification_favourite_description,
-                    R.string.notification_poll_description
+                    R.string.notification_poll_description,
+                    R.string.notification_emoji_description
             };
 
             List<NotificationChannel> channels = new ArrayList<>(5);
@@ -525,6 +529,8 @@ public class NotificationHelper {
                 return account.getNotificationsFavorited();
             case POLL:
                 return account.getNotificationsPolls();
+            case EMOJI_REACTION:
+                return account.getNotificationsEmojiReactions();
             default:
                 return false;
         }
@@ -542,6 +548,8 @@ public class NotificationHelper {
                 return CHANNEL_FAVOURITE + account.getIdentifier();
             case POLL:
                 return CHANNEL_POLL + account.getIdentifier();
+            case EMOJI_REACTION:
+                return CHANNEL_EMOJI_REACTION + account.getIdentifier();
             default:
                 return null;
         }
@@ -611,6 +619,9 @@ public class NotificationHelper {
             case REBLOG:
                 return String.format(context.getString(R.string.notification_reblog_format),
                         accountName);
+            case EMOJI_REACTION:
+                return String.format(context.getString(R.string.notification_emoji_format),
+                        accountName, notification.getEmoji());
             case POLL:
                 if(notification.getStatus().getAccount().getId().equals(account.getAccountId())) {
                     return context.getString(R.string.poll_ended_created);
@@ -628,6 +639,7 @@ public class NotificationHelper {
             case MENTION:
             case FAVOURITE:
             case REBLOG:
+            case EMOJI_REACTION:
                 if (!TextUtils.isEmpty(notification.getStatus().getSpoilerText())) {
                     return notification.getStatus().getSpoilerText();
                 } else {

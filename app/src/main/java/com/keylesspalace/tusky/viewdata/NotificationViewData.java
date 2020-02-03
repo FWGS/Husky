@@ -48,14 +48,18 @@ public abstract class NotificationViewData {
         @Nullable
         private final StatusViewData.Concrete statusViewData;
         private final boolean isExpanded;
+        @Nullable
+        private final String emoji;
 
         public Concrete(Notification.Type type, String id, Account account,
-                        @Nullable StatusViewData.Concrete statusViewData, boolean isExpanded) {
+                        @Nullable StatusViewData.Concrete statusViewData, boolean isExpanded,
+                        @Nullable String emoji) {
             this.type = type;
             this.id = id;
             this.account = account;
             this.statusViewData = statusViewData;
             this.isExpanded = isExpanded;
+            this.emoji = emoji;
         }
 
         public Notification.Type getType() {
@@ -78,6 +82,11 @@ public abstract class NotificationViewData {
         public boolean isExpanded() {
             return isExpanded;
         }
+        
+        @Nullable
+        public String getEmoji() {
+			return emoji;
+        }
 
         @Override
         public long getViewDataId() {
@@ -93,6 +102,7 @@ public abstract class NotificationViewData {
                     type == concrete.type &&
                     Objects.equals(id, concrete.id) &&
                     account.getId().equals(concrete.account.getId()) &&
+                    emoji.equals(concrete.emoji) &&
                     (statusViewData == concrete.statusViewData ||
                             statusViewData != null &&
                                     statusViewData.deepEquals(concrete.statusViewData));

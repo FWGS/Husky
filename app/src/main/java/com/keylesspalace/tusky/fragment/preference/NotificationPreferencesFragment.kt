@@ -65,6 +65,10 @@ class NotificationPreferencesFragment : PreferenceFragmentCompat(), Preference.O
             val pollsPref = requirePreference("notificationFilterPolls") as SwitchPreferenceCompat
             pollsPref.isChecked = activeAccount.notificationsPolls
             pollsPref.onPreferenceChangeListener = this
+            
+            val emojisPref = requirePreference("notificationFilterEmojis") as SwitchPreferenceCompat
+            emojisPref.isChecked = activeAccount.notificationsEmojiReactions
+            emojisPref.onPreferenceChangeListener = this
 
             val soundPref = requirePreference("notificationAlertSound") as SwitchPreferenceCompat
             soundPref.isChecked = activeAccount.notificationSound
@@ -99,6 +103,7 @@ class NotificationPreferencesFragment : PreferenceFragmentCompat(), Preference.O
                 "notificationFilterReblogs" -> activeAccount.notificationsReblogged = newValue as Boolean
                 "notificationFilterFavourites" -> activeAccount.notificationsFavorited = newValue as Boolean
                 "notificationFilterPolls" -> activeAccount.notificationsPolls = newValue as Boolean
+                "notificationFilterEmojis" -> activeAccount.notificationsEmojiReactions = newValue as Boolean
                 "notificationAlertSound" -> activeAccount.notificationSound = newValue as Boolean
                 "notificationAlertVibrate" -> activeAccount.notificationVibration = newValue as Boolean
                 "notificationAlertLight" -> activeAccount.notificationLight = newValue as Boolean

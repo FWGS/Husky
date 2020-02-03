@@ -44,6 +44,12 @@
             android:key="notificationFilterPolls"
             android:title="@string/pref_title_notification_filter_poll"
             app:iconSpaceReserved="false" />
+		
+        <SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="notificationFilterEmojiReactons"
+            android:title="@string/pref_title_notification_filter_emoji"
+            app:iconSpaceReserved="false" />
     </PreferenceCategory>
 
     <PreferenceCategory
