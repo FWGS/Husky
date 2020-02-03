@@ -327,14 +327,23 @@ public class NotificationsFragment extends SFragment implements
     
     private void handleMuteStatusEvent(MuteStatusEvent event) {
         Pair<Integer, Notification> posAndNotification = findReplyPosition(event.getStatusId());
-        if (posAndNotification == null) return;
-        //noinspection ConstantConditions
-        // using iterator to safely remove items while iterating
-        for (int i = 0; i < notifications.size(); i++) {
-            Notification notification = notifications.get(i).asRightOrNull();
-            if (notification != null && notification.getStatus() != null
-                    && notification.getType() == Notification.Type.MENTION) {
-                setMutedStatusForStatus(i, notification.getStatus(), event.getMute());
+        if (posAndNotification == null)
+            return;
+        
+        int conversaionId = posAndNotification.second.getStatus().getConversationId();
+        
+        if(conversationId == -1) { // invalid conversation ID
+            setMutedStatusForStatus(posAndNotification.first, posAndNotification.second.getStatus(), event.getMute());
+        } else {
+            //noinspection ConstantConditions
+            // using iterator to safely remove items while iterating
+            for (int i = 0; i < notifications.size(); i++) {
+                Notification notification = notifications.get(i).asRightOrNull();
+                if (notification != null && notification.getStatus() != null
+                        && notification.getType() == Notification.Type.MENTION &&
+                        notification.getStatus().getConversationId() == conversaionId) {
+                    setMutedStatusForStatus(i, notification.getStatus(), event.getMute());
+                }
             }
         }
         updateAdapter();
