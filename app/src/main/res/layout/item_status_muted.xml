@@ -50,7 +50,7 @@
     
     <ImageButton
         android:id="@+id/status_toggle_mute"
-        style="?attr/image_button_style"
+        style="@style/TuskyImageButton"
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:layout_marginEnd="8dp"

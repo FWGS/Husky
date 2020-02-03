@@ -17,7 +17,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/status_reblogged_bar_padding_top"
-        android:drawableStart="?attr/status_reblog_small_drawable"
+        android:drawableStart="@drawable/ic_reblog_18dp"
         android:drawablePadding="6dp"
         android:gravity="center_vertical"
         android:importantForAccessibility="no"
@@ -91,7 +91,7 @@
 
     <ImageButton
         android:id="@+id/status_toggle_mute"
-        style="?attr/image_button_style"
+        style="@style/TuskyImageButton"
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:layout_marginEnd="8dp"
@@ -203,7 +203,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@id/status_display_name"
         app:layout_constraintTop_toBottomOf="@id/button_toggle_content"
-        tools:visibility="gone">
+        tools:visibility="visible">
 
         <include layout="@layout/item_media_preview" />
 
@@ -250,7 +250,7 @@
 
     <ImageButton
         android:id="@+id/status_reply"
-        style="?attr/image_button_style"
+        style="@style/TuskyImageButton"
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:layout_marginTop="4dp"
@@ -278,7 +278,7 @@
         app:layout_constraintTop_toTopOf="@id/status_reply"
         sparkbutton:activeImage="@drawable/ic_reblog_active_24dp"
         sparkbutton:iconSize="28dp"
-        sparkbutton:inactiveImage="?attr/status_reblog_inactive_drawable"
+        sparkbutton:inactiveImage="@drawable/ic_reblog_24dp"
         sparkbutton:primaryColor="@color/tusky_blue"
         sparkbutton:secondaryColor="@color/tusky_blue_light" />
 
@@ -293,9 +293,9 @@
         app:layout_constraintEnd_toStartOf="@id/status_bookmark"
         app:layout_constraintStart_toEndOf="@id/status_inset"
         app:layout_constraintTop_toTopOf="@id/status_inset"
-        sparkbutton:activeImage="?attr/status_favourite_active_drawable"
+        sparkbutton:activeImage="@drawable/ic_favourite_active_24dp"
         sparkbutton:iconSize="28dp"
-        sparkbutton:inactiveImage="?attr/status_favourite_inactive_drawable"
+        sparkbutton:inactiveImage="@drawable/ic_favourite_24dp"
         sparkbutton:primaryColor="@color/tusky_orange"
         sparkbutton:secondaryColor="@color/tusky_orange_light" />
 
@@ -318,7 +318,7 @@
 
     <ImageButton
         android:id="@+id/status_more"
-        style="?attr/image_button_style"
+        style="@style/TuskyImageButton"
         android:layout_width="24dp"
         android:layout_height="30dp"
         android:layout_marginEnd="8dp"

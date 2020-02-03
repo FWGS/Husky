@@ -148,7 +148,7 @@
             android:layout_width="match_parent"
             android:layout_height="300dp"
             android:layout_margin="1dp"
-            android:background="?attr/card_background_color"
+            android:background="?attr/colorBackgroundAccent"
             android:importantForAccessibility="no"
             android:scaleType="center" />
 
@@ -326,7 +326,7 @@
 
     <ImageButton
         android:id="@+id/status_reply"
-        style="?attr/image_button_style"
+        style="@style/TuskyImageButton"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_marginTop="4dp"
@@ -354,7 +354,7 @@
         app:layout_constraintTop_toTopOf="@id/status_reply"
         sparkbutton:activeImage="@drawable/ic_reblog_active_24dp"
         sparkbutton:iconSize="28dp"
-        sparkbutton:inactiveImage="?attr/status_reblog_inactive_drawable"
+        sparkbutton:inactiveImage="@drawable/ic_reblog_24dp"
         sparkbutton:primaryColor="@color/tusky_blue"
         sparkbutton:secondaryColor="@color/tusky_blue_light" />
 
@@ -369,9 +369,9 @@
         app:layout_constraintEnd_toStartOf="@id/status_bookmark"
         app:layout_constraintStart_toEndOf="@id/status_inset"
         app:layout_constraintTop_toTopOf="@id/status_inset"
-        sparkbutton:activeImage="?attr/status_favourite_active_drawable"
+        sparkbutton:activeImage="@drawable/ic_favourite_active_24dp"
         sparkbutton:iconSize="28dp"
-        sparkbutton:inactiveImage="?attr/status_favourite_inactive_drawable"
+        sparkbutton:inactiveImage="@drawable/ic_favourite_24dp"
         sparkbutton:primaryColor="@color/tusky_orange"
         sparkbutton:secondaryColor="@color/tusky_orange_light" />
 
@@ -394,7 +394,7 @@
 
     <ImageButton
         android:id="@+id/status_more"
-        style="?attr/image_button_style"
+        style="@style/TuskyImageButton"
         android:layout_width="32dp"
         android:layout_height="32dp"
         android:contentDescription="@string/action_more"
