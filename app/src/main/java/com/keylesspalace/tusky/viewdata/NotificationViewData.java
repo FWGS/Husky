@@ -102,7 +102,7 @@ public abstract class NotificationViewData {
                     type == concrete.type &&
                     Objects.equals(id, concrete.id) &&
                     account.getId().equals(concrete.account.getId()) &&
-                    emoji.equals(concrete.emoji) &&
+                    (emoji != null && concrete.emoji != null && emoji.equals(concrete.emoji)) &&
                     (statusViewData == concrete.statusViewData ||
                             statusViewData != null &&
                                     statusViewData.deepEquals(concrete.statusViewData));
