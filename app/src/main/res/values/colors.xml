@@ -14,8 +14,8 @@
     <!-- the number roughly corresponds to the % lightness of the grey -->
     <color name="tusky_grey_05">#070b14</color>
     <color name="tusky_grey_10">#121a24</color> <!-- Pleroma Dark Background -->
-    <color name="tusky_grey_20">#151e2a</color> <!-- calcluated from gradient -->
-    <color name="tusky_grey_30">#182230</color> <!-- Pleroma Dark Foreground -->
+    <color name="tusky_grey_20">#182230</color> <!-- Pleroma Dark Foreground -->
+    <color name="tusky_grey_30">#252e3c</color> <!-- Pleroma Dark Foreground -->
     <color name="tusky_grey_40">#3f4855</color> <!-- calculated from gradient -->
     <color name="tusky_grey_50">#666e7a</color> <!-- calculated from gradient -->
     <color name="tusky_grey_70">#adb0b4</color> <!-- calculated from gradient -->
