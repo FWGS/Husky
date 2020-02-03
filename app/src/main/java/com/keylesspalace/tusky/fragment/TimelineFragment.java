@@ -48,17 +48,7 @@ import com.keylesspalace.tusky.BaseActivity;
 import com.keylesspalace.tusky.R;
 import com.keylesspalace.tusky.adapter.StatusBaseViewHolder;
 import com.keylesspalace.tusky.adapter.TimelineAdapter;
-import com.keylesspalace.tusky.appstore.BlockEvent;
-import com.keylesspalace.tusky.appstore.BookmarkEvent;
-import com.keylesspalace.tusky.appstore.DomainMuteEvent;
-import com.keylesspalace.tusky.appstore.EventHub;
-import com.keylesspalace.tusky.appstore.FavoriteEvent;
-import com.keylesspalace.tusky.appstore.MuteEvent;
-import com.keylesspalace.tusky.appstore.PreferenceChangedEvent;
-import com.keylesspalace.tusky.appstore.ReblogEvent;
-import com.keylesspalace.tusky.appstore.StatusComposedEvent;
-import com.keylesspalace.tusky.appstore.StatusDeletedEvent;
-import com.keylesspalace.tusky.appstore.UnfollowEvent;
+import com.keylesspalace.tusky.appstore.*;
 import com.keylesspalace.tusky.db.AccountManager;
 import com.keylesspalace.tusky.di.Injectable;
 import com.keylesspalace.tusky.entity.Filter;
@@ -508,6 +498,10 @@ public class TimelineFragment extends SFragment implements
                                 String id = ((BlockEvent) event).getAccountId();
                                 removeAllByAccountId(id);
                             }
+                        } else if (event instanceof MuteStatusEvent) {
+                            if (kind != Kind.USER && kind != Kind.USER_WITH_REPLIES && kind != Kind.USER_PINNED) {
+                                handleMuteStatusEvent((MuteStatusEvent)event);
+                            }
                         } else if (event instanceof MuteEvent) {
                             if (kind != Kind.USER && kind != Kind.USER_WITH_REPLIES && kind != Kind.USER_PINNED) {
                                 String id = ((MuteEvent) event).getAccountId();
@@ -666,6 +660,26 @@ public class TimelineFragment extends SFragment implements
                 .createStatusViewData();
         statuses.setPairedItem(actual.second, newViewData);
         updateAdapter();
+    }
+    
+    @Override
+    public void onMute(int position, boolean isMuted) {
+        StatusViewData.Concrete statusViewData = 
+                new StatusViewData.Builder((StatusViewData.Concrete)statuses.getPairedItem(position))
+                        .setThreadMuted(isMuted)
+                        .createStatusViewData();
+        statuses.setPairedItem(position, statusViewData);
+        updateAdapter();
+    }
+    
+    private void setMutedStatusForStatus(int position, Status status, boolean muted) {
+        status.setThreadMuted(muted);
+                
+        StatusViewData.Builder statusViewData = new StatusViewData.Builder((StatusViewData.Concrete)statuses.getPairedItem(position));
+        statusViewData.setThreadMuted(muted);
+        statusViewData.setThreadMutedOnBackend(muted);
+
+        statuses.setPairedItem(position, statusViewData.createStatusViewData());
     }
 
     public void onVoteInPoll(int position, @NonNull List<Integer> choices) {
@@ -1324,6 +1338,29 @@ public class TimelineFragment extends SFragment implements
                 return;
         }
         onRefresh();
+    }
+    
+    private void handleMuteStatusEvent(MuteStatusEvent event) {
+        int pos = findStatusOrReblogPositionById(event.getStatusId());
+        
+        if (pos < 0)
+            return;
+
+        Status eventStatus = statuses.get(pos).asRight();
+        int conversationId = eventStatus.getConversationId();
+        
+        if(conversationId == -1) { // invalid conversation ID
+            setMutedStatusForStatus(pos, eventStatus, event.getMute());
+        } else {
+            //noinspection ConstantConditions
+            for (int i = 0; i < statuses.size(); i++) {
+                Status status = statuses.get(i).asRightOrNull();
+                if (status != null && status.getConversationId() == conversationId) {
+                    setMutedStatusForStatus(i, status, event.getMute());
+                }
+            }
+        }
+        updateAdapter();
     }
 
     private List<Either<Placeholder, Status>> liftStatusList(List<Status> list) {

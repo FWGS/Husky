@@ -39,6 +39,7 @@ public final class TimelineAdapter extends RecyclerView.Adapter {
     }
 
     private static final int VIEW_TYPE_STATUS = 0;
+    private static final int VIEW_TYPE_STATUS_MUTED = 1;
     private static final int VIEW_TYPE_PLACEHOLDER = 2;
 
     private final AdapterDataSource<StatusViewData> dataSource;
@@ -77,6 +78,11 @@ public final class TimelineAdapter extends RecyclerView.Adapter {
                         .inflate(R.layout.item_status, viewGroup, false);
                 return new StatusViewHolder(view);
             }
+            case VIEW_TYPE_STATUS_MUTED: {
+                View view = LayoutInflater.from(viewGroup.getContext())
+                        .inflate(R.layout.item_status_muted, viewGroup, false);
+                return new MutedStatusViewHolder(view);
+            }
             case VIEW_TYPE_PLACEHOLDER: {
                 View view = LayoutInflater.from(viewGroup.getContext())
                         .inflate(R.layout.item_status_placeholder, viewGroup, false);
@@ -102,11 +108,16 @@ public final class TimelineAdapter extends RecyclerView.Adapter {
             PlaceholderViewHolder holder = (PlaceholderViewHolder) viewHolder;
             holder.setup(statusListener, ((StatusViewData.Placeholder) status).isLoading());
         } else if (status instanceof StatusViewData.Concrete) {
-            StatusViewHolder holder = (StatusViewHolder) viewHolder;
-            holder.setupWithStatus((StatusViewData.Concrete) status,
-                    statusListener,
-                    statusDisplayOptions,
+            StatusViewData.Concrete concrete = (StatusViewData.Concrete)status;
+            if(concrete.isThreadMuted()) {
+                MutedStatusViewHolder holder = (MutedStatusViewHolder) viewHolder;
+                holder.setupWithStatus(concrete, statusListener, statusDisplayOptions,
                     payloads != null && !payloads.isEmpty() ? payloads.get(0) : null);
+            } else {
+                StatusViewHolder holder = (StatusViewHolder) viewHolder;
+                holder.setupWithStatus(concrete, statusListener, statusDisplayOptions,
+                    payloads != null && !payloads.isEmpty() ? payloads.get(0) : null);
+            }
         }
     }
 
@@ -120,7 +131,12 @@ public final class TimelineAdapter extends RecyclerView.Adapter {
         if (dataSource.getItemAt(position) instanceof StatusViewData.Placeholder) {
             return VIEW_TYPE_PLACEHOLDER;
         } else {
-            return VIEW_TYPE_STATUS;
+            StatusViewData.Concrete concrete = (StatusViewData.Concrete)dataSource.getItemAt(position);
+            if(concrete.isThreadMuted()) {
+                return VIEW_TYPE_STATUS_MUTED;
+            } else {
+                return VIEW_TYPE_STATUS;
+            }
         }
     }
 

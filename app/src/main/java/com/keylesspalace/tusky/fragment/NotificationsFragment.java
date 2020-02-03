@@ -330,7 +330,7 @@ public class NotificationsFragment extends SFragment implements
         if (posAndNotification == null)
             return;
         
-        int conversaionId = posAndNotification.second.getStatus().getConversationId();
+        int conversationId = posAndNotification.second.getStatus().getConversationId();
         
         if(conversationId == -1) { // invalid conversation ID
             setMutedStatusForStatus(posAndNotification.first, posAndNotification.second.getStatus(), event.getMute());
@@ -341,7 +341,7 @@ public class NotificationsFragment extends SFragment implements
                 Notification notification = notifications.get(i).asRightOrNull();
                 if (notification != null && notification.getStatus() != null
                         && notification.getType() == Notification.Type.MENTION &&
-                        notification.getStatus().getConversationId() == conversaionId) {
+                        notification.getStatus().getConversationId() == conversationId) {
                     setMutedStatusForStatus(i, notification.getStatus(), event.getMute());
                 }
             }
