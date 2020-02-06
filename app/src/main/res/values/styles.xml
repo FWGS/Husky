@@ -136,11 +136,11 @@
         <item name="colorSurface">@color/tusky_grey_10</item>
 
         <item name="iconColor">@color/tusky_grey_40</item>
-        <item name="colorBackgroundAccent">@color/tusky_grey_05</item>
+        <item name="colorBackgroundAccent">@color/tusky_grey_40</item>
 
         <item name="material_drawer_background">@color/black</item>
-        <item name="material_drawer_primary_icon">@color/tusky_grey_40</item>
-        <item name="material_drawer_divider">@color/tusky_grey_05</item>
+        <item name="material_drawer_primary_icon">@color/tusky_grey_80</item>
+        <item name="material_drawer_divider">@color/tusky_grey_40</item>
     </style>
 
     <style name="TuskyBlackTheme" parent="TuskyBlackThemeBase" />
