@@ -25,3 +25,11 @@ data class Emoji(
         val url: String,
         @SerializedName("visible_in_picker") val visibleInPicker: Boolean?
 ) : Parcelable
+
+@Parcelize
+data class EmojiReaction(
+        val emoji: String,
+        val count: Int,
+        val reacted: Boolean,
+        val accounts: List<Account>? // only for emoji_reactions_by
+) : Parcelable

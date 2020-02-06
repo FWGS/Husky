@@ -583,4 +583,21 @@ interface MastodonApi {
     
     @GET
     fun getNodeinfo(@Url url: String) : Single<NodeInfo>
+    
+    @POST("api/v1/pleroma/statuses/{id}/react_with_emoji")
+	fun reactWithEmoji(
+		@Path("id") statusId: String,
+		@Field("emoji") emoji: String
+	): Single<Status>
+	
+	@POST("api/v1/pleroma/statuses/{id}/unreact_with_emoji")
+	fun unreactWithEmoji(
+		@Path("id") statusId: String,
+		@Field("emoji") emoji: String
+	): Single<Status>
+	
+	@GET("api/v1/pleroma/statuses/{id}/emoji_reactions_by")
+	fun reactWithEmoji(
+		@Path("id") statusId: String
+	): Single<Status>
 }

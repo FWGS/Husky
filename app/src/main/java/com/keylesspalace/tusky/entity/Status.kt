@@ -173,7 +173,8 @@ data class Status(
 
     data class PleromaStatus(
         @SerializedName("thread_muted") var threadMuted: Boolean?,
-        @SerializedName("conversation_id") val conversationId: Int?
+        @SerializedName("conversation_id") val conversationId: Int?,
+        @SerializedName("emoji_reactions") val emojiReactions: List<EmojiReaction>?
     )
 
     data class Mention (
