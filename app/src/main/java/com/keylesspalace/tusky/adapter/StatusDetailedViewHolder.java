@@ -6,15 +6,19 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.util.Log;
 
 import androidx.annotation.Nullable;
+import androidx.emoji.widget.EmojiButton;
 import androidx.recyclerview.widget.RecyclerView;
+import com.google.android.flexbox.FlexboxLayoutManager;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
@@ -22,12 +26,14 @@ import com.bumptech.glide.load.resource.bitmap.GranularRoundedCorners;
 import com.keylesspalace.tusky.R;
 import com.keylesspalace.tusky.entity.Card;
 import com.keylesspalace.tusky.entity.Status;
+import com.keylesspalace.tusky.entity.EmojiReaction;
 import com.keylesspalace.tusky.interfaces.StatusActionListener;
 import com.keylesspalace.tusky.util.LinkHelper;
 import com.keylesspalace.tusky.util.StatusDisplayOptions;
 import com.keylesspalace.tusky.viewdata.StatusViewData;
 
 import java.text.DateFormat;
+import java.util.List;
 import java.util.Date;
 
 class StatusDetailedViewHolder extends StatusBaseViewHolder {
@@ -40,6 +46,7 @@ class StatusDetailedViewHolder extends StatusBaseViewHolder {
     private TextView cardDescription;
     private TextView cardUrl;
     private View infoDivider;
+    private RecyclerView emojiReactionsView;
 
     StatusDetailedViewHolder(View view) {
         super(view);
@@ -52,6 +59,7 @@ class StatusDetailedViewHolder extends StatusBaseViewHolder {
         cardDescription = view.findViewById(R.id.card_description);
         cardUrl = view.findViewById(R.id.card_link);
         infoDivider = view.findViewById(R.id.status_info_divider);
+        emojiReactionsView = view.findViewById(R.id.status_emoji_reactions);
 
         cardView.setClipToOutline(true);
     }
@@ -120,6 +128,59 @@ class StatusDetailedViewHolder extends StatusBaseViewHolder {
             }
         }
     }
+    
+    private class EmojiReactionViewHolder extends RecyclerView.ViewHolder {
+        public EmojiButton emojiReaction;
+        EmojiReactionViewHolder(View view) {
+            super(view);
+            emojiReaction = view.findViewById(R.id.status_emoji_reaction);
+        }
+    }
+    
+    private class EmojiReactionsAdapter extends RecyclerView.Adapter<EmojiReactionViewHolder> {
+        private List<EmojiReaction> reactions;
+    
+        EmojiReactionsAdapter(List<EmojiReaction> reactions) {
+            this.reactions = reactions;
+            
+        }
+        
+        @Override
+        public EmojiReactionViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.item_emoji_reaction, parent, false);
+            return new EmojiReactionViewHolder(view);
+        }
+
+        @Override
+        public void onBindViewHolder(EmojiReactionViewHolder holder, int position) {
+            EmojiReaction reaction = reactions.get(position);
+            String str = reaction.getEmoji() + " " + reaction.getCount();
+            
+            // no custom emoji yet!
+            
+            holder.emojiReaction.setText(str);
+        }
+
+        // total number of rows
+        @Override
+        public int getItemCount() {
+            return reactions.size();
+        }
+    }
+    
+    private void setEmojiReactions(@Nullable List<EmojiReaction> reactions) {
+		if(reactions != null) {
+			emojiReactionsView.setVisibility(View.VISIBLE);
+			FlexboxLayoutManager lm = new FlexboxLayoutManager(emojiReactionsView.getContext());
+			// lm.setFlexDirection(FlexDirection.COLUMN);
+            //    StaggeredGridLayoutManager.HORIZONTAL);
+            // lm.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS);
+			emojiReactionsView.setLayoutManager(lm);
+			emojiReactionsView.setAdapter(new EmojiReactionsAdapter(reactions));
+			//emojiReactionsView.setLayoutManager StaggeredGridLayoutManager
+		}
+    }
 
     @Override
     protected void setupWithStatus(final StatusViewData.Concrete status,
@@ -131,7 +192,7 @@ class StatusDetailedViewHolder extends StatusBaseViewHolder {
             setReblogAndFavCount(status.getReblogsCount(), status.getFavouritesCount(), listener);
 
             setApplication(status.getApplication());
-
+            setEmojiReactions(status.getEmojiReactions());
             View.OnLongClickListener longClickListener = view -> {
                 TextView textView = (TextView) view;
                 ClipboardManager clipboard = (ClipboardManager) view.getContext().getSystemService(Context.CLIPBOARD_SERVICE);

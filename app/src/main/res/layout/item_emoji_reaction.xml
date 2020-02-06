@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <!-- not a best way but I'm lazy to do proper button -->
+    <androidx.emoji.widget.EmojiButton
+        android:id="@+id/status_emoji_reaction"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:lines="1"
+        android:textAlignment="viewStart"
+        android:textColor="?android:attr/textColorPrimary"
+        android:textSize="?attr/status_text_small"
+        tools:text="A 0" />
+
+</FrameLayout>
+ 
