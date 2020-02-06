@@ -69,6 +69,7 @@ public final class ViewDataUtils {
                 .setThreadMuted(visibleStatus.isThreadMuted())
                 .setThreadMutedOnBackend(visibleStatus.isThreadMuted())
                 .setConversationId(visibleStatus.getConversationId())
+                .setEmojiReactions(visibleStatus.getEmojiReactions())
                 .createStatusViewData();
     }
 

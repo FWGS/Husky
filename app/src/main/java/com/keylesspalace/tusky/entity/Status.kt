@@ -142,6 +142,10 @@ data class Status(
     fun getConversationId(): Int {
         return pleroma?.conversationId ?: -1
     }
+    
+    fun getEmojiReactions(): List<EmojiReaction>? {
+        return pleroma?.emojiReactions;
+	}
 
     private fun getEditableText(): String {
         val builder = SpannableStringBuilder(content)
