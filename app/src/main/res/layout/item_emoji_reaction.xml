@@ -10,10 +10,13 @@
         android:id="@+id/status_emoji_reaction"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginRight="5dp"
+        android:layout_marginBottom="1dp"
+        android:minWidth="0dp"
         android:lines="1"
         android:textAlignment="viewStart"
         android:textColor="?android:attr/textColorPrimary"
-        android:textSize="?attr/status_text_small"
+        android:textSize="?attr/status_text_medium"
         tools:text="A 0" />
 
 </FrameLayout>
