@@ -28,8 +28,8 @@ data class Emoji(
 
 @Parcelize
 data class EmojiReaction(
-        val emoji: String,
+        val name: String,
         val count: Int,
-        val reacted: Boolean,
+        val me: Boolean,
         val accounts: List<Account>? // only for emoji_reactions_by
 ) : Parcelable

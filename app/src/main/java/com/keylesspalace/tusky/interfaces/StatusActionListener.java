@@ -64,5 +64,6 @@ public interface StatusActionListener extends LinkListener {
     void onVoteInPoll(int position, @NonNull List<Integer> choices);
     
     default void onMute(int position, boolean isMuted) {}
+    default void onEmojiReact(final boolean react, final String emoji, final int position) {};
 
 }
