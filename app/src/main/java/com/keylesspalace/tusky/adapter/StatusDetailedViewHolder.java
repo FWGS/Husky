@@ -16,7 +16,7 @@ import android.widget.Toast;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
-import androidx.emoji.widget.EmojiButton;
+import androidx.emoji.widget.EmojiAppCompatButton;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.flexbox.FlexboxLayoutManager;
 
@@ -130,7 +130,7 @@ class StatusDetailedViewHolder extends StatusBaseViewHolder {
     }
     
     private class EmojiReactionViewHolder extends RecyclerView.ViewHolder {
-        public EmojiButton emojiReaction;
+        public EmojiAppCompatButton emojiReaction;
         EmojiReactionViewHolder(View view) {
             super(view);
             emojiReaction = view.findViewById(R.id.status_emoji_reaction);
@@ -155,11 +155,12 @@ class StatusDetailedViewHolder extends StatusBaseViewHolder {
         @Override
         public void onBindViewHolder(EmojiReactionViewHolder holder, int position) {
             EmojiReaction reaction = reactions.get(position);
-            String str = reaction.getEmoji() + " " + reaction.getCount();
+            String str = reaction.getName() + " " + reaction.getCount();
             
             // no custom emoji yet!
-            
             holder.emojiReaction.setText(str);
+            holder.emojiReaction.setActivated(reaction.getMe());
+            holder.emojiReaction.setOnClickListener(v -> {});
         }
 
         // total number of rows

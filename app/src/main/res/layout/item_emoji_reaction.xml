@@ -6,7 +6,7 @@
     android:layout_height="wrap_content">
 
     <!-- not a best way but I'm lazy to do proper button -->
-    <androidx.emoji.widget.EmojiButton
+    <androidx.emoji.widget.EmojiAppCompatButton
         android:id="@+id/status_emoji_reaction"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -17,6 +17,7 @@
         android:textAlignment="viewStart"
         android:textColor="?android:attr/textColorPrimary"
         android:textSize="?attr/status_text_medium"
+        app:backgroundTint="@color/emoji_reaction_button"
         tools:text="A 0" />
 
 </FrameLayout>
