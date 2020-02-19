@@ -62,7 +62,7 @@ class SearchDataSource<T>(
                     resolve = true,
                     limit = params.requestedLoadSize,
                     offset = 0,
-                    following =false)
+                    following = false)
                     .subscribe(
                             { data ->
                                 val res = parser(data)
@@ -84,24 +84,30 @@ class SearchDataSource<T>(
     override fun loadRange(params: LoadRangeParams, callback: LoadRangeCallback<T>) {
         networkState.postValue(NetworkState.LOADING)
         retry = null
-        if(source.exhausted) {
+        if (source.exhausted) {
             return callback.onResult(emptyList())
         }
-        mastodonApi.searchObservable(searchType.apiParameter, searchRequest, true, params.loadSize, params.startPosition, false)
+        mastodonApi.searchObservable(
+                query = searchRequest,
+                type = searchType.apiParameter,
+                resolve = true,
+                limit = params.loadSize,
+                offset = params.startPosition,
+                following = false)
                 .subscribe(
                         { data ->
                             // Working around Mastodon bug where exact match is returned no matter
-                            // which offset is requested (so if we seach for a full username, it's
+                            // which offset is requested (so if we search for a full username, it's
                             // infinite)
                             // see https://github.com/tootsuite/mastodon/issues/11365
-                            val res = if (data.accounts.size == 1
-                                    && data.accounts[0].username
-                                            .equals(searchRequest, ignoreCase = true)) {
+                            // see https://github.com/tootsuite/mastodon/issues/13083
+                            val res = if ((data.accounts.size == 1 && data.accounts[0].username.equals(searchRequest, ignoreCase = true))
+                                    || (data.statuses.size == 1 && data.statuses[0].url.equals(searchRequest))) {
                                 listOf()
                             } else {
                                 parser(data)
                             }
-                            if(res.isEmpty()) {
+                            if (res.isEmpty()) {
                                 source.exhausted = true
                             }
                             callback.onResult(res)

@@ -61,8 +61,8 @@ class ComposeViewModel
     private var startingContentWarning: String = ""
     private var inReplyToId: String? = null
     private var startingVisibility: Status.Visibility = Status.Visibility.UNKNOWN
-    private val instance: MutableLiveData<InstanceEntity?> = MutableLiveData()
-    private val nodeinfo: MutableLiveData<NodeInfo?> = MutableLiveData()
+    private val instance: MutableLiveData<InstanceEntity?> = MutableLiveData(null)
+    private val nodeinfo: MutableLiveData<NodeInfo?> = MutableLiveData(null)
     public var markdownMode: Boolean = false
     public var hasNoAttachmentLimits = false
 

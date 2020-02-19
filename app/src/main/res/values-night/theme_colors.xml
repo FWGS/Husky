@@ -2,7 +2,7 @@
 <resources>
 
     <color name="colorSurface">@color/tusky_grey_30</color>
-    <color name="colorPrimaryDark">@color/tusky_grey_10</color>
+    <color name="colorPrimaryDark">@color/tusky_grey_25</color>
 
     <color name="colorBackground">@color/tusky_grey_20</color>
     <color name="windowBackground">@color/tusky_grey_10</color>
@@ -15,6 +15,7 @@
     <color name="iconColor">@color/tusky_grey_70</color>
 
     <color name="colorBackgroundAccent">@color/tusky_grey_30</color>
+    <color name="dividerColor">@color/tusky_grey_25</color>
 
     <color name="favoriteButtonActiveColor">@color/tusky_orange</color>
 

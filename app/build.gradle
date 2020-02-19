@@ -20,8 +20,8 @@ android {
         applicationId APP_ID
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 68
-        versionName "9.1"
+        versionCode 69
+        versionName "10.0 beta 1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
 
@@ -66,6 +66,9 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+    androidExtensions {
+        experimental = true
+    }
     testOptions {
         unitTests {
             returnDefaultValues = true
@@ -98,7 +101,7 @@ project.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
 ext.lifecycleVersion = "2.1.0"
 ext.roomVersion = '2.2.3'
 ext.retrofitVersion = '2.6.0'
-ext.okhttpVersion = '4.2.2'
+ext.okhttpVersion = '4.3.1'
 ext.glideVersion = '4.10.0'
 ext.daggerVersion = '2.25.3'
 

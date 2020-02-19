@@ -15,6 +15,7 @@
     <color name="tusky_grey_05">#070b14</color>
     <color name="tusky_grey_10">#121a24</color> <!-- Pleroma Dark Background -->
     <color name="tusky_grey_20">#182230</color> <!-- Pleroma Dark Foreground -->
+    <color name="tusky_grey_25">#1f2836</color> <!-- calculated from gradient -->
     <color name="tusky_grey_30">#252e3c</color> <!-- Pleroma Dark Foreground -->
     <color name="tusky_grey_40">#3f4855</color> <!-- calculated from gradient -->
     <color name="tusky_grey_50">#666e7a</color> <!-- calculated from gradient -->
