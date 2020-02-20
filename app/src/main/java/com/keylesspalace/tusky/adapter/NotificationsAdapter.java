@@ -153,6 +153,14 @@ public class NotificationsAdapter extends RecyclerView.Adapter {
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, int position, @NonNull List payloads) {
         bindViewHolder(viewHolder, position, payloads);
     }
+    
+    private void fixupHiddenUsers(StatusViewData.Concrete status, View v) {
+        if(status.isUserMuted()) {
+            v.setVisibility(View.GONE);
+        } else {
+            v.setVisibility(View.VISIBLE);
+        }
+    }
 
     private void bindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, int position, @Nullable List payloads) {
         Object payloadForHolder = payloads != null && !payloads.isEmpty() ? payloads.get(0) : null;
@@ -179,6 +187,7 @@ public class NotificationsAdapter extends RecyclerView.Adapter {
                     } else {
                         holder.hideStatusInfo();
                     }
+                    fixupHiddenUsers(status, holder.itemView);
                     break;
                 }
                 case VIEW_TYPE_MUTED_STATUS: {
@@ -186,6 +195,7 @@ public class NotificationsAdapter extends RecyclerView.Adapter {
                     StatusViewData.Concrete status = concreteNotificaton.getStatusViewData();
                     holder.setupWithStatus(status,
                             statusListener, statusDisplayOptions, payloadForHolder);
+                    fixupHiddenUsers(status, holder.itemView);
                     break;
                 }
                 case VIEW_TYPE_STATUS_NOTIFICATION: {
