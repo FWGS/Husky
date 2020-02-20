@@ -20,6 +20,13 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
 import android.widget.EditText
+import android.util.TypedValue
+import android.content.res.Resources
+import android.view.TouchDelegate
+import android.view.MotionEvent
+import android.graphics.Rect
+/*import java.util.List
+import java.util.ArrayList*/
 
 fun View.show() {
     this.visibility = View.VISIBLE
@@ -31,6 +38,51 @@ fun View.hide() {
 
 fun View.visible(visible: Boolean, or: Int = View.GONE) {
     this.visibility = if (visible) View.VISIBLE else or
+}
+
+class MultipleTouchDelegate : TouchDelegate {
+    
+    var delegates = mutableListOf<TouchDelegate>()
+    
+    constructor(v: View) : super(Rect(), v)
+
+    public fun addDelegate(delegate: TouchDelegate) {
+        delegates.add(delegate)
+    }
+    
+    override fun onTouchEvent(event: MotionEvent) : Boolean {
+        var ret = false
+        val x = event.x
+        val y = event.y
+        
+        for(delegate in delegates) {
+            event.setLocation(x, y)
+            ret = delegate.onTouchEvent(event) || ret
+        }
+        
+        return ret
+    }
+}
+
+fun View.increaseHitArea(vdp: Float, hdp: Float) {
+    val parent = this.parent as View
+    val vpixels = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, vdp, Resources.getSystem().displayMetrics).toInt()
+    val hpixels = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, hdp, Resources.getSystem().displayMetrics).toInt()
+    parent.post {
+        val rect = Rect()
+        this.getHitRect(rect)
+        rect.top -= vpixels
+        rect.left -= hpixels
+        rect.bottom += vpixels
+        rect.right += hpixels
+        if(parent.touchDelegate != null && parent.touchDelegate is MultipleTouchDelegate) {
+            (parent.touchDelegate as MultipleTouchDelegate).addDelegate(TouchDelegate(rect, this))
+        } else {
+            val mtd = MultipleTouchDelegate(this)
+            mtd.addDelegate(TouchDelegate(rect, this))
+            parent.touchDelegate = mtd
+        }
+    }
 }
 
 open class DefaultTextWatcher : TextWatcher {

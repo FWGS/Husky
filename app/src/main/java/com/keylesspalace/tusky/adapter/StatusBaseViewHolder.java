@@ -37,6 +37,7 @@ import com.keylesspalace.tusky.util.LinkHelper;
 import com.keylesspalace.tusky.util.StatusDisplayOptions;
 import com.keylesspalace.tusky.util.ThemeUtils;
 import com.keylesspalace.tusky.util.TimestampUtils;
+import com.keylesspalace.tusky.util.ViewExtensionsKt;
 import com.keylesspalace.tusky.view.MediaPreviewImageView;
 import com.keylesspalace.tusky.viewdata.PollOptionViewData;
 import com.keylesspalace.tusky.viewdata.PollViewData;
@@ -111,7 +112,16 @@ public abstract class StatusBaseViewHolder extends RecyclerView.ViewHolder {
         favouriteButton = itemView.findViewById(R.id.status_favourite);
         bookmarkButton = itemView.findViewById(R.id.status_bookmark);
         moreButton = itemView.findViewById(R.id.status_more);
+        
+        float INCREASE_HORIZONTAL_HIT_AREA = 20.0f;
 
+        ViewExtensionsKt.increaseHitArea(replyButton, 0.0f, INCREASE_HORIZONTAL_HIT_AREA);
+        if(reblogButton != null)
+            ViewExtensionsKt.increaseHitArea(reblogButton, 0.0f, INCREASE_HORIZONTAL_HIT_AREA);
+        ViewExtensionsKt.increaseHitArea(favouriteButton, 0.0f, INCREASE_HORIZONTAL_HIT_AREA);
+        ViewExtensionsKt.increaseHitArea(bookmarkButton, 0.0f, INCREASE_HORIZONTAL_HIT_AREA);
+        ViewExtensionsKt.increaseHitArea(moreButton, 0.0f, INCREASE_HORIZONTAL_HIT_AREA);
+        
         itemView.findViewById(R.id.status_media_preview_container).setClipToOutline(true);
 
         mediaPreviews = new MediaPreviewImageView[]{
@@ -632,6 +642,7 @@ public abstract class StatusBaseViewHolder extends RecyclerView.ViewHolder {
                 listener.onMore(v, position);
             }
         });
+        
         /* Even though the content TextView is a child of the container, it won't respond to clicks
          * if it contains URLSpans without also setting its listener. The surrounding spans will
          * just eat the clicks instead of deferring to the parent listener, but WILL respond to a
