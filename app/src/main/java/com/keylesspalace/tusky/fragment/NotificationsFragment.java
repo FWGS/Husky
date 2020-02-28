@@ -162,6 +162,7 @@ public class NotificationsFragment extends SFragment implements
     private boolean alwaysShowSensitiveMedia;
     private boolean alwaysOpenSpoiler;
     private boolean showNotificationsFilter;
+    private boolean showingError;
 
     // Each element is either a Notification for loading data or a Placeholder
     private final PairedList<Either<Placeholder, Notification>, NotificationViewData> notifications
@@ -275,7 +276,7 @@ public class NotificationsFragment extends SFragment implements
     private void updateFilterVisibility() {
         CoordinatorLayout.LayoutParams params =
                 (CoordinatorLayout.LayoutParams) swipeRefreshLayout.getLayoutParams();
-        if (showNotificationsFilter) {
+        if (showNotificationsFilter && !showingError && !notifications.isEmpty()) {
             appBarOptions.setExpanded(true, false);
             appBarOptions.setVisibility(View.VISIBLE);
             //Set content behaviour to hide filter on scroll
@@ -413,6 +414,7 @@ public class NotificationsFragment extends SFragment implements
     @Override
     public void onRefresh() {
         this.statusView.setVisibility(View.GONE);
+        this.showingError = false;
         Either<Placeholder, Notification> first = CollectionsKt.firstOrNull(this.notifications);
         String topId;
         if (first != null && first.isRight()) {
@@ -722,6 +724,7 @@ public class NotificationsFragment extends SFragment implements
         //Show friend elephant
         this.statusView.setVisibility(View.VISIBLE);
         this.statusView.setup(R.drawable.elephant_friend_empty, R.string.message_empty, null);
+        updateFilterVisibility();
 
         //Update adapter
         updateAdapter();
@@ -1049,6 +1052,7 @@ public class NotificationsFragment extends SFragment implements
         } else {
             swipeRefreshLayout.setEnabled(true);
         }
+        updateFilterVisibility();
         swipeRefreshLayout.setRefreshing(false);
         progressBar.setVisibility(View.GONE);
     }
@@ -1064,6 +1068,7 @@ public class NotificationsFragment extends SFragment implements
         } else if (this.notifications.isEmpty()) {
             this.statusView.setVisibility(View.VISIBLE);
             swipeRefreshLayout.setEnabled(false);
+            this.showingError = true;
             if (exception instanceof IOException) {
                 this.statusView.setup(R.drawable.elephant_offline, R.string.error_network, __ -> {
                     this.progressBar.setVisibility(View.VISIBLE);
@@ -1077,6 +1082,7 @@ public class NotificationsFragment extends SFragment implements
                     return Unit.INSTANCE;
                 });
             }
+            updateFilterVisibility();
         }
         Log.e(TAG, "Fetch failure: " + exception.getMessage());
 
