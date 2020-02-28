@@ -9,11 +9,11 @@
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
-   sodipodi:docname="ic_launcher.svg"
-   width="512"
-   height="512"
+   sodipodi:docname="ic_launcher_foreground.svg"
+   width="108"
+   height="108"
    version="1.1"
-   viewBox="0 0 135.46666 135.46666"
+   viewBox="0 0 28.574999 28.574999"
    id="svg181"
    inkscape:export-filename="/home/a1ba/projects/Tusky/app/src/main/ic_launcher-web.png"
    inkscape:export-xdpi="96"
@@ -33,9 +33,9 @@
      showgrid="true"
      inkscape:measure-start="140.54,184.424"
      inkscape:measure-end="499.461,-175.02"
-     inkscape:zoom="0.70710678"
-     inkscape:cx="-48.885887"
-     inkscape:cy="393.6953"
+     inkscape:zoom="2.8284271"
+     inkscape:cx="34.950445"
+     inkscape:cy="60.056331"
      inkscape:window-x="44"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
@@ -73,51 +73,12 @@
          offset="1"
          id="stop5472" />
     </linearGradient>
-    <filter
-       height="1.048"
-       width="1.048"
-       y="-.024"
-       x="-.024"
-       id="d"
-       color-interpolation-filters="sRGB">
-      <feGaussianBlur
-         id="feGaussianBlur144"
-         stdDeviation="13.532652" />
-    </filter>
   </defs>
-  <g
-     style="display:inline"
-     id="g177"
-     transform="translate(-7.0922591,100.37719)">
-    <g
-       transform="matrix(0.09375,0,0,0.09375,7.4604,32.24)"
-       id="g173"
-       style="display:inline">
-      <g
-         id="g157"
-         style="display:inline;fill:#121a24;fill-opacity:1"
-         transform="translate(-13.179525,-21.636192)">
-        <circle
-           transform="matrix(0.98504,0,0,0.98504,29.403,-5.6005)"
-           cx="710.14001"
-           cy="-672.09003"
-           r="676.63"
-           id="circle149"
-           style="display:inline;opacity:0.36000001;fill:#121a24;fill-opacity:1;filter:url(#d)" />
-        <circle
-           cx="725.02002"
-           cy="-684.40002"
-           id="ellipse153"
-           style="display:inline;fill:#071a24;fill-opacity:1"
-           r="666.01202" />
-      </g>
-    </g>
-  </g>
   <style
      id="style179">.st0{fill:#e0e0e0}.st1{fill:#fff}.st2{clip-path:url(#SVGID_2_);fill:#fbbc05}.st3{clip-path:url(#SVGID_4_);fill:#ea4335}.st4{clip-path:url(#SVGID_6_);fill:#34a853}.st5{clip-path:url(#SVGID_8_);fill:#4285f4}</style>
   <g
      id="g3339"
-     transform="matrix(1.0192895,0,0,1.0192895,-1.3319259,3.5319492)">
+     transform="matrix(0.14333759,0,0,0.14333759,4.6638113,5.5261585)">
     <path
        sodipodi:nodetypes="cccccccccccccccccccccccccc"
        inkscape:connector-curvature="0"
