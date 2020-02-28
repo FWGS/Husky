@@ -14,14 +14,20 @@ def getGitSha = {
     return stdout.toString().trim()
 }
 
+def buildnum = {
+    def today = new Date()
+    def epoch = new Date(119, 11, 8) // first Husky commit was 20191208
+    return today - epoch
+}
+
 android {
     compileSdkVersion 29
     defaultConfig {
         applicationId APP_ID
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 69
-        versionName "10.0 beta 1"
+        versionCode buildnum()
+        versionName "0.99"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
 
