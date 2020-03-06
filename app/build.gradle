@@ -64,6 +64,7 @@ android {
     }
 
     lintOptions {
+        //abortOnError false
         disable 'MissingTranslation'
         disable 'ExtraTranslation'
         disable 'AppCompatCustomView' // I don't care about AppCompat bloat
