@@ -145,8 +145,8 @@ data class Status(
     
     fun getEmojiReactions(): List<EmojiReaction>? {
         return pleroma?.emojiReactions;
-	}
-
+    }
+    
     private fun getEditableText(): String {
         val builder = SpannableStringBuilder(content)
         for (span in content.getSpans(0, content.length, URLSpan::class.java)) {

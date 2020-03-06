@@ -44,13 +44,7 @@ import com.keylesspalace.tusky.BuildConfig;
 import com.keylesspalace.tusky.R;
 import com.keylesspalace.tusky.ViewThreadActivity;
 import com.keylesspalace.tusky.adapter.ThreadAdapter;
-import com.keylesspalace.tusky.appstore.BlockEvent;
-import com.keylesspalace.tusky.appstore.BookmarkEvent;
-import com.keylesspalace.tusky.appstore.EventHub;
-import com.keylesspalace.tusky.appstore.FavoriteEvent;
-import com.keylesspalace.tusky.appstore.ReblogEvent;
-import com.keylesspalace.tusky.appstore.StatusComposedEvent;
-import com.keylesspalace.tusky.appstore.StatusDeletedEvent;
+import com.keylesspalace.tusky.appstore.*;
 import com.keylesspalace.tusky.di.Injectable;
 import com.keylesspalace.tusky.entity.*;
 import com.keylesspalace.tusky.interfaces.StatusActionListener;
@@ -196,6 +190,8 @@ public final class ViewThreadFragment extends SFragment implements
                         handleStatusComposedEvent((StatusComposedEvent) event);
                     } else if (event instanceof StatusDeletedEvent) {
                         handleStatusDeletedEvent((StatusDeletedEvent) event);
+                    } else if (event instanceof EmojiReactEvent) {
+                        handleEmojiReactEvent((EmojiReactEvent)event);
                     }
                 });
                 
@@ -745,8 +741,40 @@ public final class ViewThreadFragment extends SFragment implements
         onRefresh();
     }
     
+    private void setEmojiReactionForStatus(int position, Status status) {
+        StatusViewData.Concrete newViewData = ViewDataUtils.statusToViewData(status, false, false);
+
+        statuses.setPairedItem(position, newViewData);
+        adapter.setItem(position, newViewData, true);
+    }
+    
+    public void handleEmojiReactEvent(EmojiReactEvent event) {
+        Pair<Integer, Status> posAndStatus = findStatusAndPos(event.getNewStatus().getActionableId());
+        if (posAndStatus == null) return;
+        setEmojiReactionForStatus(posAndStatus.first, event.getNewStatus());
+    }
+    
     @Override
-    public void onEmojiReactMenu(@NonNull View view, final EmojiReaction emoji, final String statusId, final int position) {
-        super.emojiReactMenu(statusId, emoji, view, position);
+    public void onEmojiReact(final boolean react, final String emoji, final String statusId) {
+        Pair<Integer, Status> statusAndPos = findStatusAndPos(statusId);
+        
+        if(statusAndPos == null)
+            return;
+        int position = statusAndPos.first;
+    
+        timelineCases.react(emoji, statusId, react)
+                .observeOn(AndroidSchedulers.mainThread())
+                .as(autoDisposable(from(this)))
+                .subscribe(
+                        (newStatus) -> setEmojiReactionForStatus(position, newStatus),
+                        (t) -> Log.d(TAG,
+                                "Failed to react with " + emoji + " on status: " + statusId, t)
+                );
+
+    }
+    
+    @Override
+    public void onEmojiReactMenu(@NonNull View view, final EmojiReaction emoji, final String statusId) {
+        super.emojiReactMenu(statusId, emoji, view, this);
     }
 }

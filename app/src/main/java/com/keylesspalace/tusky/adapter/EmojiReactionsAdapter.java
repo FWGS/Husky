@@ -57,7 +57,7 @@ public class EmojiReactionsAdapter extends RecyclerView.Adapter<EmojiReactionVie
         holder.emojiReaction.setText(str);
         holder.emojiReaction.setActivated(reaction.getMe());
         holder.emojiReaction.setOnClickListener(v -> {
-            listener.onEmojiReactMenu(v, reaction, statusId, position);
+            listener.onEmojiReactMenu(v, reaction, statusId);
         });
     }
 

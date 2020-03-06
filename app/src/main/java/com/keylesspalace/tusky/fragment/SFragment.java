@@ -62,6 +62,7 @@ import com.keylesspalace.tusky.entity.EmojiReaction;
 import com.keylesspalace.tusky.network.MastodonApi;
 import com.keylesspalace.tusky.network.TimelineCases;
 import com.keylesspalace.tusky.viewdata.AttachmentViewData;
+import com.keylesspalace.tusky.interfaces.StatusActionListener;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -175,7 +176,7 @@ public abstract class SFragment extends BaseFragment implements Injectable {
         getActivity().startActivity(intent);
     }
     
-    protected void emojiReactMenu(@NonNull final String statusId, @NonNull final EmojiReaction reaction, View view, final int position) {
+    protected void emojiReactMenu(@NonNull final String statusId, @NonNull final EmojiReaction reaction, View view, final StatusActionListener listener) {
         PopupMenu popup = new PopupMenu(getContext(), view);
         
         popup.inflate(R.menu.emoji_reaction_more);
@@ -186,10 +187,10 @@ public abstract class SFragment extends BaseFragment implements Injectable {
         popup.setOnMenuItemClickListener(item -> {
             switch (item.getItemId()) {
             case R.id.emoji_react:
-                // TODO
+                listener.onEmojiReact(true, reaction.getName(), statusId);
                 return true;
             case R.id.emoji_unreact:
-                // TODO
+                listener.onEmojiReact(false, reaction.getName(), statusId);
                 return true;
             case R.id.emoji_reacted_by:
                 Intent intent = AccountListActivity.newIntent(getContext(), AccountListActivity.Type.REACTED, statusId, reaction.getName());

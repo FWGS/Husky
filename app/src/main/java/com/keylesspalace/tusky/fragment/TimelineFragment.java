@@ -531,6 +531,8 @@ public class TimelineFragment extends SFragment implements
                             handleStatusComposeEvent(status);
                         } else if (event instanceof PreferenceChangedEvent) {
                             onPreferenceChanged(((PreferenceChangedEvent) event).getPreferenceKey());
+                        } else if (event instanceof EmojiReactEvent) {
+                            handleEmojiReactEvent((EmojiReactEvent)event);
                         }
                     });
             eventRegistered = true;
@@ -1497,9 +1499,47 @@ public class TimelineFragment extends SFragment implements
             isNeedRefresh = true;
     }
     
+    private void setEmojiReactionForStatus(int position, Status newStatus) {
+        StatusViewData newViewData = ViewDataUtils.statusToViewData(newStatus, false, false);
+        statuses.setPairedItem(position, newViewData);
+        updateAdapter();
+    }
+    
+    private void setEmojiReactForStatus(int position, Status status, Status newStatus) {
+        Pair<StatusViewData.Concrete, Integer> actual =
+                findStatusAndPosition(position, status);
+        if (actual == null) return;
+
+        setEmojiReactionForStatus(actual.second, newStatus);
+    }
+
+    public void handleEmojiReactEvent(EmojiReactEvent event) {
+        int pos = findStatusOrReblogPositionById(event.getNewStatus().getActionableId());
+        if (pos < 0) return;
+        Status status = statuses.get(pos).asRight();
+        setEmojiReactForStatus(pos, status, event.getNewStatus());
+    }
+    
     @Override
-    public void onEmojiReactMenu(@NonNull View view, final EmojiReaction emoji, final String statusId, final int position) {
-        super.emojiReactMenu(statusId, emoji, view, position);
+    public void onEmojiReact(final boolean react, final String emoji, final String statusId) {
+        int position = findStatusOrReblogPositionById(statusId);
+        if (position < 0) return;
+        
+        timelineCases.react(emoji, statusId, react)
+                .observeOn(AndroidSchedulers.mainThread())
+                .as(autoDisposable(from(this)))
+                .subscribe(
+                        (newStatus) -> setEmojiReactionForStatus(position, newStatus),
+                        (t) -> Log.d(TAG,
+                                "Failed to react with " + emoji + " on status: " + statusId, t)
+                );
+
+    }
+
+    
+    @Override
+    public void onEmojiReactMenu(@NonNull View view, final EmojiReaction emoji, final String statusId) {
+        super.emojiReactMenu(statusId, emoji, view, this);
     }
 
 }
