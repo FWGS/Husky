@@ -51,9 +51,7 @@ import com.keylesspalace.tusky.adapter.TimelineAdapter;
 import com.keylesspalace.tusky.appstore.*;
 import com.keylesspalace.tusky.db.AccountManager;
 import com.keylesspalace.tusky.di.Injectable;
-import com.keylesspalace.tusky.entity.Filter;
-import com.keylesspalace.tusky.entity.Poll;
-import com.keylesspalace.tusky.entity.Status;
+import com.keylesspalace.tusky.entity.*;
 import com.keylesspalace.tusky.interfaces.ActionButtonActivity;
 import com.keylesspalace.tusky.interfaces.RefreshableFragment;
 import com.keylesspalace.tusky.interfaces.ReselectableFragment;
@@ -1498,4 +1496,10 @@ public class TimelineFragment extends SFragment implements
         else
             isNeedRefresh = true;
     }
+    
+    @Override
+    public void onEmojiReactMenu(@NonNull View view, final EmojiReaction emoji, final String statusId, final int position) {
+        super.emojiReactMenu(statusId, emoji, view, position);
+    }
+
 }
