@@ -52,10 +52,7 @@ import com.keylesspalace.tusky.appstore.ReblogEvent;
 import com.keylesspalace.tusky.appstore.StatusComposedEvent;
 import com.keylesspalace.tusky.appstore.StatusDeletedEvent;
 import com.keylesspalace.tusky.di.Injectable;
-import com.keylesspalace.tusky.entity.Filter;
-import com.keylesspalace.tusky.entity.Poll;
-import com.keylesspalace.tusky.entity.Status;
-import com.keylesspalace.tusky.entity.StatusContext;
+import com.keylesspalace.tusky.entity.*;
 import com.keylesspalace.tusky.interfaces.StatusActionListener;
 import com.keylesspalace.tusky.network.MastodonApi;
 import com.keylesspalace.tusky.util.CardViewMode;
@@ -746,5 +743,10 @@ public final class ViewThreadFragment extends SFragment implements
     @Override
     protected void refreshAfterApplyingFilters() {
         onRefresh();
+    }
+    
+    @Override
+    public void onEmojiReactMenu(@NonNull View view, final EmojiReaction emoji, final String statusId, final int position) {
+        super.emojiReactMenu(statusId, emoji, view, position);
     }
 }

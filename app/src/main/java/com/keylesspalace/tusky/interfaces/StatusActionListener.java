@@ -18,6 +18,7 @@ package com.keylesspalace.tusky.interfaces;
 import android.view.View;
 
 import java.util.List;
+import com.keylesspalace.tusky.entity.EmojiReaction;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -64,6 +65,7 @@ public interface StatusActionListener extends LinkListener {
     void onVoteInPoll(int position, @NonNull List<Integer> choices);
     
     default void onMute(int position, boolean isMuted) {}
-    default void onEmojiReact(final boolean react, final String emoji, final int position) {};
+    // default void onEmojiReact(final boolean react, final String emoji, final int position) {};
+    default void onEmojiReactMenu(@NonNull View view, final EmojiReaction emoji, final String statusId, final int position) {};
 
 }

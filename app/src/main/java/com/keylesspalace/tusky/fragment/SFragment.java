@@ -43,6 +43,7 @@ import androidx.lifecycle.Lifecycle;
 import com.keylesspalace.tusky.BaseActivity;
 import com.keylesspalace.tusky.BottomSheetActivity;
 import com.keylesspalace.tusky.MainActivity;
+import com.keylesspalace.tusky.AccountListActivity;
 import com.keylesspalace.tusky.R;
 import com.keylesspalace.tusky.PostLookupFallbackBehavior;
 import com.keylesspalace.tusky.ViewMediaActivity;
@@ -57,6 +58,7 @@ import com.keylesspalace.tusky.entity.Attachment;
 import com.keylesspalace.tusky.entity.Filter;
 import com.keylesspalace.tusky.entity.PollOption;
 import com.keylesspalace.tusky.entity.Status;
+import com.keylesspalace.tusky.entity.EmojiReaction;
 import com.keylesspalace.tusky.network.MastodonApi;
 import com.keylesspalace.tusky.network.TimelineCases;
 import com.keylesspalace.tusky.viewdata.AttachmentViewData;
@@ -171,6 +173,33 @@ public abstract class SFragment extends BaseFragment implements Injectable {
 
         Intent intent = ComposeActivity.startIntent(getContext(), composeOptions);
         getActivity().startActivity(intent);
+    }
+    
+    protected void emojiReactMenu(@NonNull final String statusId, @NonNull final EmojiReaction reaction, View view, final int position) {
+        PopupMenu popup = new PopupMenu(getContext(), view);
+        
+        popup.inflate(R.menu.emoji_reaction_more);
+        Menu menu = popup.getMenu();
+        menu.findItem(R.id.emoji_react).setVisible(!reaction.getMe());
+        menu.findItem(R.id.emoji_unreact).setVisible(reaction.getMe());
+        
+        popup.setOnMenuItemClickListener(item -> {
+            switch (item.getItemId()) {
+            case R.id.emoji_react:
+                // TODO
+                return true;
+            case R.id.emoji_unreact:
+                // TODO
+                return true;
+            case R.id.emoji_reacted_by:
+                Intent intent = AccountListActivity.newIntent(getContext(), AccountListActivity.Type.REACTED, statusId, reaction.getName());
+                ((BaseActivity) getActivity()).startActivityWithSlideInAnimation(intent);
+            
+                return true;
+            }
+            return false;
+        });
+        popup.show();
     }
 
     protected void more(@NonNull final Status status, View view, final int position) {

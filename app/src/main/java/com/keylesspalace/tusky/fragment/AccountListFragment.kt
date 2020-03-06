@@ -31,8 +31,7 @@ import com.keylesspalace.tusky.BaseActivity
 import com.keylesspalace.tusky.R
 import com.keylesspalace.tusky.adapter.*
 import com.keylesspalace.tusky.di.Injectable
-import com.keylesspalace.tusky.entity.Account
-import com.keylesspalace.tusky.entity.Relationship
+import com.keylesspalace.tusky.entity.*
 import com.keylesspalace.tusky.interfaces.AccountActionListener
 import com.keylesspalace.tusky.network.MastodonApi
 import com.keylesspalace.tusky.util.HttpHeaderLink
@@ -58,6 +57,7 @@ class AccountListFragment : BaseFragment(), AccountActionListener, Injectable {
 
     private lateinit var type: Type
     private var id: String? = null
+    private var emojiReaction: String? = null
 
     private lateinit var scrollListener: EndlessOnScrollListener
     private lateinit var adapter: AccountAdapter
@@ -68,6 +68,7 @@ class AccountListFragment : BaseFragment(), AccountActionListener, Injectable {
         super.onCreate(savedInstanceState)
         type = arguments?.getSerializable(ARG_TYPE) as Type
         id = arguments?.getString(ARG_ID)
+        emojiReaction = arguments?.getString(ARG_EMOJI)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -273,11 +274,22 @@ class AccountListFragment : BaseFragment(), AccountActionListener, Injectable {
                 val statusId = requireId(type, id)
                 api.statusFavouritedBy(statusId, fromId)
             }
+            Type.REACTED -> {
+                // HACKHACK: make compiler happy
+                val statusId = requireId(type, id)
+                api.statusFavouritedBy(statusId, fromId)
+            }
         }
     }
-
-    private fun requireId(type: Type, id: String?): String {
-        return requireNotNull(id) { "id must not be null for type "+type.name }
+    
+    private fun requireId(type: Type, id: String?, name: String = "id"): String {
+        return requireNotNull(id) { name+" must not be null for type "+type.name }
+    }
+    
+    private fun getEmojiReactionFetchCall(): Single<Response<List<EmojiReaction>>> {
+        val statusId = requireId(type, id)
+        val emoji = requireId(type, emojiReaction, "emoji")
+        return api.statusReactedBy(statusId, emoji)
     }
 
     private fun fetchAccounts(fromId: String? = null) {
@@ -289,8 +301,25 @@ class AccountListFragment : BaseFragment(), AccountActionListener, Injectable {
         if (fromId != null) {
             recyclerView.post { adapter.setBottomLoading(true) }
         }
+        
+        if(type == Type.REACTED) {
+            getEmojiReactionFetchCall()
+                .observeOn(AndroidSchedulers.mainThread())
+                .autoDispose(from(this, Lifecycle.Event.ON_DESTROY))
+                .subscribe({ response ->
+                    val emojiReaction = response.body()
 
-        getFetchCallByListType(fromId)
+                    if (response.isSuccessful && emojiReaction != null && emojiReaction.size > 0 && emojiReaction.get(0).accounts != null) {
+                        val linkHeader = response.headers()["Link"]
+                        onFetchAccountsSuccess(emojiReaction.get(0).accounts!!, linkHeader)
+                    } else {
+                        onFetchAccountsFailure(Exception(response.message()))
+                    }
+                }, {throwable ->
+                    onFetchAccountsFailure(throwable)
+                })
+        } else {
+            getFetchCallByListType(fromId)
                 .observeOn(AndroidSchedulers.mainThread())
                 .autoDispose(from(this, Lifecycle.Event.ON_DESTROY))
                 .subscribe({ response ->
@@ -305,7 +334,7 @@ class AccountListFragment : BaseFragment(), AccountActionListener, Injectable {
                 }, {throwable ->
                     onFetchAccountsFailure(throwable)
                 })
-
+        }
     }
 
     private fun onFetchAccountsSuccess(accounts: List<Account>, linkHeader: String?) {
@@ -361,12 +390,14 @@ class AccountListFragment : BaseFragment(), AccountActionListener, Injectable {
         private const val TAG = "AccountList" // logging tag
         private const val ARG_TYPE = "type"
         private const val ARG_ID = "id"
+        private const val ARG_EMOJI = "emoji"
 
-        fun newInstance(type: Type, id: String? = null): AccountListFragment {
+        fun newInstance(type: Type, id: String? = null, emoji: String? = null): AccountListFragment {
             return AccountListFragment().apply {
-                arguments = Bundle(2).apply {
+                arguments = Bundle(3).apply {
                     putSerializable(ARG_TYPE, type)
                     putString(ARG_ID, id)
+                    putString(ARG_EMOJI, emoji)
                 }
             }
         }

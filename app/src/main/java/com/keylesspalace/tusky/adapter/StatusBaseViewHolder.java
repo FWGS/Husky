@@ -28,6 +28,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.bumptech.glide.load.resource.bitmap.GranularRoundedCorners;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.flexbox.FlexboxLayoutManager;
 import com.keylesspalace.tusky.R;
 import com.keylesspalace.tusky.entity.Attachment;
 import com.keylesspalace.tusky.entity.Attachment.Focus;
@@ -35,6 +36,7 @@ import com.keylesspalace.tusky.entity.Attachment.MetaData;
 import com.keylesspalace.tusky.entity.Card;
 import com.keylesspalace.tusky.entity.Emoji;
 import com.keylesspalace.tusky.entity.Status;
+import com.keylesspalace.tusky.entity.EmojiReaction;
 import com.keylesspalace.tusky.interfaces.StatusActionListener;
 import com.keylesspalace.tusky.util.CardViewMode;
 import com.keylesspalace.tusky.util.CustomEmojiHelper;
@@ -112,6 +114,8 @@ public abstract class StatusBaseViewHolder extends RecyclerView.ViewHolder {
     private int avatarRadius24dp;
 
     private final Drawable mediaPreviewUnloaded;
+    
+    private RecyclerView emojiReactionsView;
 
     protected StatusBaseViewHolder(View itemView) {
         super(itemView);
@@ -125,7 +129,8 @@ public abstract class StatusBaseViewHolder extends RecyclerView.ViewHolder {
         favouriteButton = itemView.findViewById(R.id.status_favourite);
         bookmarkButton = itemView.findViewById(R.id.status_bookmark);
         moreButton = itemView.findViewById(R.id.status_more);
-        
+        emojiReactionsView = itemView.findViewById(R.id.status_emoji_reactions);
+
         float INCREASE_HORIZONTAL_HIT_AREA = 20.0f;
 
         ViewExtensionsKt.increaseHitArea(replyButton, 0.0f, INCREASE_HORIZONTAL_HIT_AREA);
@@ -700,6 +705,15 @@ public abstract class StatusBaseViewHolder extends RecyclerView.ViewHolder {
                 })
                 .show();
     }
+    
+    private void setEmojiReactions(@Nullable List<EmojiReaction> reactions, final StatusActionListener listener, final String statusId) {
+        if(emojiReactionsView != null && reactions != null && reactions.size() > 0) {
+            emojiReactionsView.setVisibility(View.VISIBLE);
+            FlexboxLayoutManager lm = new FlexboxLayoutManager(emojiReactionsView.getContext());
+            emojiReactionsView.setLayoutManager(lm);
+            emojiReactionsView.setAdapter(new EmojiReactionsAdapter(reactions, listener, statusId));
+        }
+    }
 
     public void setupWithStatus(StatusViewData.Concrete status, final StatusActionListener listener,
                                 StatusDisplayOptions statusDisplayOptions) {
@@ -752,6 +766,8 @@ public abstract class StatusBaseViewHolder extends RecyclerView.ViewHolder {
             setSpoilerAndContent(status.isExpanded(), status.getContent(), status.getSpoilerText(), status.getMentions(), status.getStatusEmojis(), status.getPoll(), statusDisplayOptions, listener);
 
             setDescriptionForStatus(status, statusDisplayOptions);
+            
+            setEmojiReactions(status.getEmojiReactions(), listener, status.getId());
 
             // Workaround for RecyclerView 1.0.0 / androidx.core 1.0.0
             // RecyclerView tries to set AccessibilityDelegateCompat to null

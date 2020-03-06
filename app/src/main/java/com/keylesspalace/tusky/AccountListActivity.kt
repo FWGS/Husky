@@ -37,7 +37,8 @@ class AccountListActivity : BaseActivity(), HasAndroidInjector {
         MUTES,
         FOLLOW_REQUESTS,
         REBLOGGED,
-        FAVOURITED
+        FAVOURITED,
+        REACTED
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,6 +47,7 @@ class AccountListActivity : BaseActivity(), HasAndroidInjector {
 
         val type = intent.getSerializableExtra(EXTRA_TYPE) as Type
         val id: String? = intent.getStringExtra(EXTRA_ID)
+        val emoji: String? = intent.getStringExtra(EXTRA_EMOJI)
 
         setSupportActionBar(toolbar)
         supportActionBar?.apply {
@@ -57,6 +59,7 @@ class AccountListActivity : BaseActivity(), HasAndroidInjector {
                 Type.FOLLOWS -> setTitle(R.string.title_follows)
                 Type.REBLOGGED -> setTitle(R.string.title_reblogged_by)
                 Type.FAVOURITED -> setTitle(R.string.title_favourited_by)
+                Type.REACTED -> setTitle(R.string.title_emoji_reacted_by)
             }
             setDisplayHomeAsUpEnabled(true)
             setDisplayShowHomeEnabled(true)
@@ -64,7 +67,7 @@ class AccountListActivity : BaseActivity(), HasAndroidInjector {
 
         supportFragmentManager
                 .beginTransaction()
-                .replace(R.id.fragment_container, AccountListFragment.newInstance(type, id))
+                .replace(R.id.fragment_container, AccountListFragment.newInstance(type, id, emoji))
                 .commit()
     }
 
@@ -83,13 +86,20 @@ class AccountListActivity : BaseActivity(), HasAndroidInjector {
     companion object {
         private const val EXTRA_TYPE = "type"
         private const val EXTRA_ID = "id"
+        private const val EXTRA_EMOJI = "emoji"
 
         @JvmStatic
-        fun newIntent(context: Context, type: Type, id: String? = null): Intent {
+        fun newIntent(context: Context, type: Type, id: String?, emoji: String?): Intent {
             return Intent(context, AccountListActivity::class.java).apply {
                 putExtra(EXTRA_TYPE, type)
                 putExtra(EXTRA_ID, id)
+                putExtra(EXTRA_EMOJI, emoji)
             }
+        }
+        
+        @JvmStatic
+        fun newIntent(context: Context, type: Type, id: String? = null): Intent {
+            return newIntent(context, type, id, null)
         }
     }
 }

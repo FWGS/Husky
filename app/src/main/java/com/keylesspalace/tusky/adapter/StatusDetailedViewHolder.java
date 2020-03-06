@@ -33,14 +33,12 @@ class StatusDetailedViewHolder extends StatusBaseViewHolder {
     private TextView reblogs;
     private TextView favourites;
     private View infoDivider;
-    private RecyclerView emojiReactionsView;
 
     StatusDetailedViewHolder(View view) {
         super(view);
         reblogs = view.findViewById(R.id.status_reblogs);
         favourites = view.findViewById(R.id.status_favourites);
         infoDivider = view.findViewById(R.id.status_info_divider);
-        emojiReactionsView = view.findViewById(R.id.status_emoji_reactions);
     }
 
     @Override
@@ -108,60 +106,6 @@ class StatusDetailedViewHolder extends StatusBaseViewHolder {
         }
     }
     
-    private class EmojiReactionViewHolder extends RecyclerView.ViewHolder {
-        public EmojiAppCompatButton emojiReaction;
-        EmojiReactionViewHolder(View view) {
-            super(view);
-            emojiReaction = view.findViewById(R.id.status_emoji_reaction);
-        }
-    }
-    
-    private class EmojiReactionsAdapter extends RecyclerView.Adapter<EmojiReactionViewHolder> {
-        private List<EmojiReaction> reactions;
-    
-        EmojiReactionsAdapter(List<EmojiReaction> reactions) {
-            this.reactions = reactions;
-            
-        }
-        
-        @Override
-        public EmojiReactionViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_emoji_reaction, parent, false);
-            return new EmojiReactionViewHolder(view);
-        }
-
-        @Override
-        public void onBindViewHolder(EmojiReactionViewHolder holder, int position) {
-            EmojiReaction reaction = reactions.get(position);
-            String str = reaction.getName() + " " + reaction.getCount();
-            
-            // no custom emoji yet!
-            holder.emojiReaction.setText(str);
-            holder.emojiReaction.setActivated(reaction.getMe());
-            holder.emojiReaction.setOnClickListener(v -> {});
-        }
-
-        // total number of rows
-        @Override
-        public int getItemCount() {
-            return reactions.size();
-        }
-    }
-    
-    private void setEmojiReactions(@Nullable List<EmojiReaction> reactions) {
-		if(reactions != null) {
-			emojiReactionsView.setVisibility(View.VISIBLE);
-			FlexboxLayoutManager lm = new FlexboxLayoutManager(emojiReactionsView.getContext());
-			// lm.setFlexDirection(FlexDirection.COLUMN);
-            //    StaggeredGridLayoutManager.HORIZONTAL);
-            // lm.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS);
-			emojiReactionsView.setLayoutManager(lm);
-			emojiReactionsView.setAdapter(new EmojiReactionsAdapter(reactions));
-			//emojiReactionsView.setLayoutManager StaggeredGridLayoutManager
-		}
-    }
-
     @Override
     protected void setupWithStatus(final StatusViewData.Concrete status,
                                    final StatusActionListener listener,
@@ -173,7 +117,6 @@ class StatusDetailedViewHolder extends StatusBaseViewHolder {
             setReblogAndFavCount(status.getReblogsCount(), status.getFavouritesCount(), listener);
 
             setApplication(status.getApplication());
-            setEmojiReactions(status.getEmojiReactions());
             View.OnLongClickListener longClickListener = view -> {
                 TextView textView = (TextView) view;
                 ClipboardManager clipboard = (ClipboardManager) view.getContext().getSystemService(Context.CLIPBOARD_SERVICE);
