@@ -62,6 +62,7 @@ import com.keylesspalace.tusky.network.MastodonApi;
 import com.keylesspalace.tusky.repository.Placeholder;
 import com.keylesspalace.tusky.repository.TimelineRepository;
 import com.keylesspalace.tusky.repository.TimelineRequestMode;
+import com.keylesspalace.tusky.util.CardViewMode;
 import com.keylesspalace.tusky.util.Either;
 import com.keylesspalace.tusky.util.LinkHelper;
 import com.keylesspalace.tusky.util.ListStatusAccessibilityDelegate;
@@ -217,7 +218,11 @@ public class TimelineFragment extends SFragment implements
                 accountManager.getActiveAccount().getMediaPreviewEnabled(),
                 preferences.getBoolean("absoluteTimeView", false),
                 preferences.getBoolean("showBotOverlay", true),
-                preferences.getBoolean("useBlurhash", true)
+                preferences.getBoolean("useBlurhash", true),
+                preferences.getBoolean("showCardsInTimelines", false) ?
+                        CardViewMode.INDENTED :
+                        CardViewMode.NONE,
+                preferences.getBoolean("confirmReblogs", true)
         );
         adapter = new TimelineAdapter(dataSource, statusDisplayOptions, this);
 
@@ -576,6 +581,10 @@ public class TimelineFragment extends SFragment implements
     @Override
     public void onReblog(final boolean reblog, final int position) {
         final Status status = statuses.get(position).asRight();
+        doReblog(reblog, position, status);
+    }
+
+    private void doReblog(boolean reblog, int position, Status status) {
         timelineCases.reblog(status, reblog)
                 .observeOn(AndroidSchedulers.mainThread())
                 .as(autoDisposable(from(this, Lifecycle.Event.ON_DESTROY)))

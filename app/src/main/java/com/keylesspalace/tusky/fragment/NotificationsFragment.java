@@ -64,6 +64,7 @@ import com.keylesspalace.tusky.entity.Status;
 import com.keylesspalace.tusky.interfaces.ActionButtonActivity;
 import com.keylesspalace.tusky.interfaces.ReselectableFragment;
 import com.keylesspalace.tusky.interfaces.StatusActionListener;
+import com.keylesspalace.tusky.util.CardViewMode;
 import com.keylesspalace.tusky.util.Either;
 import com.keylesspalace.tusky.util.HttpHeaderLink;
 import com.keylesspalace.tusky.util.ListStatusAccessibilityDelegate;
@@ -239,7 +240,9 @@ public class NotificationsFragment extends SFragment implements
                 accountManager.getActiveAccount().getMediaPreviewEnabled(),
                 preferences.getBoolean("absoluteTimeView", false),
                 preferences.getBoolean("showBotOverlay", true),
-                preferences.getBoolean("useBlurhash", true)
+                preferences.getBoolean("useBlurhash", true),
+                CardViewMode.NONE,
+                preferences.getBoolean("confirmReblogs", true)
         );
 
         adapter = new NotificationsAdapter(accountManager.getActiveAccount().getAccountId(),
