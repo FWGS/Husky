@@ -8,7 +8,7 @@
     <string name="action_emoji_unreact">Remove reaction</string>
     <string name="action_emoji_reacted_by">Who reacted</string>
     
-    <string name="title_emoji_reacted_by">Emoji reacted by</string>
+    <string name="title_emoji_reacted_by">%s reacted by</string>
     
     <string name="hint_appname">Application name</string>
     <string name="hint_website">Application website</string>

@@ -59,7 +59,7 @@ class AccountListActivity : BaseActivity(), HasAndroidInjector {
                 Type.FOLLOWS -> setTitle(R.string.title_follows)
                 Type.REBLOGGED -> setTitle(R.string.title_reblogged_by)
                 Type.FAVOURITED -> setTitle(R.string.title_favourited_by)
-                Type.REACTED -> setTitle(R.string.title_emoji_reacted_by)
+                Type.REACTED -> setTitle(String.format(getString(R.string.title_emoji_reacted_by), emoji))
             }
             setDisplayHomeAsUpEnabled(true)
             setDisplayShowHomeEnabled(true)
