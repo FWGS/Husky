@@ -10,7 +10,7 @@
         android:id="@+id/status_emoji_reaction"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginRight="5dp"
+        android:layout_marginRight="2dp"
         android:layout_marginBottom="1dp"
         android:minWidth="0dp"
         android:lines="1"

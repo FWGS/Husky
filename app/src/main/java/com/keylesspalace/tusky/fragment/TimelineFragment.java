@@ -51,9 +51,7 @@ import com.keylesspalace.tusky.adapter.TimelineAdapter;
 import com.keylesspalace.tusky.appstore.*;
 import com.keylesspalace.tusky.db.AccountManager;
 import com.keylesspalace.tusky.di.Injectable;
-import com.keylesspalace.tusky.entity.Filter;
-import com.keylesspalace.tusky.entity.Poll;
-import com.keylesspalace.tusky.entity.Status;
+import com.keylesspalace.tusky.entity.*;
 import com.keylesspalace.tusky.interfaces.ActionButtonActivity;
 import com.keylesspalace.tusky.interfaces.RefreshableFragment;
 import com.keylesspalace.tusky.interfaces.ReselectableFragment;
@@ -62,6 +60,7 @@ import com.keylesspalace.tusky.network.MastodonApi;
 import com.keylesspalace.tusky.repository.Placeholder;
 import com.keylesspalace.tusky.repository.TimelineRepository;
 import com.keylesspalace.tusky.repository.TimelineRequestMode;
+import com.keylesspalace.tusky.util.CardViewMode;
 import com.keylesspalace.tusky.util.Either;
 import com.keylesspalace.tusky.util.LinkHelper;
 import com.keylesspalace.tusky.util.ListStatusAccessibilityDelegate;
@@ -217,7 +216,11 @@ public class TimelineFragment extends SFragment implements
                 accountManager.getActiveAccount().getMediaPreviewEnabled(),
                 preferences.getBoolean("absoluteTimeView", false),
                 preferences.getBoolean("showBotOverlay", true),
-                preferences.getBoolean("useBlurhash", true)
+                preferences.getBoolean("useBlurhash", true),
+                preferences.getBoolean("showCardsInTimelines", false) ?
+                        CardViewMode.INDENTED :
+                        CardViewMode.NONE,
+                preferences.getBoolean("confirmReblogs", true)
         );
         adapter = new TimelineAdapter(dataSource, statusDisplayOptions, this);
 
@@ -528,6 +531,8 @@ public class TimelineFragment extends SFragment implements
                             handleStatusComposeEvent(status);
                         } else if (event instanceof PreferenceChangedEvent) {
                             onPreferenceChanged(((PreferenceChangedEvent) event).getPreferenceKey());
+                        } else if (event instanceof EmojiReactEvent) {
+                            handleEmojiReactEvent((EmojiReactEvent)event);
                         }
                     });
             eventRegistered = true;
@@ -576,6 +581,10 @@ public class TimelineFragment extends SFragment implements
     @Override
     public void onReblog(final boolean reblog, final int position) {
         final Status status = statuses.get(position).asRight();
+        doReblog(reblog, position, status);
+    }
+
+    private void doReblog(boolean reblog, int position, Status status) {
         timelineCases.reblog(status, reblog)
                 .observeOn(AndroidSchedulers.mainThread())
                 .as(autoDisposable(from(this, Lifecycle.Event.ON_DESTROY)))
@@ -1489,4 +1498,48 @@ public class TimelineFragment extends SFragment implements
         else
             isNeedRefresh = true;
     }
+    
+    private void setEmojiReactionForStatus(int position, Status newStatus) {
+        StatusViewData newViewData = ViewDataUtils.statusToViewData(newStatus, false, false);
+        statuses.setPairedItem(position, newViewData);
+        updateAdapter();
+    }
+    
+    private void setEmojiReactForStatus(int position, Status status, Status newStatus) {
+        Pair<StatusViewData.Concrete, Integer> actual =
+                findStatusAndPosition(position, status);
+        if (actual == null) return;
+
+        setEmojiReactionForStatus(actual.second, newStatus);
+    }
+
+    public void handleEmojiReactEvent(EmojiReactEvent event) {
+        int pos = findStatusOrReblogPositionById(event.getNewStatus().getActionableId());
+        if (pos < 0) return;
+        Status status = statuses.get(pos).asRight();
+        setEmojiReactForStatus(pos, status, event.getNewStatus());
+    }
+    
+    @Override
+    public void onEmojiReact(final boolean react, final String emoji, final String statusId) {
+        int position = findStatusOrReblogPositionById(statusId);
+        if (position < 0) return;
+        
+        timelineCases.react(emoji, statusId, react)
+                .observeOn(AndroidSchedulers.mainThread())
+                .as(autoDisposable(from(this)))
+                .subscribe(
+                        (newStatus) -> setEmojiReactionForStatus(position, newStatus),
+                        (t) -> Log.d(TAG,
+                                "Failed to react with " + emoji + " on status: " + statusId, t)
+                );
+
+    }
+
+    
+    @Override
+    public void onEmojiReactMenu(@NonNull View view, final EmojiReaction emoji, final String statusId) {
+        super.emojiReactMenu(statusId, emoji, view, this);
+    }
+
 }

@@ -588,19 +588,20 @@ interface MastodonApi {
     fun getNodeinfo(@Url url: String) : Single<NodeInfo>
     
     @PUT("api/v1/pleroma/statuses/{id}/reactions/{emoji}")
-	fun reactWithEmoji(
-		@Path("id") statusId: String,
-		@Path("emoji") emoji: String
-	): Single<Status>
-	
-	@DELETE("api/v1/pleroma/statuses/{id}/reactions/{emoji}")
-	fun unreactWithEmoji(
-		@Path("id") statusId: String,
-		@Path("emoji") emoji: String
-	): Single<Status>
-	
-	@GET("api/v1/pleroma/statuses/{id}/reactions")
-	fun statusReactedBy(
-		@Path("id") statusId: String
-	): Single<List<EmojiReaction>>
+    fun reactWithEmoji(
+        @Path("id") statusId: String,
+        @Path("emoji") emoji: String
+    ): Single<Status>
+
+    @DELETE("api/v1/pleroma/statuses/{id}/reactions/{emoji}")
+    fun unreactWithEmoji(
+        @Path("id") statusId: String,
+        @Path("emoji") emoji: String
+    ): Single<Status>
+
+    @GET("api/v1/pleroma/statuses/{id}/reactions/{emoji}")
+    fun statusReactedBy(
+        @Path("id") statusId: String,
+        @Path("emoji") emoji: String
+    ): Single<Response<List<EmojiReaction>>>
 }

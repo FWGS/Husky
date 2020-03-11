@@ -43,7 +43,7 @@ interface TimelineCases {
     fun delete(id: String): Single<DeletedStatus>
     fun pin(status: Status, pin: Boolean)
     fun voteInPoll(status: Status, choices: List<Int>): Single<Poll>
-
+    fun react(emoji: String, id: String, react: Boolean) : Single<Status>
 }
 
 class TimelineCasesImpl(
@@ -157,4 +157,14 @@ class TimelineCasesImpl(
         }
     }
 
+    override fun react(emoji: String, id: String, react: Boolean): Single<Status> {
+        val call = if (react) {
+            mastodonApi.reactWithEmoji(id, emoji)
+        } else {
+            mastodonApi.unreactWithEmoji(id, emoji)
+        }
+        return call.doAfterSuccess { status ->
+            eventHub.dispatch(EmojiReactEvent(status))
+        }
+    }
 }

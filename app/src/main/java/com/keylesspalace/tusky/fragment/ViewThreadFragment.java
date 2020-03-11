@@ -44,20 +44,12 @@ import com.keylesspalace.tusky.BuildConfig;
 import com.keylesspalace.tusky.R;
 import com.keylesspalace.tusky.ViewThreadActivity;
 import com.keylesspalace.tusky.adapter.ThreadAdapter;
-import com.keylesspalace.tusky.appstore.BlockEvent;
-import com.keylesspalace.tusky.appstore.BookmarkEvent;
-import com.keylesspalace.tusky.appstore.EventHub;
-import com.keylesspalace.tusky.appstore.FavoriteEvent;
-import com.keylesspalace.tusky.appstore.ReblogEvent;
-import com.keylesspalace.tusky.appstore.StatusComposedEvent;
-import com.keylesspalace.tusky.appstore.StatusDeletedEvent;
+import com.keylesspalace.tusky.appstore.*;
 import com.keylesspalace.tusky.di.Injectable;
-import com.keylesspalace.tusky.entity.Filter;
-import com.keylesspalace.tusky.entity.Poll;
-import com.keylesspalace.tusky.entity.Status;
-import com.keylesspalace.tusky.entity.StatusContext;
+import com.keylesspalace.tusky.entity.*;
 import com.keylesspalace.tusky.interfaces.StatusActionListener;
 import com.keylesspalace.tusky.network.MastodonApi;
+import com.keylesspalace.tusky.util.CardViewMode;
 import com.keylesspalace.tusky.util.ListStatusAccessibilityDelegate;
 import com.keylesspalace.tusky.util.PairedList;
 import com.keylesspalace.tusky.util.StatusDisplayOptions;
@@ -131,7 +123,11 @@ public final class ViewThreadFragment extends SFragment implements
                 accountManager.getActiveAccount().getMediaPreviewEnabled(),
                 preferences.getBoolean("absoluteTimeView", false),
                 preferences.getBoolean("showBotOverlay", true),
-                preferences.getBoolean("useBlurhash", true)
+                preferences.getBoolean("useBlurhash", true),
+                preferences.getBoolean("showCardsInTimelines", false) ?
+                        CardViewMode.INDENTED :
+                        CardViewMode.NONE,
+                preferences.getBoolean("confirmReblogs", true)
         );
         adapter = new ThreadAdapter(statusDisplayOptions, this);
     }
@@ -194,6 +190,8 @@ public final class ViewThreadFragment extends SFragment implements
                         handleStatusComposedEvent((StatusComposedEvent) event);
                     } else if (event instanceof StatusDeletedEvent) {
                         handleStatusDeletedEvent((StatusDeletedEvent) event);
+                    } else if (event instanceof EmojiReactEvent) {
+                        handleEmojiReactEvent((EmojiReactEvent)event);
                     }
                 });
                 
@@ -741,5 +739,42 @@ public final class ViewThreadFragment extends SFragment implements
     @Override
     protected void refreshAfterApplyingFilters() {
         onRefresh();
+    }
+    
+    private void setEmojiReactionForStatus(int position, Status status) {
+        StatusViewData.Concrete newViewData = ViewDataUtils.statusToViewData(status, false, false);
+
+        statuses.setPairedItem(position, newViewData);
+        adapter.setItem(position, newViewData, true);
+    }
+    
+    public void handleEmojiReactEvent(EmojiReactEvent event) {
+        Pair<Integer, Status> posAndStatus = findStatusAndPos(event.getNewStatus().getActionableId());
+        if (posAndStatus == null) return;
+        setEmojiReactionForStatus(posAndStatus.first, event.getNewStatus());
+    }
+    
+    @Override
+    public void onEmojiReact(final boolean react, final String emoji, final String statusId) {
+        Pair<Integer, Status> statusAndPos = findStatusAndPos(statusId);
+        
+        if(statusAndPos == null)
+            return;
+        int position = statusAndPos.first;
+    
+        timelineCases.react(emoji, statusId, react)
+                .observeOn(AndroidSchedulers.mainThread())
+                .as(autoDisposable(from(this)))
+                .subscribe(
+                        (newStatus) -> setEmojiReactionForStatus(position, newStatus),
+                        (t) -> Log.d(TAG,
+                                "Failed to react with " + emoji + " on status: " + statusId, t)
+                );
+
+    }
+    
+    @Override
+    public void onEmojiReactMenu(@NonNull View view, final EmojiReaction emoji, final String statusId) {
+        super.emojiReactMenu(statusId, emoji, view, this);
     }
 }

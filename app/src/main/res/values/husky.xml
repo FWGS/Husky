@@ -2,8 +2,13 @@
     
     <string name="action_reply_to">Reply to</string>
     <string name="action_markdown">Markdown</string>
-	<string name="action_mute_conversation">Mute conversation</string>
-	<string name="action_unmute_conversation">Unmute conversation</string>
+    <string name="action_mute_conversation">Mute conversation</string>
+    <string name="action_unmute_conversation">Unmute conversation</string>
+    <string name="action_emoji_react">Add reaction</string>
+    <string name="action_emoji_unreact">Remove reaction</string>
+    <string name="action_emoji_reacted_by">Who reacted</string>
+    
+    <string name="title_emoji_reacted_by">%s reacted by</string>
     
     <string name="hint_appname">Application name</string>
     <string name="hint_website">Application website</string>
@@ -13,7 +18,7 @@
 
     <string name="error_media_upload_size">File size exceeds instance limits</string>
 
-    <string name="notification_emoji_format">%s reacted to your post with %s</string>
+    <string name="notification_emoji_format">%s reacted with %s to your post</string>
     <string name="notification_emoji_name">Emoji Reactions</string>
     <string name="notification_emoji_description">Notifications about new emoji reactions</string>
 

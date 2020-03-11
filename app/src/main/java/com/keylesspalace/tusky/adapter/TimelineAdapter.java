@@ -64,7 +64,9 @@ public final class TimelineAdapter extends RecyclerView.Adapter {
                 mediaPreviewEnabled,
                 statusDisplayOptions.useAbsoluteTime(),
                 statusDisplayOptions.showBotOverlay(),
-                statusDisplayOptions.useBlurhash()
+                statusDisplayOptions.useBlurhash(),
+                statusDisplayOptions.cardViewMode(),
+                statusDisplayOptions.confirmReblogs()
         );
     }
 
