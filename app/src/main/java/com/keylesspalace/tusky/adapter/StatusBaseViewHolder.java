@@ -9,12 +9,14 @@ import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.MotionEvent;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.util.Log;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
@@ -131,14 +133,15 @@ public abstract class StatusBaseViewHolder extends RecyclerView.ViewHolder {
         moreButton = itemView.findViewById(R.id.status_more);
         emojiReactionsView = itemView.findViewById(R.id.status_emoji_reactions);
 
-        float INCREASE_HORIZONTAL_HIT_AREA = 20.0f;
+        /* Disabled, because it doesn't handle parent resizes. It must be fixed and can be enabled again */
+        /* float INCREASE_HORIZONTAL_HIT_AREA = 20.0f;
 
         ViewExtensionsKt.increaseHitArea(replyButton, 0.0f, INCREASE_HORIZONTAL_HIT_AREA);
         if(reblogButton != null)
             ViewExtensionsKt.increaseHitArea(reblogButton, 0.0f, INCREASE_HORIZONTAL_HIT_AREA);
         ViewExtensionsKt.increaseHitArea(favouriteButton, 0.0f, INCREASE_HORIZONTAL_HIT_AREA);
         ViewExtensionsKt.increaseHitArea(bookmarkButton, 0.0f, INCREASE_HORIZONTAL_HIT_AREA);
-        ViewExtensionsKt.increaseHitArea(moreButton, 0.0f, INCREASE_HORIZONTAL_HIT_AREA);
+        ViewExtensionsKt.increaseHitArea(moreButton, 0.0f, INCREASE_HORIZONTAL_HIT_AREA); */
         
         itemView.findViewById(R.id.status_media_preview_container).setClipToOutline(true);
 
@@ -707,11 +710,29 @@ public abstract class StatusBaseViewHolder extends RecyclerView.ViewHolder {
     }
     
     private void setEmojiReactions(@Nullable List<EmojiReaction> reactions, final StatusActionListener listener, final String statusId) {
-        if(emojiReactionsView != null && reactions != null && reactions.size() > 0) {
-            emojiReactionsView.setVisibility(View.VISIBLE);
-            FlexboxLayoutManager lm = new FlexboxLayoutManager(emojiReactionsView.getContext());
-            emojiReactionsView.setLayoutManager(lm);
-            emojiReactionsView.setAdapter(new EmojiReactionsAdapter(reactions, listener, statusId));
+        if(emojiReactionsView != null ) {
+            if( reactions != null && reactions.size() > 0) {
+                emojiReactionsView.setVisibility(View.VISIBLE);
+                FlexboxLayoutManager lm = new FlexboxLayoutManager(emojiReactionsView.getContext());
+                emojiReactionsView.setLayoutManager(lm);
+                emojiReactionsView.setAdapter(new EmojiReactionsAdapter(reactions, listener, statusId));
+                emojiReactionsView.setOnTouchListener(new View.OnTouchListener() {
+                    @Override
+                    public boolean onTouch(View v, MotionEvent event) {
+                        if(event.getAction() == MotionEvent.ACTION_POINTER_UP ||
+                            event.getAction() == MotionEvent.ACTION_UP) {
+                            int position = getAdapterPosition();
+                            if(position != RecyclerView.NO_POSITION)
+                                listener.onViewThread(position);
+                        }
+                        return false;
+                    }
+                });
+            } else {
+                emojiReactionsView.setVisibility(View.GONE);
+                emojiReactionsView.setLayoutManager(null);
+                emojiReactionsView.setAdapter(null);
+            }
         }
     }
 
