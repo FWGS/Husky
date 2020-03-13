@@ -152,7 +152,6 @@ public class TimelineFragment extends SFragment implements
     private EndlessOnScrollListener scrollListener;
     private boolean filterRemoveReplies;
     private boolean filterRemoveReblogs;
-    private boolean filterRemoveMutedUsers;
     private boolean hideFab;
     private boolean bottomLoading;
 
@@ -353,11 +352,6 @@ public class TimelineFragment extends SFragment implements
 
         filter = preferences.getBoolean("tabFilterHomeBoosts", true);
         filterRemoveReblogs = kind == Kind.HOME && !filter;
-        
-        filterRemoveMutedUsers = kind != Kind.USER &&
-	        kind != Kind.USER_PINNED &&
-	        kind != Kind.USER_WITH_REPLIES &&
-	        kind != Kind.BOOKMARKS;
         reloadFilters(false);
     }
 
@@ -1175,9 +1169,8 @@ public class TimelineFragment extends SFragment implements
         while (it.hasNext()) {
             Status status = it.next().asRightOrNull();
             if (status != null
-                    && ((filterRemoveReplies   && status.getInReplyToId() != null)
-                    || (filterRemoveReblogs    && status.getReblog() != null)
-                    || (filterRemoveMutedUsers && status.isUserMuted())
+                    && ((status.getInReplyToId() != null && filterRemoveReplies)
+                    || (status.getReblog() != null && filterRemoveReblogs)
                     || shouldFilterStatus(status))) {
                 it.remove();
             }
