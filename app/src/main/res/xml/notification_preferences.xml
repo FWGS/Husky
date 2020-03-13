@@ -41,14 +41,14 @@
 
         <SwitchPreferenceCompat
             android:defaultValue="true"
-            android:key="notificationFilterPolls"
-            android:title="@string/pref_title_notification_filter_poll"
+            android:key="notificationFilterEmojis"
+            android:title="@string/pref_title_notification_filter_emoji"
             app:iconSpaceReserved="false" />
-		
+
         <SwitchPreferenceCompat
             android:defaultValue="true"
-            android:key="notificationFilterEmojiReactons"
-            android:title="@string/pref_title_notification_filter_emoji"
+            android:key="notificationFilterPolls"
+            android:title="@string/pref_title_notification_filter_poll"
             app:iconSpaceReserved="false" />
     </PreferenceCategory>
 
