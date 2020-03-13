@@ -124,6 +124,12 @@ public class NotificationHelper {
      */
     private static final int NOTIFICATION_CHECK_INTERVAL_MINUTES = 15;
 
+    /**
+     * by setting this as false, it's possible to test legacy notification channels on newer devices
+     */
+    //public static final boolean NOTIFICATION_USE_CHANNELS = false;
+    public static final boolean NOTIFICATION_USE_CHANNELS = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O;
+
 
     /**
      * Takes a given Mastodon notification and either creates a new Android notification or updates
@@ -353,7 +359,7 @@ public class NotificationHelper {
     }
 
     public static void createNotificationChannelsForAccount(@NonNull AccountEntity account, @NonNull Context context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        if (NOTIFICATION_USE_CHANNELS) {
 
             NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
@@ -411,7 +417,7 @@ public class NotificationHelper {
     }
 
     public static void deleteNotificationChannelsForAccount(@NonNull AccountEntity account, @NonNull Context context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        if (NOTIFICATION_USE_CHANNELS) {
 
             NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
@@ -422,7 +428,7 @@ public class NotificationHelper {
     }
 
     public static void deleteLegacyNotificationChannels(@NonNull Context context, @NonNull AccountManager accountManager) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        if (NOTIFICATION_USE_CHANNELS) {
 
             NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
@@ -441,7 +447,7 @@ public class NotificationHelper {
     }
 
     public static boolean areNotificationsEnabled(@NonNull Context context, @NonNull AccountManager accountManager) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        if (NOTIFICATION_USE_CHANNELS) {
 
             // on Android >= O, notifications are enabled, if at least one channel is enabled
             NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -505,7 +511,7 @@ public class NotificationHelper {
     private static boolean filterNotification(AccountEntity account, Notification notification,
                                               Context context) {
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        if (NOTIFICATION_USE_CHANNELS) {
             NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
             String channelId = getChannelId(account, notification);
@@ -559,7 +565,7 @@ public class NotificationHelper {
     private static void setupPreferences(AccountEntity account,
                                          NotificationCompat.Builder builder) {
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        if (NOTIFICATION_USE_CHANNELS) {
             return;  //do nothing on Android O or newer, the system uses the channel settings anyway
         }
 

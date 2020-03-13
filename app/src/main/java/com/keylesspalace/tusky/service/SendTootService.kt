@@ -26,6 +26,7 @@ import com.keylesspalace.tusky.entity.NewStatus
 import com.keylesspalace.tusky.entity.Status
 import com.keylesspalace.tusky.network.MastodonApi
 import com.keylesspalace.tusky.util.SaveTootHelper
+import com.keylesspalace.tusky.util.NotificationHelper
 import dagger.android.AndroidInjection
 import kotlinx.android.parcel.Parcelize
 import retrofit2.Call
@@ -72,10 +73,9 @@ class SendTootService : Service(), Injectable {
             val tootToSend = intent.getParcelableExtra<TootToSend>(KEY_TOOT)
                     ?: throw IllegalStateException("SendTootService started without $KEY_TOOT extra")
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if (NotificationHelper.NOTIFICATION_USE_CHANNELS) {
                 val channel = NotificationChannel(CHANNEL_ID, getString(R.string.send_toot_notification_channel_name), NotificationManager.IMPORTANCE_LOW)
                 notificationManager.createNotificationChannel(channel)
-
             }
 
             var notificationText = tootToSend.warningText

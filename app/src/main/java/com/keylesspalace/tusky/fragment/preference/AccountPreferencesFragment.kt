@@ -35,6 +35,7 @@ import com.keylesspalace.tusky.entity.Filter
 import com.keylesspalace.tusky.entity.Status
 import com.keylesspalace.tusky.network.MastodonApi
 import com.keylesspalace.tusky.util.ThemeUtils
+import com.keylesspalace.tusky.util.NotificationHelper
 import com.mikepenz.google_material_typeface_library.GoogleMaterial
 import com.mikepenz.iconics.IconicsDrawable
 import retrofit2.Call
@@ -171,7 +172,7 @@ class AccountPreferencesFragment : PreferenceFragmentCompat(),
 
         return when (preference) {
             notificationPreference -> {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                if (NotificationHelper.NOTIFICATION_USE_CHANNELS) {
                     val intent = Intent()
                     intent.action = "android.settings.APP_NOTIFICATION_SETTINGS"
                     intent.putExtra("android.provider.extra.APP_PACKAGE", BuildConfig.APPLICATION_ID)

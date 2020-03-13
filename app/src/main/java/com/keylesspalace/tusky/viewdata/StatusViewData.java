@@ -110,7 +110,7 @@ public abstract class StatusViewData {
                         boolean isUserMuted, boolean isThreadMutedOnBackend, int conversationId, @Nullable List<EmojiReaction> emojiReactions) {
 
             this.id = id;
-            if (Build.VERSION.SDK_INT == 23) {
+            if (Build.VERSION.SDK_INT == Build.VERSION_CODES.M) {
                 // https://github.com/tuskyapp/Tusky/issues/563
                 this.content = replaceCrashingCharacters(content);
                 this.spoilerText = spoilerText == null ? null : replaceCrashingCharacters(spoilerText).toString();
