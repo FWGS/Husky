@@ -626,7 +626,7 @@ public class NotificationsFragment extends SFragment implements
                 (NotificationViewData.Concrete) notifications.getPairedItem(position);
         StatusViewData.Concrete statusViewData =
                 new StatusViewData.Builder(old.getStatusViewData())
-                        .setThreadMuted(isMuted)
+                        .setMuted(isMuted)
                         .createStatusViewData();
         NotificationViewData notificationViewData = new NotificationViewData.Concrete(old.getType(),
                 old.getId(), old.getAccount(), statusViewData, old.isExpanded(), old.getEmoji());
@@ -641,7 +641,7 @@ public class NotificationsFragment extends SFragment implements
 
         StatusViewData.Builder viewDataBuilder = new StatusViewData.Builder(viewdata.getStatusViewData());
         viewDataBuilder.setThreadMuted(muted);
-        viewDataBuilder.setThreadMutedOnBackend(muted);
+        viewDataBuilder.setMuted(muted);
 
         NotificationViewData.Concrete newViewData = new NotificationViewData.Concrete(
                 viewdata.getType(), viewdata.getId(), viewdata.getAccount(),

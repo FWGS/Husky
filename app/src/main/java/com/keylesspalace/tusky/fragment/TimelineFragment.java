@@ -675,7 +675,7 @@ public class TimelineFragment extends SFragment implements
     public void onMute(int position, boolean isMuted) {
         StatusViewData.Concrete statusViewData = 
                 new StatusViewData.Builder((StatusViewData.Concrete)statuses.getPairedItem(position))
-                        .setThreadMuted(isMuted)
+                        .setMuted(isMuted)
                         .createStatusViewData();
         statuses.setPairedItem(position, statusViewData);
         updateAdapter();
@@ -685,8 +685,8 @@ public class TimelineFragment extends SFragment implements
         status.setThreadMuted(muted);
                 
         StatusViewData.Builder statusViewData = new StatusViewData.Builder((StatusViewData.Concrete)statuses.getPairedItem(position));
+        statusViewData.setMuted(muted);
         statusViewData.setThreadMuted(muted);
-        statusViewData.setThreadMutedOnBackend(muted);
 
         statuses.setPairedItem(position, statusViewData.createStatusViewData());
     }
@@ -993,7 +993,8 @@ public class TimelineFragment extends SFragment implements
     private Call<List<Status>> getFetchCallByTimelineType(Kind kind, String tagOrId, String fromId,
                                                           String uptoId) {
         MastodonApi api = mastodonApi;
-        boolean withMuted = true; // TODO: configurable
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        boolean withMuted = !preferences.getBoolean("hideMutedUsers", false);
         switch (kind) {
             default:
             case HOME:

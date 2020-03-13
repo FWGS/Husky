@@ -111,7 +111,7 @@ public final class TimelineAdapter extends RecyclerView.Adapter {
             holder.setup(statusListener, ((StatusViewData.Placeholder) status).isLoading());
         } else if (status instanceof StatusViewData.Concrete) {
             StatusViewData.Concrete concrete = (StatusViewData.Concrete)status;
-            if(concrete.isThreadMuted()) {
+            if(concrete.isMuted()) {
                 MutedStatusViewHolder holder = (MutedStatusViewHolder) viewHolder;
                 holder.setupWithStatus(concrete, statusListener, statusDisplayOptions,
                     payloads != null && !payloads.isEmpty() ? payloads.get(0) : null);
@@ -134,7 +134,7 @@ public final class TimelineAdapter extends RecyclerView.Adapter {
             return VIEW_TYPE_PLACEHOLDER;
         } else {
             StatusViewData.Concrete concrete = (StatusViewData.Concrete)dataSource.getItemAt(position);
-            if(concrete.isThreadMuted()) {
+            if(concrete.isMuted()) {
                 return VIEW_TYPE_STATUS_MUTED;
             } else {
                 return VIEW_TYPE_STATUS;

@@ -126,6 +126,10 @@ data class Status(
         )
     }
     
+    fun isMuted(): Boolean {
+        return muted
+    }
+    
     fun isUserMuted(): Boolean {
         return muted && !isThreadMuted()
     }

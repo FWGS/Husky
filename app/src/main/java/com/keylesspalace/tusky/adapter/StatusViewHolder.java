@@ -71,7 +71,7 @@ public class StatusViewHolder extends StatusBaseViewHolder {
                 statusInfo.setOnClickListener(v -> listener.onOpenReblog(getAdapterPosition()));
             }
             
-            if(status.isThreadMutedOnBackend()) {
+            if(status.isUserMuted() || status.isThreadMuted()) {
                 toggleVisibility.setVisibility(View.VISIBLE);
                 toggleVisibility.setOnClickListener(v -> listener.onMute(getAdapterPosition(), true));
             } else {

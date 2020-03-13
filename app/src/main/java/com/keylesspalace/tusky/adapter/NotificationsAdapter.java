@@ -262,7 +262,7 @@ public class NotificationsAdapter extends RecyclerView.Adapter {
             switch (concrete.getType()) {
                 case MENTION:
                 case POLL: {
-                    if(concrete.getStatusViewData() != null && concrete.getStatusViewData().isThreadMuted())
+                    if(concrete.getStatusViewData() != null && concrete.getStatusViewData().isMuted())
                         return VIEW_TYPE_MUTED_STATUS;
                     return VIEW_TYPE_STATUS;
                 }
@@ -493,13 +493,13 @@ public class NotificationsAdapter extends RecyclerView.Adapter {
                     if(icon != null) {
                         icon.setColorFilter(ContextCompat.getColor(context,
                             R.color.tusky_green), PorterDuff.Mode.SRC_ATOP);
-					}
-					
-					String format = context.getString(R.string.notification_emoji_format);
-					String emojiCode = notificationViewData.getEmoji();
-					wholeMessage = String.format(format, displayName, emojiCode);
-					break;
-				}
+                    }
+
+                    String format = context.getString(R.string.notification_emoji_format);
+                    String emojiCode = notificationViewData.getEmoji();
+                    wholeMessage = String.format(format, displayName, emojiCode);
+                    break;
+                }
             }
             message.setCompoundDrawablesWithIntrinsicBounds(icon, null, null, null);
             final SpannableStringBuilder str = new SpannableStringBuilder(wholeMessage);
