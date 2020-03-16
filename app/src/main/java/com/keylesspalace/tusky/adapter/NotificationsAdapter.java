@@ -154,14 +154,6 @@ public class NotificationsAdapter extends RecyclerView.Adapter {
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, int position, @NonNull List payloads) {
         bindViewHolder(viewHolder, position, payloads);
     }
-    
-    private void fixupHiddenUsers(StatusViewData.Concrete status, View v) {
-        if(status.isUserMuted()) {
-            v.setVisibility(View.GONE);
-        } else {
-            v.setVisibility(View.VISIBLE);
-        }
-    }
 
     private void bindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, int position, @Nullable List payloads) {
         Object payloadForHolder = payloads != null && !payloads.isEmpty() ? payloads.get(0) : null;
@@ -188,7 +180,6 @@ public class NotificationsAdapter extends RecyclerView.Adapter {
                     } else {
                         holder.hideStatusInfo();
                     }
-                    fixupHiddenUsers(status, holder.itemView);
                     break;
                 }
                 case VIEW_TYPE_MUTED_STATUS: {
@@ -196,7 +187,6 @@ public class NotificationsAdapter extends RecyclerView.Adapter {
                     StatusViewData.Concrete status = concreteNotificaton.getStatusViewData();
                     holder.setupWithStatus(status,
                             statusListener, statusDisplayOptions, payloadForHolder);
-                    fixupHiddenUsers(status, holder.itemView);
                     break;
                 }
                 case VIEW_TYPE_STATUS_NOTIFICATION: {
@@ -272,7 +262,7 @@ public class NotificationsAdapter extends RecyclerView.Adapter {
             switch (concrete.getType()) {
                 case MENTION:
                 case POLL: {
-                    if(concrete.getStatusViewData() != null && concrete.getStatusViewData().isThreadMuted())
+                    if(concrete.getStatusViewData() != null && concrete.getStatusViewData().isMuted())
                         return VIEW_TYPE_MUTED_STATUS;
                     return VIEW_TYPE_STATUS;
                 }
@@ -503,13 +493,13 @@ public class NotificationsAdapter extends RecyclerView.Adapter {
                     if(icon != null) {
                         icon.setColorFilter(ContextCompat.getColor(context,
                             R.color.tusky_green), PorterDuff.Mode.SRC_ATOP);
-					}
-					
-					String format = context.getString(R.string.notification_emoji_format);
-					String emojiCode = notificationViewData.getEmoji();
-					wholeMessage = String.format(format, displayName, emojiCode);
-					break;
-				}
+                    }
+
+                    String format = context.getString(R.string.notification_emoji_format);
+                    String emojiCode = notificationViewData.getEmoji();
+                    wholeMessage = String.format(format, displayName, emojiCode);
+                    break;
+                }
             }
             message.setCompoundDrawablesWithIntrinsicBounds(icon, null, null, null);
             final SpannableStringBuilder str = new SpannableStringBuilder(wholeMessage);

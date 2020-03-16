@@ -84,6 +84,12 @@
             android:title="@string/pref_title_confirm_reblogs"
             app:singleLineTitle="false" />
 
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="hideMutedUsers"
+            android:title="@string/pref_title_hide_muted_users"
+            app:singleLineTitle="false" />
+
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/pref_title_browser_settings">

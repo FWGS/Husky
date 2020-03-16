@@ -23,5 +23,6 @@
     <string name="notification_emoji_description">Notifications about new emoji reactions</string>
 
     <string name="pref_title_notification_filter_emoji">my posts are reacted with emojis</string>
+    <string name="pref_title_hide_muted_users">Hide muted users</string>
 </resources>
         

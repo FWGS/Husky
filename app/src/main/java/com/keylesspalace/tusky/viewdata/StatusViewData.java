@@ -92,9 +92,9 @@ public abstract class StatusViewData {
         @Nullable
         private final PollViewData poll;
         private final boolean isBot;
-        private final boolean isThreadMuted; /* toggle for showing thread */
-        private final boolean isUserMuted;
-        private final boolean isThreadMutedOnBackend; /* thread_muted state got from backend */
+        private final boolean isMuted; /* user toggle */
+        private final boolean isThreadMuted; /* thread_muted state got from backend */
+        private final boolean isUserMuted; /* muted state got from backend */
         private final int conversationId;
         @Nullable
         private final List<EmojiReaction> emojiReactions;
@@ -106,11 +106,11 @@ public abstract class StatusViewData {
                         Date createdAt, int reblogsCount, int favouritesCount, @Nullable String inReplyToId,
                         @Nullable Status.Mention[] mentions, String senderId, boolean rebloggingEnabled,
                         Status.Application application, List<Emoji> statusEmojis, List<Emoji> accountEmojis, @Nullable Card card,
-                        boolean isCollapsible, boolean isCollapsed, @Nullable PollViewData poll, boolean isBot, boolean isThreadMuted,
-                        boolean isUserMuted, boolean isThreadMutedOnBackend, int conversationId, @Nullable List<EmojiReaction> emojiReactions) {
+                        boolean isCollapsible, boolean isCollapsed, @Nullable PollViewData poll, boolean isBot, boolean isMuted, boolean isThreadMuted,
+                        boolean isUserMuted, int conversationId, @Nullable List<EmojiReaction> emojiReactions) {
 
             this.id = id;
-            if (Build.VERSION.SDK_INT == 23) {
+            if (Build.VERSION.SDK_INT == Build.VERSION_CODES.M) {
                 // https://github.com/tuskyapp/Tusky/issues/563
                 this.content = replaceCrashingCharacters(content);
                 this.spoilerText = spoilerText == null ? null : replaceCrashingCharacters(spoilerText).toString();
@@ -147,8 +147,8 @@ public abstract class StatusViewData {
             this.isCollapsed = isCollapsed;
             this.poll = poll;
             this.isBot = isBot;
+            this.isMuted = isMuted;
             this.isThreadMuted = isThreadMuted;
-            this.isThreadMutedOnBackend = isThreadMutedOnBackend;
             this.isUserMuted = isUserMuted;
             this.conversationId = conversationId;
             this.emojiReactions = emojiReactions;
@@ -304,12 +304,12 @@ public abstract class StatusViewData {
             return isThreadMuted;
         }
         
-        public boolean isThreadMutedOnBackend() {
-            return isThreadMutedOnBackend;
+        public boolean isMuted() {
+            return isMuted;
         }
         
         public boolean isUserMuted() {
-	        return isUserMuted;
+            return isUserMuted;
         }
         
         @Nullable
@@ -351,9 +351,9 @@ public abstract class StatusViewData {
                     Objects.equals(card, concrete.card) &&
                     Objects.equals(poll, concrete.poll) &&
                     isCollapsed == concrete.isCollapsed &&
+                    isMuted == concrete.isMuted &&
                     isThreadMuted == concrete.isThreadMuted &&
                     isUserMuted == concrete.isUserMuted &&
-                    isThreadMutedOnBackend == concrete.isThreadMutedOnBackend &&
                     conversationId == concrete.conversationId &&
                     Objects.equals(emojiReactions, concrete.emojiReactions);
         }
@@ -462,8 +462,8 @@ public abstract class StatusViewData {
         private boolean isCollapsed; /** Whether the status is shown partially or fully */
         private PollViewData poll;
         private boolean isBot;
+        private boolean isMuted;
         private boolean isThreadMuted;
-        private boolean isThreadMutedOnBackend;
         private boolean isUserMuted;
         private int conversationId;
         private List<EmojiReaction> emojiReactions;
@@ -503,9 +503,9 @@ public abstract class StatusViewData {
             isCollapsed = viewData.isCollapsed();
             poll = viewData.poll;
             isBot = viewData.isBot();
+            isMuted = viewData.isMuted;
             isThreadMuted = viewData.isThreadMuted;
             isUserMuted = viewData.isUserMuted;
-            isThreadMutedOnBackend = viewData.isThreadMutedOnBackend;
             emojiReactions = viewData.emojiReactions;
         }
 
@@ -677,27 +677,27 @@ public abstract class StatusViewData {
             this.poll = PollViewDataKt.toViewData(poll);
             return this;
         }
-        
+
+        public Builder setMuted(Boolean isMuted) {
+            this.isMuted = isMuted;
+            return this;
+        }
+
         public Builder setUserMuted(Boolean isUserMuted) {
             this.isUserMuted = isUserMuted;
             return this;
         }
-        
+
         public Builder setThreadMuted(Boolean isThreadMuted) {
             this.isThreadMuted = isThreadMuted;
             return this;
         }
-        
-        public Builder setThreadMutedOnBackend(Boolean isThreadMutedOnBackend) {
-            this.isThreadMutedOnBackend = isThreadMutedOnBackend;
-            return this;
-        }
-        
+
         public Builder setConversationId(int conversationId) {
 	        this.conversationId = conversationId;
 	        return this;
         }
-        
+
         public Builder setEmojiReactions(List<EmojiReaction> emojiReactions) {
             this.emojiReactions = emojiReactions;
             return this;
@@ -712,8 +712,8 @@ public abstract class StatusViewData {
                     visibility, attachments, rebloggedByUsername, rebloggedAvatar, isSensitive, isExpanded,
                     isShowingContent, userFullName, nickname, avatar, createdAt, reblogsCount,
                     favouritesCount, inReplyToId, mentions, senderId, rebloggingEnabled, application,
-                    statusEmojis, accountEmojis, card, isCollapsible, isCollapsed, poll, isBot, isThreadMuted,
-                    isUserMuted, isThreadMutedOnBackend, conversationId, emojiReactions);
+                    statusEmojis, accountEmojis, card, isCollapsible, isCollapsed, poll, isBot, isMuted, isThreadMuted,
+                    isUserMuted, conversationId, emojiReactions);
         }
     }
 }
