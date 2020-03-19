@@ -60,6 +60,7 @@
     <string name="notification_reblog_format">%s reposted your post</string>
     <string name="notification_favourite_format">%s favorited your post</string>
     <string name="notification_follow_format">%s followed you</string>
+    <string name="notification_follow_request_format">%s requested to follow you</string>
 
     <string name="report_username_format">Report @%s</string>
     <string name="report_comment_hint">Additional comments?</string>
@@ -209,6 +210,7 @@
     <string name="pref_title_notification_filter_mentions">mentioned</string>
     <string name="pref_title_notification_filter_follows">followed</string>
     <string name="pref_title_notification_filter_reblogs">my posts are reposted</string>
+    <string name="pref_title_notification_filter_follow_requests">follow requested</string>
     <string name="pref_title_notification_filter_favourites">my posts are favorited</string>
     <string name="pref_title_notification_filter_poll">polls have ended</string>
     <string name="pref_title_appearance_settings">Appearance</string>
@@ -264,6 +266,8 @@
     <string name="notification_follow_description">Notifications about new followers</string>
     <string name="notification_boost_name">Reposts</string>
     <string name="notification_boost_description">Notifications when your posts get reposted</string>
+    <string name="notification_follow_request_name">Follow Requests</string>
+    <string name="notification_follow_request_description">Notifications about follow requests</string>
     <string name="notification_favourite_name">Favorites</string>
     <string name="notification_favourite_description">Notifications when your posts get marked as favorite</string>
     <string name="notification_poll_name">Polls</string>

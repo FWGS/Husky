@@ -29,8 +29,7 @@ import androidx.annotation.NonNull;
  */
 
 @Database(entities = {TootEntity.class, AccountEntity.class, InstanceEntity.class, TimelineStatusEntity.class,
-                TimelineAccountEntity.class,  ConversationEntity.class
-        }, version = 23)
+                TimelineAccountEntity.class, ConversationEntity.class}, version = 24)
 public abstract class AppDatabase extends RoomDatabase {
 
     public abstract TootDao tootDao();
@@ -341,6 +340,13 @@ public abstract class AppDatabase extends RoomDatabase {
             // database.execSQL("ALTER TABLE `TootEntity` DROP COLUMN `markdownMode`");
             database.execSQL("ALTER TABLE `TootEntity` ADD  COLUMN `formattingSyntax` TEXT NOT NULL DEFAULT ''");
             database.execSQL("ALTER TABLE `AccountEntity` ADD COLUMN `defaultFormattingSyntax` TEXT NOT NULL DEFAULT ''"); 
+        }
+    };
+
+    public static final Migration MIGRATION_23_24 = new Migration(23, 24) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL("ALTER TABLE `AccountEntity` ADD COLUMN `notificationsFollowRequested` INTEGER NOT NULL DEFAULT 0");
         }
     };
 }

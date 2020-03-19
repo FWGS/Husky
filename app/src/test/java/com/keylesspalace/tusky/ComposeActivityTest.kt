@@ -67,6 +67,7 @@ class ComposeActivityTest {
             notificationsEnabled = true,
             notificationsMentioned = true,
             notificationsFollowed = true,
+            notificationsFollowRequested = false,
             notificationsReblogged = true,
             notificationsFavorited = true,
             notificationSound = true,

@@ -39,7 +39,8 @@ data class Notification(
         FAVOURITE("favourite"),
         FOLLOW("follow"),
         POLL("poll"),
-        EMOJI_REACTION("pleroma:emoji_reaction");
+        EMOJI_REACTION("pleroma:emoji_reaction"),
+        FOLLOW_REQUEST("follow_request");
 
         companion object {
 
@@ -51,7 +52,7 @@ data class Notification(
                 }
                 return UNKNOWN
             }
-            val asList = listOf(MENTION, REBLOG, FAVOURITE, FOLLOW, POLL, EMOJI_REACTION)
+            val asList = listOf(MENTION, REBLOG, FAVOURITE, FOLLOW, POLL, EMOJI_REACTION, FOLLOW_REQUEST)
         }
 
         override fun toString(): String {
