@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Date;
 
     
-public class EmojiReactionsAdapter extends RecyclerView.Adapter<EmojiReactionViewHolder> {
+public class EmojiReactionsAdapter extends RecyclerView.Adapter<SingleViewHolder> {
     private final List<EmojiReaction> reactions;
     private final StatusActionListener listener;
     private final String statusId;
@@ -42,21 +42,23 @@ public class EmojiReactionsAdapter extends RecyclerView.Adapter<EmojiReactionVie
     }
         
     @Override
-    public EmojiReactionViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public SingleViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
             .inflate(R.layout.item_emoji_reaction, parent, false);
-        return new EmojiReactionViewHolder(view);
+        return new SingleViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(EmojiReactionViewHolder holder, int position) {
+    public void onBindViewHolder(SingleViewHolder holder, int position) {
         EmojiReaction reaction = reactions.get(position);
         String str = reaction.getName() + " " + reaction.getCount();
         
         // no custom emoji yet!
-        holder.emojiReaction.setText(str);
-        holder.emojiReaction.setActivated(reaction.getMe());
-        holder.emojiReaction.setOnClickListener(v -> {
+        EmojiAppCompatButton btn = (EmojiAppCompatButton)holder.itemView;
+        
+        btn.setText(str);
+        btn.setActivated(reaction.getMe());
+        btn.setOnClickListener(v -> {
             listener.onEmojiReactMenu(v, reaction, statusId);
         });
     }
