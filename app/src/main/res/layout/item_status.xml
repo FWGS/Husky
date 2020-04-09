@@ -369,7 +369,7 @@
         android:contentDescription="@string/action_favourite"
         android:importantForAccessibility="no"
         android:padding="4dp"
-        app:layout_constraintEnd_toStartOf="@id/status_bookmark"
+        app:layout_constraintEnd_toStartOf="@id/status_emoji_react"
         app:layout_constraintStart_toEndOf="@id/status_inset"
         app:layout_constraintTop_toTopOf="@id/status_inset"
         sparkbutton:activeImage="@drawable/ic_favourite_active_24dp"
@@ -378,6 +378,19 @@
         sparkbutton:primaryColor="@color/tusky_orange"
         sparkbutton:secondaryColor="@color/tusky_orange_light" />
 
+    <ImageButton
+        android:id="@+id/status_emoji_react"
+        style="@style/TuskyImageButton"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:contentDescription="@string/action_emoji_react"
+        android:importantForAccessibility="no"
+        android:padding="4dp"
+        app:layout_constraintEnd_toStartOf="@id/status_bookmark"
+        app:layout_constraintStart_toEndOf="@id/status_favourite"
+        app:layout_constraintTop_toTopOf="@id/status_reply"
+        app:srcCompat="@drawable/ic_emoji_24dp" />
+    
     <at.connyduck.sparkbutton.SparkButton
         android:id="@+id/status_bookmark"
         android:layout_width="30dp"
@@ -387,7 +400,7 @@
         android:importantForAccessibility="no"
         android:padding="4dp"
         app:layout_constraintEnd_toStartOf="@id/status_more"
-        app:layout_constraintStart_toEndOf="@id/status_favourite"
+        app:layout_constraintStart_toEndOf="@id/status_emoji_react"
         app:layout_constraintTop_toTopOf="@id/status_reply"
         sparkbutton:activeImage="@drawable/ic_bookmark_active_24dp"
         sparkbutton:iconSize="28dp"

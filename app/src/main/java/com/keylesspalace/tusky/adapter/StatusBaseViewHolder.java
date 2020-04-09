@@ -50,6 +50,7 @@ import com.keylesspalace.tusky.util.ThemeUtils;
 import com.keylesspalace.tusky.util.TimestampUtils;
 import com.keylesspalace.tusky.util.ViewExtensionsKt;
 import com.keylesspalace.tusky.view.MediaPreviewImageView;
+import com.keylesspalace.tusky.view.EmojiKeyboard;
 import com.keylesspalace.tusky.viewdata.PollOptionViewData;
 import com.keylesspalace.tusky.viewdata.PollViewData;
 import com.keylesspalace.tusky.viewdata.PollViewDataKt;
@@ -79,6 +80,7 @@ public abstract class StatusBaseViewHolder extends RecyclerView.ViewHolder {
     private SparkButton reblogButton;
     private SparkButton favouriteButton;
     private SparkButton bookmarkButton;
+    private ImageButton reactButton;
     private ImageButton moreButton;
     protected MediaPreviewImageView[] mediaPreviews;
     private ImageView[] mediaOverlays;
@@ -131,6 +133,7 @@ public abstract class StatusBaseViewHolder extends RecyclerView.ViewHolder {
         favouriteButton = itemView.findViewById(R.id.status_favourite);
         bookmarkButton = itemView.findViewById(R.id.status_bookmark);
         moreButton = itemView.findViewById(R.id.status_more);
+        reactButton = itemView.findViewById(R.id.status_emoji_react);
         emojiReactionsView = itemView.findViewById(R.id.status_emoji_reactions);
 
         /* Disabled, because it doesn't handle parent resizes. It must be fixed and can be enabled again */
@@ -710,8 +713,16 @@ public abstract class StatusBaseViewHolder extends RecyclerView.ViewHolder {
     }
     
     private void setEmojiReactions(@Nullable List<EmojiReaction> reactions, final StatusActionListener listener, final String statusId) {
+        if(reactButton != null) {
+            reactButton.setOnClickListener(v -> {
+                EmojiKeyboard.show(reactButton.getContext(), statusId, EmojiKeyboard.UNICODE_MODE, (id, emoji) -> {
+                    listener.onEmojiReact(true, emoji, id);
+                });
+            });
+        }
+    
         if(emojiReactionsView != null ) {
-            if( reactions != null && reactions.size() > 0) {
+            if(reactions != null && reactions.size() > 0) {
                 emojiReactionsView.setVisibility(View.VISIBLE);
                 FlexboxLayoutManager lm = new FlexboxLayoutManager(emojiReactionsView.getContext());
                 emojiReactionsView.setLayoutManager(lm);
