@@ -9,6 +9,8 @@ import android.util.Pair;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
+import androidx.emoji.text.EmojiCompat;
+import androidx.emoji.bundled.BundledEmojiCompatConfig;
 
 import com.keylesspalace.tusky.R;
 
@@ -173,7 +175,10 @@ public class EmojiCompatFont {
     }
 
 
-    public FileEmojiCompatConfig getConfig(Context context) {
+    public EmojiCompat.Config getConfig(Context context) {
+        if(this == SYSTEM_DEFAULT) {
+            return new BundledEmojiCompatConfig(context);
+        }
         return new FileEmojiCompatConfig(context, getLatestFontFile(context));
     }
 

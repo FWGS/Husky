@@ -22,6 +22,7 @@ def buildnum = {
 
 android {
     compileSdkVersion 29
+    ndkVersion "20.1.5948944"
     defaultConfig {
         applicationId APP_ID
         minSdkVersion 21
@@ -33,7 +34,7 @@ android {
 
         resValue "string", "app_name", APP_NAME
 
-	buildConfigField("String", "APPLICATION_NAME", "\"$APP_NAME\"")
+        buildConfigField("String", "APPLICATION_NAME", "\"$APP_NAME\"")
         buildConfigField("String", "CUSTOM_LOGO_URL", "\"$CUSTOM_LOGO_URL\"")
         buildConfigField("String", "CUSTOM_INSTANCE", "\"$CUSTOM_INSTANCE\"")
         buildConfigField("String", "SUPPORT_ACCOUNT_URL", "\"$SUPPORT_ACCOUNT_URL\"")
@@ -126,8 +127,9 @@ dependencies {
     implementation "androidx.cardview:cardview:1.0.0"
     implementation "androidx.preference:preference:1.1.0"
     implementation "androidx.sharetarget:sharetarget:1.0.0-rc01"
-    implementation "androidx.emoji:emoji:1.0.0"
-    implementation "androidx.emoji:emoji-appcompat:1.0.0"
+    implementation "androidx.emoji:emoji:1.1.0-beta01"
+    implementation "androidx.emoji:emoji-appcompat:1.1.0-beta01"
+    implementation "androidx.emoji:emoji-bundled:1.1.0-beta01"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion"
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycleVersion"
     implementation "androidx.lifecycle:lifecycle-reactivestreams-ktx:$lifecycleVersion"
