@@ -4,7 +4,7 @@
     <string name="action_markdown">Markdown</string>
     <string name="action_mute_conversation">Mute conversation</string>
     <string name="action_unmute_conversation">Unmute conversation</string>
-    <string name="action_emoji_react">Add reaction</string>
+    <string name="action_emoji_react">React</string>
     <string name="action_emoji_unreact">Remove reaction</string>
     <string name="action_emoji_reacted_by">Who reacted</string>
     
