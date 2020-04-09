@@ -58,9 +58,7 @@ import com.keylesspalace.tusky.appstore.*;
 import com.keylesspalace.tusky.db.AccountEntity;
 import com.keylesspalace.tusky.db.AccountManager;
 import com.keylesspalace.tusky.di.Injectable;
-import com.keylesspalace.tusky.entity.Notification;
-import com.keylesspalace.tusky.entity.Poll;
-import com.keylesspalace.tusky.entity.Status;
+import com.keylesspalace.tusky.entity.*;
 import com.keylesspalace.tusky.interfaces.ActionButtonActivity;
 import com.keylesspalace.tusky.interfaces.ReselectableFragment;
 import com.keylesspalace.tusky.interfaces.StatusActionListener;
@@ -410,6 +408,8 @@ public class NotificationsFragment extends SFragment implements
                         removeAllByAccountId(((BlockEvent) event).getAccountId());
                     } else if (event instanceof PreferenceChangedEvent) {
                         onPreferenceChanged(((PreferenceChangedEvent) event).getPreferenceKey());
+                    } else if (event instanceof EmojiReactEvent) {
+	                    handleEmojiReactEvent((EmojiReactEvent) event);
                     }
                 });
     }
@@ -1325,5 +1325,47 @@ public class NotificationsFragment extends SFragment implements
     @Override
     public void onReselect() {
         jumpToTop();
+    }
+    
+	private void setEmojiReactForStatus(int position, Status newStatus) {
+        NotificationViewData.Concrete viewdata = (NotificationViewData.Concrete) notifications.getPairedItem(position);
+
+        NotificationViewData.Concrete newViewData = new NotificationViewData.Concrete(
+                viewdata.getType(), viewdata.getId(), viewdata.getAccount(),
+                ViewDataUtils.statusToViewData(newStatus, false, false), viewdata.isExpanded(), viewdata.getEmoji());
+
+        notifications.setPairedItem(position, newViewData);
+        updateAdapter();
+    }
+
+    private void handleEmojiReactEvent(EmojiReactEvent event) {
+        Pair<Integer, Notification> posAndNotification =
+                findReplyPosition(event.getNewStatus().getActionableId());
+        if (posAndNotification == null) return;
+        //noinspection ConstantConditions
+        setEmojiReactForStatus(posAndNotification.first, event.getNewStatus());
+    }
+
+
+    @Override
+    public void onEmojiReact(final boolean react, final String emoji, final String statusId) {
+        Pair<Integer, Notification> posAndNotification = findReplyPosition(statusId);
+        if (posAndNotification == null)
+            return;
+        
+        timelineCases.react(emoji, statusId, react)
+                .observeOn(AndroidSchedulers.mainThread())
+                .as(autoDisposable(from(this)))
+                .subscribe(
+                        (newStatus) -> setEmojiReactForStatus(posAndNotification.first, newStatus),
+                        (t) -> Log.d(TAG,
+                                "Failed to react with " + emoji + " on status: " + statusId, t)
+                );
+
+    }
+    
+    @Override
+    public void onEmojiReactMenu(@NonNull View view, final EmojiReaction emoji, final String statusId) {
+        super.emojiReactMenu(statusId, emoji, view, this);
     }
 }
