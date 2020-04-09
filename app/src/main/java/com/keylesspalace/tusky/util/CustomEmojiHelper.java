@@ -56,7 +56,8 @@ public class CustomEmojiHelper {
             SpannableStringBuilder builder = new SpannableStringBuilder(text);
             for (Emoji emoji : emojis) {
                 CharSequence pattern = new StringBuilder(":").append(emoji.getShortcode()).append(':');
-                Matcher matcher = Pattern.compile(pattern.toString()).matcher(text);
+                Matcher matcher = Pattern.compile(pattern.toString(), Pattern.LITERAL)
+                    .matcher(text);
                 while (matcher.find()) {
                     EmojiSpan span = new EmojiSpan(view);
                     builder.setSpan(span, matcher.start(), matcher.end(), 0);
