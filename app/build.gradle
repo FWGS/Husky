@@ -22,7 +22,7 @@ def buildnum = {
 
 android {
     compileSdkVersion 29
-    ndkVersion "20.1.5948944"
+    //ndkVersion "20.1.5948944"
     defaultConfig {
         applicationId APP_ID
         minSdkVersion 21
