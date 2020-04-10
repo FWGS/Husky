@@ -407,11 +407,18 @@ class AccountActivity : BottomSheetActivity(), ActionButtonActivity, HasAndroidI
                     animateAvatar
             )
 
-            Glide.with(this)
+            if(animateAvatar) {
+                Glide.with(this)
+                    .load(account.header)
+                    .centerCrop()
+                    .into(accountHeaderImageView)
+            } else {
+                Glide.with(this)
                     .asBitmap()
                     .load(account.header)
                     .centerCrop()
                     .into(accountHeaderImageView)
+            }
 
 
             accountAvatarImageView.setOnClickListener { avatarView ->
