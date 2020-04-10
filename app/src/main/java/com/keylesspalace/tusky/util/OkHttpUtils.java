@@ -32,6 +32,7 @@ import okhttp3.Cache;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.brotli.BrotliInterceptor;
 
 public class OkHttpUtils {
 
@@ -54,6 +55,7 @@ public class OkHttpUtils {
 
         OkHttpClient.Builder builder = new OkHttpClient.Builder()
                 .addInterceptor(getUserAgentInterceptor())
+                .addInterceptor(BrotliInterceptor.INSTANCE)
                 .readTimeout(30, TimeUnit.SECONDS)
                 .writeTimeout(30, TimeUnit.SECONDS)
                 .cache(new Cache(context.getCacheDir(), cacheSize));
