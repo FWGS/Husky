@@ -519,7 +519,6 @@ class ComposeActivity : BaseActivity(),
         val actionStringId = if(enable) R.string.action_disable_formatting_syntax else R.string.action_enable_formatting_syntax
         val tooltipText = getString(actionStringId).format(stringId)
      
-        composeFormattingSyntax.tooltipText = tooltipText
         composeFormattingSyntax.contentDescription = tooltipText
         
         @ColorInt val color = ThemeUtils.getColor(this, if(enable) R.attr.colorPrimary else android.R.attr.textColorTertiary);
