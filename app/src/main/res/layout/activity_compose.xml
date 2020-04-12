@@ -375,7 +375,7 @@
             app:srcCompat="@drawable/ic_access_time" />
 
         <ImageButton
-            android:id="@+id/composeMarkdownButton"
+            android:id="@+id/composeFormattingSyntax"
             style="@style/TuskyImageButton"
             android:layout_width="36dp"
             android:layout_height="36dp"

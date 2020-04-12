@@ -65,6 +65,7 @@ class AccountPreferencesFragment : PreferenceFragmentCompat(),
 
     private lateinit var defaultPostPrivacyPreference: ListPreference
     private lateinit var defaultMediaSensitivityPreference: SwitchPreferenceCompat
+    private lateinit var defaultFormattingSyntaxPreference: ListPreference
     private lateinit var alwaysShowSensitiveMediaPreference: SwitchPreferenceCompat
     private lateinit var alwaysOpenSpoilerPreference: SwitchPreferenceCompat
     private lateinit var mediaPreviewEnabledPreference: SwitchPreferenceCompat
@@ -85,6 +86,7 @@ class AccountPreferencesFragment : PreferenceFragmentCompat(),
         mutedDomainsPreference = requirePreference("mutedDomainsPreference")
         defaultPostPrivacyPreference = requirePreference("defaultPostPrivacy") as ListPreference
         defaultMediaSensitivityPreference = requirePreference("defaultMediaSensitivity") as SwitchPreferenceCompat
+        defaultFormattingSyntaxPreference = requirePreference("defaultFormattingSyntax") as ListPreference
         mediaPreviewEnabledPreference = requirePreference("mediaPreviewEnabled") as SwitchPreferenceCompat
         alwaysShowSensitiveMediaPreference = requirePreference("alwaysShowSensitiveMedia") as SwitchPreferenceCompat
         alwaysOpenSpoilerPreference = requirePreference("alwaysOpenSpoiler") as SwitchPreferenceCompat
@@ -110,6 +112,7 @@ class AccountPreferencesFragment : PreferenceFragmentCompat(),
 
         defaultPostPrivacyPreference.onPreferenceChangeListener = this
         defaultMediaSensitivityPreference.onPreferenceChangeListener = this
+        defaultFormattingSyntaxPreference.onPreferenceChangeListener = this
         mediaPreviewEnabledPreference.onPreferenceChangeListener = this
         alwaysShowSensitiveMediaPreference.onPreferenceChangeListener = this
         alwaysOpenSpoilerPreference.onPreferenceChangeListener = this
@@ -122,6 +125,14 @@ class AccountPreferencesFragment : PreferenceFragmentCompat(),
 
             defaultPostPrivacyPreference.value = it.defaultPostPrivacy.serverString()
             defaultPostPrivacyPreference.icon = getIconForVisibility(it.defaultPostPrivacy)
+            
+            defaultFormattingSyntaxPreference.value = when(it.defaultFormattingSyntax) {
+                "text/markdown" -> "Markdown"
+                "text/bbcode" -> "BBCode"
+                "text/html" -> "HTML"
+                else -> "Plaintext"
+            }
+            defaultFormattingSyntaxPreference.icon = getIconForSyntax(it.defaultFormattingSyntax)
 
             defaultMediaSensitivityPreference.isChecked = it.defaultMediaSensitivity
             defaultMediaSensitivityPreference.icon = getIconForSensitivity(it.defaultMediaSensitivity)
@@ -142,6 +153,19 @@ class AccountPreferencesFragment : PreferenceFragmentCompat(),
             defaultMediaSensitivityPreference -> {
                 preference.icon = getIconForSensitivity(newValue as Boolean)
                 syncWithServer(sensitive = newValue)
+            }
+            defaultFormattingSyntaxPreference -> {
+                val syntax = when(newValue) {
+                    "Markdown" -> "text/markdown"
+                    "BBCode" -> "text/bbcode"
+                    "HTML" -> "text/html"
+                    else -> ""
+                }
+                preference.icon = getIconForSyntax(syntax)
+                accountManager.activeAccount?.let {
+                    it.defaultFormattingSyntax = syntax
+                    accountManager.saveAccount(it)
+                }
             }
             mediaPreviewEnabledPreference -> {
                 accountManager.activeAccount?.let {
@@ -287,8 +311,20 @@ class AccountPreferencesFragment : PreferenceFragmentCompat(),
 
         return getTintedIcon(drawableId)
     }
+    
+    private fun getIconForSyntax(syntax: String): Drawable? {
+        val drawableId = when(syntax) {
+            "text/html" -> R.drawable.ic_html_24dp
+            "text/bbcode" -> R.drawable.ic_bbcode_24dp
+            "text/markdown" -> R.drawable.ic_markdown
+            else -> 0
+        }
+        
+        return getTintedIcon(drawableId)
+    }
 
     private fun getTintedIcon(iconId: Int): Drawable? {
+        if(iconId == 0) return null
         return ThemeUtils.getTintedDrawable(requireContext(), iconId, R.attr.iconColor)
     }
 

@@ -1,0 +1,13 @@
+<resources>
+	<string name="action_plaintext">Plaintext</string>
+	<string name="action_markdown">Markdown</string>
+	<string name="action_bbcode">BBCode</string>
+	<string name="action_html">HTML</string>
+	
+	<string-array name="formatting_syntax_values">
+		<item>@string/action_plaintext</item>
+		<item>@string/action_markdown</item>
+		<item>@string/action_bbcode</item>
+		<item>@string/action_html</item>
+	</string-array>
+</resources>

@@ -1,12 +1,13 @@
 <resources>
     
     <string name="action_reply_to">Reply to</string>
-    <string name="action_markdown">Markdown</string>
     <string name="action_mute_conversation">Mute conversation</string>
     <string name="action_unmute_conversation">Unmute conversation</string>
     <string name="action_emoji_react">React</string>
     <string name="action_emoji_unreact">Remove reaction</string>
     <string name="action_emoji_reacted_by">Who reacted</string>
+    <string name="action_enable_formatting_syntax">Enable %s</string>
+    <string name="action_disable_formatting_syntax">Disable %s</string>
     
     <string name="title_emoji_reacted_by">%s reacted by</string>
     
@@ -22,6 +23,7 @@
     <string name="notification_emoji_name">Emoji Reactions</string>
     <string name="notification_emoji_description">Notifications about new emoji reactions</string>
 
+    <string name="pref_title_default_formatting">Default formatting syntax(if supported by instance)</string>
     <string name="pref_title_notification_filter_emoji">my posts are reacted with emojis</string>
     <string name="pref_title_hide_muted_users">Hide muted users</string>
 </resources>

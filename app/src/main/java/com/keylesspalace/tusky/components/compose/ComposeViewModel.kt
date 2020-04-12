@@ -63,7 +63,7 @@ class ComposeViewModel
     private var startingVisibility: Status.Visibility = Status.Visibility.UNKNOWN
     private val instance: MutableLiveData<InstanceEntity?> = MutableLiveData(null)
     private val nodeinfo: MutableLiveData<NodeInfo?> = MutableLiveData(null)
-    public var markdownMode: Boolean = false
+    public var formattingSyntax: String = ""
     public var hasNoAttachmentLimits = false
 
     val instanceParams: LiveData<ComposeInstanceParams> = instance.map { instance ->
@@ -280,7 +280,7 @@ class ComposeViewModel
                 replyingStatusAuthor,
                 statusVisibility.value!!,
                 poll.value,
-                markdownMode
+                formattingSyntax
         )
     }
 
@@ -318,7 +318,7 @@ class ComposeViewModel
                             poll = poll.value,
                             replyingStatusContent = null,
                             replyingStatusAuthorUsername = null,
-                            markdownMode = markdownMode,
+                            formattingSyntax = formattingSyntax,
                             savedJsonUrls = null,
                             accountId = accountManager.activeAccount!!.id,
                             savedTootUid = 0,
@@ -487,6 +487,9 @@ class ComposeViewModel
         }
         replyingStatusContent = composeOptions?.replyingStatusContent
         replyingStatusAuthor = composeOptions?.replyingStatusAuthor
+        
+        if(composeOptions?.formattingSyntax != null)
+            formattingSyntax = composeOptions?.formattingSyntax ?: accountManager.activeAccount!!.defaultFormattingSyntax
     }
 
     fun updatePoll(newPoll: NewPoll) {

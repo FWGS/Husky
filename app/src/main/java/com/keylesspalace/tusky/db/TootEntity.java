@@ -19,7 +19,7 @@ import com.google.gson.Gson;
 import com.keylesspalace.tusky.entity.NewPoll;
 import com.keylesspalace.tusky.entity.Status;
 
-import androidx.annotation.Nullable;
+import androidx.annotation.*;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
@@ -66,13 +66,18 @@ public class TootEntity {
     @ColumnInfo(name = "poll")
     private final NewPoll poll;
     
+    @NonNull
+    @ColumnInfo(name = "formattingSyntax")
+    private final String formattingSyntax;
+    
+    /* DEPRECATED */
     @Nullable
     @ColumnInfo(name = "markdownMode")
-    private final Boolean markdownMode;
+    public Boolean markdownMode = false;
 
     public TootEntity(int uid, String text, String urls, String descriptions, String contentWarning, String inReplyToId,
                       @Nullable String inReplyToText, @Nullable String inReplyToUsername,
-                      Status.Visibility visibility, @Nullable NewPoll poll, @Nullable Boolean markdownMode) {
+                      Status.Visibility visibility, @Nullable NewPoll poll, String formattingSyntax) {
         this.uid = uid;
         this.text = text;
         this.urls = urls;
@@ -83,7 +88,7 @@ public class TootEntity {
         this.inReplyToUsername = inReplyToUsername;
         this.visibility = visibility;
         this.poll = poll;
-        this.markdownMode = markdownMode;
+        this.formattingSyntax = formattingSyntax;
     }
 
     public String getText() {
@@ -127,6 +132,10 @@ public class TootEntity {
     @Nullable
     public NewPoll getPoll() {
         return poll;
+    }
+    
+    public String getFormattingSyntax() {
+        return formattingSyntax;
     }
     
     @Nullable

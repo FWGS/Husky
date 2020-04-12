@@ -130,8 +130,8 @@ class SendTootService : Service(), Injectable {
         }
 
         tootToSend.retries++
-        
-        val contentType : String? = if (tootToSend.markdownMode != null && tootToSend.markdownMode == true) "text/markdown" else null
+
+        val contentType : String? = if(tootToSend.formattingSyntax.length == 0) null else tootToSend.formattingSyntax
 
         val newStatus = NewStatus(
                 tootToSend.text,
@@ -151,7 +151,6 @@ class SendTootService : Service(), Injectable {
                 tootToSend.idempotencyKey,
                 newStatus
         )
-
 
         sendCalls[tootId] = sendCall
 
@@ -259,7 +258,7 @@ class SendTootService : Service(), Injectable {
                 toot.replyingStatusAuthorUsername,
                 Status.Visibility.byString(toot.visibility),
                 toot.poll,
-                toot.markdownMode)
+                toot.formattingSyntax)
     }
 
     private fun cancelSendingIntent(tootId: Int): PendingIntent {
@@ -328,7 +327,7 @@ data class TootToSend(
         val replyingStatusContent: String?,
         val replyingStatusAuthorUsername: String?,
         val savedJsonUrls: List<String>?,
-        val markdownMode: Boolean?,
+        val formattingSyntax: String,
         val accountId: Long,
         val savedTootUid: Int,
         val idempotencyKey: String,

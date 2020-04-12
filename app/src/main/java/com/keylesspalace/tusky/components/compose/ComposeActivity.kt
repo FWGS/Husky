@@ -113,6 +113,7 @@ class ComposeActivity : BaseActivity(),
 
     private var composeOptions: ComposeOptions? = null
     private val viewModel: ComposeViewModel by viewModels { viewModelFactory }
+    private var suggestFormattingSyntax: String = "text/markdown"
 
     private var mediaCount = 0
 
@@ -148,6 +149,7 @@ class ComposeActivity : BaseActivity(),
         setupButtons()
 
         photoUploadUri = savedInstanceState?.getParcelable(PHOTO_UPLOAD_URI_KEY)
+        viewModel.formattingSyntax = activeAccount.defaultFormattingSyntax
 
         /* If the composer is started up as a reply to another post, override the "starting" state
          * based on what the intent from the reply request passes. */
@@ -159,9 +161,14 @@ class ComposeActivity : BaseActivity(),
             if (!tootText.isNullOrEmpty()) {
                 composeEditField.setText(tootText)
             }
-            enableMarkdownMode(composeOptions?.markdownMode ?: false);
         }
-
+                
+        if(viewModel.formattingSyntax.length == 0) {
+            suggestFormattingSyntax = "text/markdown"
+        } else {
+            suggestFormattingSyntax = viewModel.formattingSyntax
+        }
+        
         if (!TextUtils.isEmpty(composeOptions?.scheduledAt)) {
             composeScheduleView.setDateTime(composeOptions?.scheduledAt)
         }
@@ -326,6 +333,8 @@ class ComposeActivity : BaseActivity(),
         enableButton(composeAddMediaButton, true, true)
         enablePollButton(viewModel.poll != null)
     }
+    
+    private var supportedFormattingSyntax = arrayListOf<String>()
 
     private fun subscribeToUpdates(mediaAdapter: MediaPreviewAdapter) {
         withLifecycleContext {
@@ -335,7 +344,32 @@ class ComposeActivity : BaseActivity(),
                 composeScheduleButton.visible(instanceData.supportsScheduled)
             }
             viewModel.instanceMetadata.observe { instanceData ->
-                composeMarkdownButton.visible(instanceData.supportsMarkdown)
+                if(instanceData.supportsMarkdown) {
+                    supportedFormattingSyntax.add("text/markdown")
+                }
+                
+                if(instanceData.supportsBBcode) {
+                    supportedFormattingSyntax.add("text/bbcode")
+                }
+                
+                if(instanceData.supportsHTML) {
+                    supportedFormattingSyntax.add("text/html")
+                }
+                
+                if(supportedFormattingSyntax.size != 0) {
+                    composeFormattingSyntax.visible(true)
+                    
+                    val supportsPrefferedSyntax = supportedFormattingSyntax.contains(viewModel.formattingSyntax)
+                                        
+                    if(!supportsPrefferedSyntax) {
+                        viewModel.formattingSyntax = ""
+                        
+                        setIconForSyntax(supportedFormattingSyntax[0], false)
+                    } else {
+                        setIconForSyntax(viewModel.formattingSyntax, true)
+                    }
+                }
+                
                 if(instanceData.software.equals("pleroma")) {
                     reenableAttachments()
                 }
@@ -406,7 +440,8 @@ class ComposeActivity : BaseActivity(),
         composeHideMediaButton.setOnClickListener { toggleHideMedia() }
         composeScheduleButton.setOnClickListener { onScheduleClick() }
         composeScheduleView.setResetOnClickListener { resetSchedule() }
-        composeMarkdownButton.setOnClickListener { toggleMarkdownMode() }
+        composeFormattingSyntax.setOnClickListener { toggleFormattingMode() }
+        composeFormattingSyntax.setOnLongClickListener { selectFormattingSyntax() }
         atButton.setOnClickListener { atButtonClicked() }
         hashButton.setOnClickListener { hashButtonClicked() }
         codeButton.setOnClickListener { codeButtonClicked() }
@@ -474,19 +509,80 @@ class ComposeActivity : BaseActivity(),
         composeEditField.setSelection(start + text.length)
     }
     
-    private fun enableMarkdownMode(enable: Boolean) {
-        viewModel.markdownMode = enable
+    private fun enableFormattingSyntaxButton(syntax: String, enable: Boolean) {
+        val stringId = when(syntax) {
+            "text/html" -> R.string.action_html
+            "text/bbcode" -> R.string.action_bbcode
+            else -> R.string.action_markdown
+        }
+                
+        val actionStringId = if(enable) R.string.action_disable_formatting_syntax else R.string.action_enable_formatting_syntax
+        val tooltipText = getString(actionStringId).format(stringId)
+     
+        composeFormattingSyntax.tooltipText = tooltipText
+        composeFormattingSyntax.contentDescription = tooltipText
         
-        enableMarkdownWYSIWYGButtons(viewModel.markdownMode)
-        
-        TransitionManager.beginDelayedTransition(composeMarkdownButton.parent as ViewGroup);
-        
-        @ColorInt val color = ThemeUtils.getColor(this, if(viewModel.markdownMode) R.attr.colorPrimary else android.R.attr.textColorTertiary);
-        composeMarkdownButton.drawable.colorFilter = PorterDuffColorFilter(color, PorterDuff.Mode.SRC_IN);
+        @ColorInt val color = ThemeUtils.getColor(this, if(enable) R.attr.colorPrimary else android.R.attr.textColorTertiary);
+        composeFormattingSyntax.drawable.colorFilter = PorterDuffColorFilter(color, PorterDuff.Mode.SRC_IN);
     }
     
-    private fun toggleMarkdownMode() {
-        enableMarkdownMode(!viewModel.markdownMode)
+    private fun setIconForSyntax(syntax: String, enable: Boolean) {
+        val drawableId = when(syntax) {
+            "text/html" -> R.drawable.ic_html_24dp
+            "text/bbcode" -> R.drawable.ic_bbcode_24dp
+            else -> R.drawable.ic_markdown
+        }
+        
+        suggestFormattingSyntax = if(drawableId == R.drawable.ic_markdown) "text/markdown" else syntax
+        composeFormattingSyntax.setImageResource(drawableId)
+        enableFormattingSyntaxButton(syntax, enable)
+    }
+        
+    private fun toggleFormattingMode() {
+        if(viewModel.formattingSyntax.equals(suggestFormattingSyntax)) {
+            viewModel.formattingSyntax = ""
+            enableFormattingSyntaxButton(suggestFormattingSyntax, false)
+        } else {
+            viewModel.formattingSyntax = suggestFormattingSyntax
+            enableFormattingSyntaxButton(suggestFormattingSyntax, true)
+        }
+    }
+    
+    private fun selectFormattingSyntax() : Boolean {
+        val menu = PopupMenu(this, composeFormattingSyntax)
+        val plaintextId = 0
+        val markdownId = 1
+        val bbcodeId = 2
+        val htmlId = 3
+        menu.menu.add(0, plaintextId, 0, R.string.action_plaintext)
+        if(viewModel.instanceMetadata.value?.supportsMarkdown ?: false)
+            menu.menu.add(0, markdownId, 0, R.string.action_markdown)
+
+        if(viewModel.instanceMetadata.value?.supportsBBcode ?: false)
+            menu.menu.add(0, bbcodeId, 0, R.string.action_bbcode)
+
+        if(viewModel.instanceMetadata.value?.supportsHTML ?: false)
+            menu.menu.add(0, htmlId, 0, R.string.action_html)
+        
+        menu.setOnMenuItemClickListener { menuItem ->
+            val choose = when (menuItem.itemId) {
+                markdownId -> "text/markdown"
+                bbcodeId -> "text/bbcode"
+                htmlId -> "text/html"
+                else -> ""
+            }
+            if(choose.length == 0) {
+                // leave previous
+                setIconForSyntax(viewModel.formattingSyntax, false)
+            } else {
+                setIconForSyntax(choose, true)
+            }
+            viewModel.formattingSyntax = choose
+            true
+        }
+        menu.show()
+        
+        return true
     }
     
     private fun enableMarkdownWYSIWYGButtons(visible: Boolean) {
@@ -622,7 +718,7 @@ class ComposeActivity : BaseActivity(),
         composeEmojiButton.isClickable = enable
         composeHideMediaButton.isClickable = enable
         composeScheduleButton.isClickable = enable
-        composeMarkdownButton.isClickable = enable
+        composeFormattingSyntax.isClickable = enable
         composeTootButton.isEnabled = enable
     }
 
@@ -1118,7 +1214,7 @@ class ComposeActivity : BaseActivity(),
             var scheduledAt: String? = null,
             var sensitive: Boolean? = null,
             var poll: NewPoll? = null,
-            var markdownMode: Boolean? = null
+            var formattingSyntax: String? = null
     ) : Parcelable
 
     companion object {

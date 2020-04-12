@@ -102,7 +102,7 @@ class SendStatusBroadcastReceiver : BroadcastReceiver() {
                                 null,
                                 null,
                                 null,
-                                null,
+                                "",
                                 account.id,
                                 0,
                                 randomAlphanumericString(16),

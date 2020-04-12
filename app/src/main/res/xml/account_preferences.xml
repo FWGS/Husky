@@ -31,6 +31,14 @@
             android:key="defaultPostPrivacy"
             android:summary="%s"
             android:title="@string/pref_default_post_privacy" />
+        
+        <ListPreference
+            android:defaultValue="Plaintext"
+            android:entries="@array/formatting_syntax_values"
+            android:entryValues="@array/formatting_syntax_values"
+            android:key="defaultFormattingSyntax"
+            android:summary="%s"
+            android:title="@string/pref_title_default_formatting" />
 
         <SwitchPreferenceCompat
             android:defaultValue="false"
