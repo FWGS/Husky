@@ -524,6 +524,8 @@ class ComposeActivity : BaseActivity(),
         
         @ColorInt val color = ThemeUtils.getColor(this, if(enable) R.attr.colorPrimary else android.R.attr.textColorTertiary);
         composeFormattingSyntax.drawable.colorFilter = PorterDuffColorFilter(color, PorterDuff.Mode.SRC_IN);
+        
+        enableMarkdownWYSIWYGButtons(enable);
     }
     
     private fun setIconForSyntax(syntax: String, enable: Boolean) {
@@ -644,23 +646,43 @@ class ComposeActivity : BaseActivity(),
     }
     
     private fun codeButtonClicked() {
-        MarkdownEdit.addCode(composeEditField);
+        when(viewModel.formattingSyntax) {
+            "text/markdown" -> MarkdownEdit.addCode(composeEditField)
+            "text/bbcode" -> BBCodeEdit.addCode(composeEditField)
+            "text/html" -> HTMLEdit.addCode(composeEditField)
+        }
     }
     
     private fun linkButtonClicked() {
-        MarkdownEdit.addLink(composeEditField);
+        when(viewModel.formattingSyntax) {
+            "text/markdown" -> MarkdownEdit.addLink(composeEditField)
+            "text/bbcode" -> BBCodeEdit.addLink(composeEditField)
+            "text/html" -> HTMLEdit.addLink(composeEditField)
+        }
     }
     
     private fun strikethroughButtonClicked() {
-        MarkdownEdit.addStrikeThrough(composeEditField);
+        when(viewModel.formattingSyntax) {
+            "text/markdown" -> MarkdownEdit.addStrikeThrough(composeEditField)
+            "text/bbcode" -> BBCodeEdit.addStrikeThrough(composeEditField)
+            "text/html" -> HTMLEdit.addStrikeThrough(composeEditField)
+        }
     }
     
     private fun italicButtonClicked() {
-        MarkdownEdit.addItalic(composeEditField);
+        when(viewModel.formattingSyntax) {
+            "text/markdown" -> MarkdownEdit.addItalic(composeEditField)
+            "text/bbcode" -> BBCodeEdit.addItalic(composeEditField)
+            "text/html" -> HTMLEdit.addItalic(composeEditField)
+        }
     }
     
     private fun boldButtonClicked() {
-        MarkdownEdit.addBold(composeEditField);
+        when(viewModel.formattingSyntax) {
+            "text/markdown" -> MarkdownEdit.addBold(composeEditField)
+            "text/bbcode" -> BBCodeEdit.addBold(composeEditField)
+            "text/html" -> HTMLEdit.addBold(composeEditField)
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
