@@ -295,7 +295,7 @@
         app:behavior_peekHeight="0dp"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior" />
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
@@ -308,88 +308,97 @@
         android:paddingEnd="8dp"
         android:paddingBottom="4dp">
 
-        <ImageButton
-            android:id="@+id/composeAddMediaButton"
-            style="@style/TuskyImageButton"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:layout_marginEnd="4dp"
-            android:contentDescription="@string/action_add_media"
-            android:padding="4dp"
-            android:tooltipText="@string/action_add_media"
-            app:srcCompat="@drawable/ic_attach_file_24dp" />
-
-        <ImageButton
-            android:id="@+id/composeToggleVisibilityButton"
-            style="@style/TuskyImageButton"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:layout_marginEnd="4dp"
-            android:contentDescription="@string/action_toggle_visibility"
-            android:padding="4dp"
-            android:tooltipText="@string/action_toggle_visibility"
-            tools:src="@drawable/ic_public_24dp" />
-
-        <ImageButton
-            android:id="@+id/composeHideMediaButton"
-            style="@style/TuskyImageButton"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:layout_marginEnd="4dp"
-            android:contentDescription="@string/action_hide_media"
-            android:padding="4dp"
-            android:tooltipText="@string/action_hide_media"
-            tools:src="@drawable/ic_eye_24dp" />
-
-        <ImageButton
-            android:id="@+id/composeContentWarningButton"
-            style="@style/TuskyImageButton"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:layout_marginEnd="4dp"
-            android:contentDescription="@string/action_content_warning"
-            android:padding="4dp"
-            android:tooltipText="@string/action_content_warning"
-            app:srcCompat="@drawable/ic_cw_24dp"/>
-
-        <ImageButton
-            android:id="@+id/composeEmojiButton"
-            style="@style/TuskyImageButton"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:layout_marginEnd="4dp"
-            android:contentDescription="@string/action_emoji_keyboard"
-            android:padding="4dp"
-            android:tooltipText="@string/action_emoji_keyboard"
-            app:srcCompat="@drawable/ic_emoji_24dp" />
-
-        <ImageButton
-            android:id="@+id/composeScheduleButton"
-            style="@style/TuskyImageButton"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:layout_marginEnd="4dp"
-            android:contentDescription="@string/action_schedule_toot"
-            android:padding="4dp"
-            android:tooltipText="@string/action_schedule_toot"
-            app:srcCompat="@drawable/ic_access_time" />
-
-        <ImageButton
-            android:id="@+id/composeFormattingSyntax"
-            style="@style/TuskyImageButton"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:layout_marginEnd="4dp"
-            android:contentDescription="@string/action_markdown"
-            android:padding="4dp"
-            android:tooltipText="@string/action_markdown"
-			android:visibility="gone"
-            app:srcCompat="@drawable/ic_markdown" />
-
-        <Space
-            android:layout_width="0dp"
+        <HorizontalScrollView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1" />
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@+id/composeCharactersLeftView"
+            android:requiresFadingEdge="horizontal">
+            
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <ImageButton
+                    android:id="@+id/composeAddMediaButton"
+                    style="@style/TuskyImageButton"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_marginEnd="4dp"
+                    android:contentDescription="@string/action_add_media"
+                    android:padding="4dp"
+                    android:tooltipText="@string/action_add_media"
+                    app:srcCompat="@drawable/ic_attach_file_24dp" />
+
+                <ImageButton
+                    android:id="@+id/composeToggleVisibilityButton"
+                    style="@style/TuskyImageButton"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_marginEnd="4dp"
+                    android:contentDescription="@string/action_toggle_visibility"
+                    android:padding="4dp"
+                    android:tooltipText="@string/action_toggle_visibility"
+                    tools:src="@drawable/ic_public_24dp" />
+
+                <ImageButton
+                    android:id="@+id/composeHideMediaButton"
+                    style="@style/TuskyImageButton"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_marginEnd="4dp"
+                    android:contentDescription="@string/action_hide_media"
+                    android:padding="4dp"
+                    android:tooltipText="@string/action_hide_media"
+                    tools:src="@drawable/ic_eye_24dp" />
+
+                <ImageButton
+                    android:id="@+id/composeContentWarningButton"
+                    style="@style/TuskyImageButton"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_marginEnd="4dp"
+                    android:contentDescription="@string/action_content_warning"
+                    android:padding="4dp"
+                    android:tooltipText="@string/action_content_warning"
+                    app:srcCompat="@drawable/ic_cw_24dp"/>
+
+                <ImageButton
+                    android:id="@+id/composeEmojiButton"
+                    style="@style/TuskyImageButton"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_marginEnd="4dp"
+                    android:contentDescription="@string/action_emoji_keyboard"
+                    android:padding="4dp"
+                    android:tooltipText="@string/action_emoji_keyboard"
+                    app:srcCompat="@drawable/ic_emoji_24dp" />
+
+                <ImageButton
+                    android:id="@+id/composeScheduleButton"
+                    style="@style/TuskyImageButton"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_marginEnd="4dp"
+                    android:contentDescription="@string/action_schedule_toot"
+                    android:padding="4dp"
+                    android:tooltipText="@string/action_schedule_toot"
+                    app:srcCompat="@drawable/ic_access_time" />
+
+                <ImageButton
+                    android:id="@+id/composeFormattingSyntax"
+                    style="@style/TuskyImageButton"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_marginEnd="4dp"
+                    android:contentDescription="@string/action_markdown"
+                    android:padding="4dp"
+                    android:tooltipText="@string/action_markdown"
+                    android:visibility="gone"
+                    app:srcCompat="@drawable/ic_markdown" />
+            </LinearLayout>
+        </HorizontalScrollView>
 
         <TextView
             android:id="@+id/composeCharactersLeftView"
@@ -397,6 +406,8 @@
             android:layout_height="wrap_content"
             android:textColor="?android:textColorTertiary"
             android:textSize="?attr/status_text_medium"
+            android:layout_toLeftOf="@+id/composeTootButton"
+            android:layout_centerVertical="true"
             tools:text="500" />
 
         <com.keylesspalace.tusky.components.compose.view.TootButton
@@ -405,8 +416,10 @@
             android:layout_width="@dimen/toot_button_width"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
-            android:textSize="?attr/status_text_medium" />
+            android:textSize="?attr/status_text_medium"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"/>
 
-    </LinearLayout>
+    </RelativeLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
