@@ -47,18 +47,15 @@ public abstract class NotificationViewData {
         private final Account account;
         @Nullable
         private final StatusViewData.Concrete statusViewData;
-        private final boolean isExpanded;
-        @Nullable
         private final String emoji;
 
         public Concrete(Notification.Type type, String id, Account account,
-                        @Nullable StatusViewData.Concrete statusViewData, boolean isExpanded,
+                        @Nullable StatusViewData.Concrete statusViewData,
                         @Nullable String emoji) {
             this.type = type;
             this.id = id;
             this.account = account;
             this.statusViewData = statusViewData;
-            this.isExpanded = isExpanded;
             this.emoji = emoji;
         }
 
@@ -79,10 +76,6 @@ public abstract class NotificationViewData {
             return statusViewData;
         }
 
-        public boolean isExpanded() {
-            return isExpanded;
-        }
-        
         @Nullable
         public String getEmoji() {
 			return emoji;
@@ -98,8 +91,7 @@ public abstract class NotificationViewData {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             Concrete concrete = (Concrete) o;
-            return isExpanded == concrete.isExpanded &&
-                    type == concrete.type &&
+            return type == concrete.type &&
                     Objects.equals(id, concrete.id) &&
                     account.getId().equals(concrete.account.getId()) &&
                     (emoji != null && concrete.emoji != null && emoji.equals(concrete.emoji)) &&
@@ -111,7 +103,7 @@ public abstract class NotificationViewData {
         @Override
         public int hashCode() {
 
-            return Objects.hash(type, id, account, statusViewData, isExpanded);
+            return Objects.hash(type, id, account, statusViewData);
         }
     }
 

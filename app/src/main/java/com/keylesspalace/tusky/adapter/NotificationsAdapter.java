@@ -545,7 +545,7 @@ public class NotificationsAdapter extends RecyclerView.Adapter {
                     statusContent.setVisibility(statusViewData.isExpanded() ? View.GONE : View.VISIBLE);
                 });
 
-                setupContentAndSpoiler(notificationViewData, listener);
+                setupContentAndSpoiler(listener);
             }
 
         }
@@ -587,9 +587,8 @@ public class NotificationsAdapter extends RecyclerView.Adapter {
             }
         }
 
-        private void setupContentAndSpoiler(NotificationViewData.Concrete notificationViewData, final LinkListener listener) {
-    
-            boolean shouldShowContentIfSpoiler = notificationViewData.isExpanded();
+        private void setupContentAndSpoiler(final LinkListener listener) {
+            boolean shouldShowContentIfSpoiler = statusViewData.isExpanded();
             boolean hasSpoiler = !TextUtils.isEmpty(statusViewData.getSpoilerText());
             if (!shouldShowContentIfSpoiler && hasSpoiler) {
                 statusContent.setVisibility(View.GONE);
@@ -599,8 +598,8 @@ public class NotificationsAdapter extends RecyclerView.Adapter {
     
             Spanned content = statusViewData.getContent();
             List<Emoji> emojis = statusViewData.getStatusEmojis();
-    
-            if (statusViewData.isCollapsible() && (notificationViewData.isExpanded() || !hasSpoiler)) {
+
+            if (statusViewData.isCollapsible() && (statusViewData.isExpanded() || !hasSpoiler)) {
                 contentCollapseButton.setOnClickListener(view -> {
                     int position = getAdapterPosition();
                     if (position != RecyclerView.NO_POSITION && notificationActionListener != null) {
