@@ -136,7 +136,7 @@ class Converters {
         if(spannedString == null) {
             return null
         }
-        return HtmlUtils.fromHtml(spannedString)
+        return spannedString.parseAsHtml().trimTrailingWhitespace()
     }
 
     @TypeConverter
