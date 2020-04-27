@@ -90,6 +90,12 @@
             android:title="@string/pref_title_hide_muted_users"
             app:singleLineTitle="false" />
 
+        <SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="enableSwipeForTabs"
+            android:title="@string/pref_title_enable_swipe_for_tabs"
+            app:singleLineTitle="false" />
+
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/pref_title_browser_settings">
