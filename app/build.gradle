@@ -69,6 +69,7 @@ android {
         disable 'MissingTranslation'
         disable 'ExtraTranslation'
         disable 'AppCompatCustomView' // I don't care about AppCompat bloat
+        disable 'UseRequireInsteadOfGet'
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
