@@ -9,13 +9,22 @@ import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 import androidx.viewpager2.widget.ViewPager2;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.preference.PreferenceManager;
 import com.keylesspalace.tusky.R;
 import com.keylesspalace.tusky.adapter.UnicodeEmojiAdapter;
+import java.util.*;
 
 public class EmojiKeyboard extends LinearLayout {
     private TabLayout tabs;
     private ViewPager2 pager;
     private TabLayoutMediator currentMediator;
+    private String preferenceKey;
+    private SharedPreferences pref;
+    private Set<String> recents;
+    private boolean isSticky = false; // TODO    
+    private String RECENTS_DELIM = "; ";
+    private int MAX_RECENTS_ITEMS = 50;
+    private RecyclerView.Adapter adapter;
 
     public EmojiKeyboard(Context context) {
         super(context);
@@ -31,10 +40,11 @@ public class EmojiKeyboard extends LinearLayout {
         super(context, attrs, defStyleAttr);
         init(context);
     }
-        
+
     void init(Context context) {
         inflate(context, R.layout.item_emoji_picker, this);
         
+        pref = PreferenceManager.getDefaultSharedPreferences(context);
         tabs = findViewById(R.id.picker_tabs);
         pager = findViewById(R.id.picker_pager);
     }
@@ -44,32 +54,65 @@ public class EmojiKeyboard extends LinearLayout {
     public static final int STICKER_MODE = 2;
     
     void setupKeyboard(String id, int mode, OnEmojiSelectedListener listener) {
-        RecyclerView.Adapter adapter;
-    
         switch(mode) {
-	        case CUSTOM_MODE:
-	        // UNDONE
-            //break;
+            case CUSTOM_MODE:
+                preferenceKey = "CUSTOM_RECENTS";
+                break;
             case STICKER_MODE:
-            // UNDONE
-            //break;
+                preferenceKey = "STICKER_RECENTS";
+                break;
             default:
             case UNICODE_MODE:
+                preferenceKey = "UNICODE_RECENTS";
                 adapter = new UnicodeEmojiAdapter(id, listener);
-            break;
+                break;
         }
+        
+        List<String> list = Arrays.asList(pref.getString(preferenceKey, "").split(RECENTS_DELIM));
+        recents = new LinkedHashSet<String>(list);
+        ((EmojiKeyboardAdapter)adapter).onRecentsUpdate(recents);
         
         pager.setAdapter(adapter);
         
         if(currentMediator != null)
-	        currentMediator.detach();
+            currentMediator.detach();
         
         currentMediator = new TabLayoutMediator(tabs, pager, (TabLayoutMediator.TabConfigurationStrategy)adapter);
         currentMediator.attach();
     }
     
+    void appendToRecents(String id) {
+        recents.remove(id);
+        recents.add(id);
+        int size = recents.size();
+        String joined;
+        final SharedPreferences.Editor editor = pref.edit();
+        if(size > MAX_RECENTS_ITEMS) {
+            List<String> list = new ArrayList<String>(recents);
+            list = list.subList(size - MAX_RECENTS_ITEMS, size);
+            joined = String.join(RECENTS_DELIM, list);
+            if(isSticky) {
+                recents = new LinkedHashSet<String>(list);
+            }
+        } else {
+            joined = String.join(RECENTS_DELIM, recents);
+        }
+        
+        editor.putString(preferenceKey, joined);
+        editor.apply();
+        
+        // no point on updating view if we are will be closed
+        if(isSticky) {
+            ((EmojiKeyboardAdapter)adapter).onRecentsUpdate(recents);
+        }
+    }
+
     public interface OnEmojiSelectedListener {
         void onEmojiSelected(String id, String emoji);
+    }
+    
+    public interface EmojiKeyboardAdapter {
+        void onRecentsUpdate(Set<String> set);
     }
     
     public static void show(Context ctx, String id, int mode, OnEmojiSelectedListener listener) {
@@ -81,7 +124,9 @@ public class EmojiKeyboard extends LinearLayout {
         EmojiKeyboard kbd = (EmojiKeyboard)dialog.findViewById(R.id.dialog_emoji_keyboard);
         kbd.setupKeyboard(id, mode, (_id, _emoji) -> {
             listener.onEmojiSelected(_id, _emoji);
-            dialog.dismiss();
+            kbd.appendToRecents(_emoji);
+            if(!kbd.isSticky)
+                dialog.dismiss();
         });
         
         dialog.show();
