@@ -187,7 +187,7 @@ data class Status(
 
     data class Mention (
         val id: String,
-        val url: String,
+        val url: String?, // can be null due to bug in some Pleroma versions
         @SerializedName("acct") val username: String,
         @SerializedName("username") val localUsername: String
     )

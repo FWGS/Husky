@@ -43,6 +43,10 @@ import java.net.URISyntaxException;
 
 public class LinkHelper {
     public static String getDomain(String urlString) {
+        // sometimes URL can be null due to Pleroma bug
+        if(urlString == null)
+            return "";
+    
         URI uri;
         try {
             uri = new URI(urlString);
@@ -94,7 +98,8 @@ public class LinkHelper {
                 for (Status.Mention mention : mentions) {
                     if (mention.getLocalUsername().equalsIgnoreCase(accountUsername)) {
                         id = mention.getId();
-                        if (mention.getUrl().contains(getDomain(span.getURL()))) {
+                        String url = mention.getUrl();
+                        if (url != null && url.contains(getDomain(span.getURL()))) {
                             break;
                         }
                     }
@@ -194,6 +199,9 @@ public class LinkHelper {
      * @param context context
      */
     public static void openLink(String url, Context context) {
+        if(url == null)
+            return;
+    
         Uri uri = Uri.parse(url).normalizeScheme();
 
         boolean useCustomTabs = PreferenceManager.getDefaultSharedPreferences(context)
