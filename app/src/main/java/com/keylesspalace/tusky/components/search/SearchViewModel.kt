@@ -196,6 +196,10 @@ class SearchViewModel @Inject constructor(
     fun muteAccount(accountId: String) {
         timelineCases.mute(accountId)
     }
+    
+    fun muteConversation(status: Status, isMute: Boolean) {
+        timelineCases.muteStatus(status, isMute)
+    }
 
     fun pinAccount(status: Status, isPin: Boolean) {
         timelineCases.pin(status, isPin)
