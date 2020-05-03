@@ -154,6 +154,7 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, HasAndroidInje
         }
         window.statusBarColor = Color.TRANSPARENT // don't draw a status bar, the DrawerLayout and the MaterialDrawerLayout have their own
         setContentView(R.layout.activity_main)
+        ViewPager2Fix.reduceVelocity(viewPager, 2.0f);
         composeButton.setOnClickListener {
             val composeIntent = Intent(applicationContext, ComposeActivity::class.java)
             startActivity(composeIntent)
