@@ -5,6 +5,7 @@ import android.content.*;
 import android.util.*;
 import android.widget.*;
 import android.app.*;
+import android.text.*;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 import androidx.viewpager2.widget.ViewPager2;
@@ -90,12 +91,12 @@ public class EmojiKeyboard extends LinearLayout {
         if(size > MAX_RECENTS_ITEMS) {
             List<String> list = new ArrayList<String>(recents);
             list = list.subList(size - MAX_RECENTS_ITEMS, size);
-            joined = String.join(RECENTS_DELIM, list);
+            joined = TextUtils.join(RECENTS_DELIM, list);
             if(isSticky) {
                 recents = new LinkedHashSet<String>(list);
             }
         } else {
-            joined = String.join(RECENTS_DELIM, recents);
+            joined = TextUtils.join(RECENTS_DELIM, recents);
         }
         
         editor.putString(preferenceKey, joined);
