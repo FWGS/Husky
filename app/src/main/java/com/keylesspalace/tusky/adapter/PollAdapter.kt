@@ -26,7 +26,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.keylesspalace.tusky.R
 import com.keylesspalace.tusky.entity.Emoji
 import com.keylesspalace.tusky.util.CustomEmojiHelper
-import com.keylesspalace.tusky.util.HtmlUtils
 import com.keylesspalace.tusky.util.visible
 import com.keylesspalace.tusky.viewdata.PollOptionViewData
 import com.keylesspalace.tusky.viewdata.buildDescription

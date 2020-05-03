@@ -651,7 +651,7 @@ public class NotificationsFragment extends SFragment implements
 
         NotificationViewData.Concrete newViewData = new NotificationViewData.Concrete(
                 viewdata.getType(), viewdata.getId(), viewdata.getAccount(),
-                viewDataBuilder.createStatusViewData(), viewdata.isExpanded(), viewdata.getEmoji());
+                viewDataBuilder.createStatusViewData(), viewdata.getEmoji());
 
         notifications.setPairedItem(position, newViewData);
     }
@@ -1362,7 +1362,7 @@ public class NotificationsFragment extends SFragment implements
 
         NotificationViewData.Concrete newViewData = new NotificationViewData.Concrete(
                 viewdata.getType(), viewdata.getId(), viewdata.getAccount(),
-                ViewDataUtils.statusToViewData(newStatus, false, false), viewdata.isExpanded(), viewdata.getEmoji());
+                ViewDataUtils.statusToViewData(newStatus, false, false), viewdata.getEmoji());
 
         notifications.setPairedItem(position, newViewData);
         updateAdapter();

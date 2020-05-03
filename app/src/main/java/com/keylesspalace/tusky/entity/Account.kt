@@ -101,11 +101,3 @@ data class PleromaAccount(
     @SerializedName("is_moderator") val isModerator: Boolean? = null,
     @SerializedName("is_admin") val isAdmin: Boolean? = null
 )
-
-object SpannedParceler : Parceler<Spanned> {
-    override fun create(parcel: Parcel): Spanned = HtmlUtils.fromHtml(parcel.readString())
-
-    override fun Spanned.write(parcel: Parcel, flags: Int) {
-        parcel.writeString(HtmlUtils.toHtml(this))
-    }
-}

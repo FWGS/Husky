@@ -22,7 +22,6 @@ import androidx.core.text.parseAsHtml
 import com.keylesspalace.tusky.R
 import com.keylesspalace.tusky.entity.Poll
 import com.keylesspalace.tusky.entity.PollOption
-import com.keylesspalace.tusky.util.HtmlUtils
 import java.util.*
 import kotlin.math.roundToInt
 

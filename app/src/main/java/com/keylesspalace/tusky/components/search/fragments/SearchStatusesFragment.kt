@@ -306,7 +306,7 @@ class SearchStatusesFragment : SearchFragment<Pair<Status, StatusViewData.Concre
                 }
                 R.id.status_mute_conversation -> {
                     searchAdapter.getItem(position)?.let { foundStatus ->
-                        viewModel.muteConversation(foundStatus, status.muted != true)
+                        viewModel.muteConversation(foundStatus.first, status.muted != true)
                     }
                     return@setOnMenuItemClickListener true
                 }

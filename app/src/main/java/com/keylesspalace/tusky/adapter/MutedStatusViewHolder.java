@@ -31,7 +31,6 @@ import com.keylesspalace.tusky.entity.Emoji;
 import com.keylesspalace.tusky.entity.Status;
 import com.keylesspalace.tusky.interfaces.StatusActionListener;
 import com.keylesspalace.tusky.util.CustomEmojiHelper;
-import com.keylesspalace.tusky.util.HtmlUtils;
 import com.keylesspalace.tusky.util.ImageLoadingHelper;
 import com.keylesspalace.tusky.util.LinkHelper;
 import com.keylesspalace.tusky.util.StatusDisplayOptions;
@@ -42,7 +41,6 @@ import com.keylesspalace.tusky.viewdata.PollOptionViewData;
 import com.keylesspalace.tusky.viewdata.PollViewData;
 import com.keylesspalace.tusky.viewdata.PollViewDataKt;
 import com.keylesspalace.tusky.viewdata.StatusViewData;
-import com.mikepenz.iconics.utils.Utils;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

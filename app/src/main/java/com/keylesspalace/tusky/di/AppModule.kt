@@ -81,10 +81,4 @@ class AppModule {
 						AppDatabase.MIGRATION_22_23, AppDatabase.MIGRATION_23_24)
                 .build()
     }
-
-    @Provides
-    @Singleton
-    fun providesHtmlConverter(): HtmlConverter {
-        return HtmlConverterImpl()
-    }
 }

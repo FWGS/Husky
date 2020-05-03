@@ -19,17 +19,15 @@ import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
 import kotlinx.android.parcel.Parcelize
 
-@Parcelize
 data class Emoji(
         val shortcode: String,
         val url: String,
         @SerializedName("visible_in_picker") val visibleInPicker: Boolean?
-) : Parcelable
+)
 
-@Parcelize
 data class EmojiReaction(
         val name: String,
         val count: Int,
         val me: Boolean,
         val accounts: List<Account>? // only for emoji_reactions_by
-) : Parcelable
+)
