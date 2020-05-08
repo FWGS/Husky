@@ -75,6 +75,7 @@ class AccountPreferencesFragment : PreferenceFragmentCompat(),
     private lateinit var notificationFiltersPreference: Preference
     private lateinit var publicFiltersPreference: Preference
     private lateinit var threadFiltersPreference: Preference
+    private lateinit var accountFiltersPreference: Preference
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         addPreferencesFromResource(R.xml.account_preferences)
@@ -94,6 +95,7 @@ class AccountPreferencesFragment : PreferenceFragmentCompat(),
         notificationFiltersPreference = requirePreference("notificationFilters")
         publicFiltersPreference = requirePreference("publicFilters")
         threadFiltersPreference = requirePreference("threadFilters")
+        accountFiltersPreference = requirePreference("accountFilters")
 
         notificationPreference.icon = IconicsDrawable(notificationPreference.context, GoogleMaterial.Icon.gmd_notifications).apply { sizeRes = R.dimen.preference_icon_size; colorInt = ThemeUtils.getColor(notificationPreference.context, R.attr.iconColor) }
         mutedUsersPreference.icon = getTintedIcon(R.drawable.ic_mute_24dp)
@@ -109,6 +111,7 @@ class AccountPreferencesFragment : PreferenceFragmentCompat(),
         notificationFiltersPreference.onPreferenceClickListener = this
         publicFiltersPreference.onPreferenceClickListener = this
         threadFiltersPreference.onPreferenceClickListener = this
+        accountFiltersPreference.onPreferenceClickListener = this
 
         defaultPostPrivacyPreference.onPreferenceChangeListener = this
         defaultMediaSensitivityPreference.onPreferenceChangeListener = this
@@ -248,6 +251,9 @@ class AccountPreferencesFragment : PreferenceFragmentCompat(),
             }
             threadFiltersPreference -> {
                 launchFilterActivity(Filter.THREAD, R.string.pref_title_thread_filter_keywords)
+            }
+            accountFiltersPreference -> {
+                launchFilterActivity(Filter.ACCOUNT, R.string.title_accounts)
             }
 
             else -> false
