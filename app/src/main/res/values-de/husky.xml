@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="action_unmute_conversation">Gesprächstummhaltung aufheben</string>
+    <string name="action_disable_formatting_syntax">%s deaktivieren</string>
+    <string name="action_emoji_react">Reagieren</string>
+    <string name="action_emoji_unreact">Reaktion entfernen</string>
+    <string name="action_emoji_reacted_by">Wer hat reagiert</string>
+    <string name="title_emoji_reacted_by">%s-Reaktionen von</string>
+    <string name="hint_appname">Programmname</string>
+    <string name="admin">Administrator</string>
+    <string name="error_media_upload_size">Dateigröße über dem Limit der Instanz</string>
+    <string name="action_enable_formatting_syntax">%s aktivieren</string>
+    <string name="hint_website">Programmwebseite</string>
+    <string name="moderator">Moderator</string>
+    <string name="notification_emoji_format">%s hat mit %s auf deinen Post reagiert</string>
+    <string name="notification_emoji_name">Emojireaktionen</string>
+    <string name="notification_emoji_description">Benachrictigungen über neue Emojireaktionen</string>
+    <string name="pref_title_default_formatting">Standardformatierungssyntax (wenn von der Instanz unterstützt)</string>
+    <string name="pref_title_hide_muted_users">Ignorierte Nutzer verstecken</string>
+    <string name="action_mute_conversation">Gespräch stummschalten</string>
+    <string name="pref_title_notification_filter_emoji">Reaktionen auf meine Nachrichten</string>
+    <string name="action_reply_to">Antwort auf</string>
+</resources>
