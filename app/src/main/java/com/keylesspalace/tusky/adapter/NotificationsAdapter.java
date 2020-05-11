@@ -347,13 +347,13 @@ public class NotificationsAdapter extends RecyclerView.Adapter {
             String format = context.getString(R.string.notification_follow_format);
             String wrappedDisplayName = bidiFormatter.unicodeWrap(account.getName());
             String wholeMessage = String.format(format, wrappedDisplayName);
-            CharSequence emojifiedMessage = CustomEmojiHelperKt.emojifyString(wholeMessage, account.getEmojis(), message);
+            CharSequence emojifiedMessage = CustomEmojiHelperKt.emojifyString(wholeMessage, account.getEmojis(), message, true);
             message.setText(emojifiedMessage);
 
             String username = context.getString(R.string.status_username_format, account.getUsername());
             usernameView.setText(username);
 
-            CharSequence emojifiedDisplayName = CustomEmojiHelperKt.emojifyString(wrappedDisplayName, account.getEmojis(), usernameView);
+            CharSequence emojifiedDisplayName = CustomEmojiHelperKt.emojifyString(wrappedDisplayName, account.getEmojis(), usernameView, true);
 
             displayNameView.setText(emojifiedDisplayName);
 
@@ -429,7 +429,7 @@ public class NotificationsAdapter extends RecyclerView.Adapter {
         }
 
         private void setDisplayName(String name, List<Emoji> emojis) {
-            CharSequence emojifiedName = CustomEmojiHelperKt.emojifyString(name, emojis, displayName);
+            CharSequence emojifiedName = CustomEmojiHelperKt.emojifyString(name, emojis, displayName, true);
             displayName.setText(emojifiedName);
         }
 

@@ -195,7 +195,7 @@ public abstract class StatusBaseViewHolder extends RecyclerView.ViewHolder {
     protected abstract int getMediaPreviewHeight(Context context);
 
     protected void setDisplayName(String name, List<Emoji> customEmojis) {
-        CharSequence emojifiedName = CustomEmojiHelperKt.emojifyString(name, customEmojis, displayName);
+        CharSequence emojifiedName = CustomEmojiHelperKt.emojifyString(name, customEmojis, displayName, true);
         displayName.setText(emojifiedName);
     }
 

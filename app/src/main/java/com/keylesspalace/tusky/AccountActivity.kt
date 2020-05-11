@@ -438,7 +438,7 @@ class AccountActivity : BottomSheetActivity(), ActionButtonActivity, HasAndroidI
     private fun updateToolbar() {
         loadedAccount?.let { account ->
 
-            val emojifiedName = emojifyString(account.name, account.emojis, accountToolbar)
+            val emojifiedName = emojifyString(account.name, account.emojis, accountToolbar, true)
 
             try {
                 supportActionBar?.title = EmojiCompat.get().process(emojifiedName)
