@@ -1,57 +1,27 @@
 package com.keylesspalace.tusky.adapter;
 
 import android.content.Context;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
-import android.text.Spanned;
-import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.recyclerview.widget.DefaultItemAnimator;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
-import com.google.android.material.button.MaterialButton;
 import com.keylesspalace.tusky.R;
-import com.keylesspalace.tusky.entity.Attachment;
-import com.keylesspalace.tusky.entity.Attachment.Focus;
-import com.keylesspalace.tusky.entity.Attachment.MetaData;
 import com.keylesspalace.tusky.entity.Emoji;
-import com.keylesspalace.tusky.entity.Status;
 import com.keylesspalace.tusky.interfaces.StatusActionListener;
-import com.keylesspalace.tusky.util.CustomEmojiHelper;
-import com.keylesspalace.tusky.util.ImageLoadingHelper;
-import com.keylesspalace.tusky.util.LinkHelper;
+import com.keylesspalace.tusky.util.CustomEmojiHelperKt;
 import com.keylesspalace.tusky.util.StatusDisplayOptions;
-import com.keylesspalace.tusky.util.ThemeUtils;
 import com.keylesspalace.tusky.util.TimestampUtils;
-import com.keylesspalace.tusky.view.MediaPreviewImageView;
-import com.keylesspalace.tusky.viewdata.PollOptionViewData;
-import com.keylesspalace.tusky.viewdata.PollViewData;
-import com.keylesspalace.tusky.viewdata.PollViewDataKt;
 import com.keylesspalace.tusky.viewdata.StatusViewData;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
-
-import at.connyduck.sparkbutton.SparkButton;
-import kotlin.collections.CollectionsKt;
-
-import static com.keylesspalace.tusky.viewdata.PollViewDataKt.buildDescription;
 
 public class MutedStatusViewHolder extends RecyclerView.ViewHolder {
     public static class Key {
@@ -60,7 +30,6 @@ public class MutedStatusViewHolder extends RecyclerView.ViewHolder {
 
     private TextView displayName;
     private TextView username;
-    private TextView message;
     private ImageButton unmuteButton;
     public TextView timestampInfo;
 
@@ -79,7 +48,7 @@ public class MutedStatusViewHolder extends RecyclerView.ViewHolder {
     }
 
     protected void setDisplayName(String name, List<Emoji> customEmojis) {
-        CharSequence emojifiedName = CustomEmojiHelper.emojifyString(name, customEmojis, displayName);
+        CharSequence emojifiedName = CustomEmojiHelperKt.emojifyString(name, customEmojis, displayName);
         displayName.setText(emojifiedName);
     }
 

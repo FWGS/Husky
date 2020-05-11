@@ -41,14 +41,7 @@ import com.keylesspalace.tusky.entity.Emoji;
 import com.keylesspalace.tusky.entity.Status;
 import com.keylesspalace.tusky.entity.EmojiReaction;
 import com.keylesspalace.tusky.interfaces.StatusActionListener;
-import com.keylesspalace.tusky.util.CardViewMode;
-import com.keylesspalace.tusky.util.CustomEmojiHelper;
-import com.keylesspalace.tusky.util.ImageLoadingHelper;
-import com.keylesspalace.tusky.util.LinkHelper;
-import com.keylesspalace.tusky.util.StatusDisplayOptions;
-import com.keylesspalace.tusky.util.ThemeUtils;
-import com.keylesspalace.tusky.util.TimestampUtils;
-import com.keylesspalace.tusky.util.ViewExtensionsKt;
+import com.keylesspalace.tusky.util.*;
 import com.keylesspalace.tusky.view.MediaPreviewImageView;
 import com.keylesspalace.tusky.view.EmojiKeyboard;
 import com.keylesspalace.tusky.viewdata.PollOptionViewData;
@@ -202,7 +195,7 @@ public abstract class StatusBaseViewHolder extends RecyclerView.ViewHolder {
     protected abstract int getMediaPreviewHeight(Context context);
 
     protected void setDisplayName(String name, List<Emoji> customEmojis) {
-        CharSequence emojifiedName = CustomEmojiHelper.emojifyString(name, customEmojis, displayName);
+        CharSequence emojifiedName = CustomEmojiHelperKt.emojifyString(name, customEmojis, displayName);
         displayName.setText(emojifiedName);
     }
 
@@ -226,7 +219,7 @@ public abstract class StatusBaseViewHolder extends RecyclerView.ViewHolder {
                                         final StatusActionListener listener) {
         boolean sensitive = !TextUtils.isEmpty(spoilerText);
         if (sensitive) {
-            CharSequence emojiSpoiler = CustomEmojiHelper.emojifyString(spoilerText, emojis, contentWarningDescription);
+            CharSequence emojiSpoiler = CustomEmojiHelperKt.emojifyString(spoilerText, emojis, contentWarningDescription);
             contentWarningDescription.setText(emojiSpoiler);
             contentWarningDescription.setVisibility(View.VISIBLE);
             contentWarningButton.setVisibility(View.VISIBLE);
@@ -265,7 +258,7 @@ public abstract class StatusBaseViewHolder extends RecyclerView.ViewHolder {
                                 StatusDisplayOptions statusDisplayOptions,
                                 final StatusActionListener listener) {
         if (expanded) {
-            Spanned emojifiedText = CustomEmojiHelper.emojifyText(content, emojis, this.content);
+            Spanned emojifiedText = CustomEmojiHelperKt.emojifyText(content, emojis, this.content);
             LinkHelper.setClickableText(this.content, emojifiedText, mentions, listener);
             for (int i = 0; i < mediaLabels.length; ++i) {
                 updateMediaLabel(i, sensitive, expanded);

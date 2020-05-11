@@ -298,7 +298,7 @@ class StatusViewHelper(private val itemView: View) {
                 val percent = calculatePercent(options[i].votesCount, poll.votesCount)
 
                 val pollOptionText = buildDescription(options[i].title, percent, pollResults[i].context)
-                pollResults[i].text = CustomEmojiHelper.emojifyText(pollOptionText, emojis, pollResults[i])
+                pollResults[i].text = emojifyText(pollOptionText, emojis, pollResults[i])
                 pollResults[i].visibility = View.VISIBLE
 
                 val level = percent * 100
