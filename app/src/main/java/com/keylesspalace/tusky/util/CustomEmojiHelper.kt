@@ -43,7 +43,11 @@ import androidx.preference.PreferenceManager
  * @param view a reference to the a view the emojis will be shown in (should be the TextView, but parents of the TextView are also acceptable)
  * @return the text with the shortcodes replaced by EmojiSpans
 */
-fun emojifyText(text: Spanned, emojis: List<Emoji>?, view: View) : Spanned {
+fun emojifyText(text: Spanned, emojis: List<Emoji>?, view: View, forceSmallEmoji: Boolean) : Spanned {
+    val pm = PreferenceManager.getDefaultSharedPreferences(view.context)
+    val smallEmojis = forceSmallEmoji || !pm.getBoolean("bigEmojis", true)
+    // val animatedEmojis = pm.getBoolean("animateEmojis", false)
+
     if (emojis != null && emojis.isNotEmpty()) {
         val builder = SpannableStringBuilder(text)
         for (emoji in emojis) {
@@ -51,7 +55,11 @@ fun emojifyText(text: Spanned, emojis: List<Emoji>?, view: View) : Spanned {
             val matcher = Pattern.compile(pattern.toString(), Pattern.LITERAL)
                 .matcher(text)
             while(matcher.find()) {
-                val span = EmojiSpan(WeakReference<View>(view))
+                val span = if(smallEmojis) {
+                    SmallEmojiSpan(WeakReference<View>(view))
+                } else {
+                    EmojiSpan(WeakReference<View>(view))
+                }
                 builder.setSpan(span, matcher.start(), matcher.end(), 0);
                 Glide.with(view)
                     .asBitmap()
@@ -66,11 +74,19 @@ fun emojifyText(text: Spanned, emojis: List<Emoji>?, view: View) : Spanned {
     return text
 }
 
-fun emojifyString(string: String, emojis: List<Emoji>?, view: View) : Spanned {
-    return emojifyText(SpannedString(string), emojis, view)
+fun emojifyText(text: Spanned, emojis: List<Emoji>?, view: View) : Spanned {
+    return emojifyText(text, emojis, view, false)
 }
 
-public class EmojiSpan(val viewWeakReference: WeakReference<View>) : ReplacementSpan() {
+fun emojifyString(string: String, emojis: List<Emoji>?, view: View, forceSmallEmoji: Boolean) : Spanned {
+    return emojifyText(SpannedString(string), emojis, view, forceSmallEmoji)
+}
+
+fun emojifyString(string: String, emojis: List<Emoji>?, view: View) : Spanned {
+    return emojifyString(string, emojis, view, false)
+}
+
+public open class EmojiSpan(val viewWeakReference: WeakReference<View>) : ReplacementSpan() {
     var imageDrawable: Drawable? = null
     
     override fun getSize(paint: Paint, text: CharSequence, start: Int, end: Int, fm: Paint.FontMetricsInt?) : Int {
@@ -116,5 +132,22 @@ public class EmojiSpan(val viewWeakReference: WeakReference<View>) : Replacement
             
             override fun onLoadCleared(placeholder: Drawable?) {}
         }
+    }
+}
+
+public class SmallEmojiSpan(viewWeakReference: WeakReference<View>)
+    : EmojiSpan(viewWeakReference) {
+    override fun getSize(paint: Paint, text: CharSequence, start: Int, end: Int, fm: Paint.FontMetricsInt?): Int {
+        if (fm != null) {
+            /* update FontMetricsInt or otherwise span does not get drawn when
+             * it covers the whole text */
+            val metrics = paint.fontMetricsInt
+            fm.top = metrics.top
+            fm.ascent = metrics.ascent
+            fm.descent = metrics.descent
+            fm.bottom = metrics.bottom
+        }
+
+        return paint.textSize.toInt()
     }
 }

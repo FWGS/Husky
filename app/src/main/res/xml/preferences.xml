@@ -96,6 +96,12 @@
             android:title="@string/pref_title_enable_swipe_for_tabs"
             app:singleLineTitle="false" />
 
+        <SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="bigEmojis"
+            android:title="@string/pref_title_enable_big_emojis"
+            app:singleLineTitle="false" />
+
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/pref_title_browser_settings">
