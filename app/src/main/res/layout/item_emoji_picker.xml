@@ -9,7 +9,7 @@
 	<com.google.android.material.tabs.TabLayout
 		android:id="@+id/picker_tabs"
 		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
+		android:layout_height="48dp"
 		app:tabMaxWidth="0dp"
 		app:tabMinWidth="0dp"
 		app:tabGravity="fill"

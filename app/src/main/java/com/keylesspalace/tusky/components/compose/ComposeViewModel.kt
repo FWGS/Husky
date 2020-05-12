@@ -33,8 +33,11 @@ import com.keylesspalace.tusky.network.MastodonApi
 import com.keylesspalace.tusky.service.ServiceClient
 import com.keylesspalace.tusky.service.TootToSend
 import com.keylesspalace.tusky.util.*
+import io.reactivex.Single
 import io.reactivex.disposables.Disposable
 import io.reactivex.rxkotlin.Singles
+import io.reactivex.schedulers.Schedulers
+import retrofit2.Response
 import java.util.*
 import javax.inject.Inject
 
@@ -64,6 +67,9 @@ class ComposeViewModel
     private var contentWarningStateChanged: Boolean = false
     private val instance: MutableLiveData<InstanceEntity?> = MutableLiveData(null)
     private val nodeinfo: MutableLiveData<NodeInfo?> = MutableLiveData(null)
+    private val stickers: MutableLiveData<Array<StickerPack>> = MutableLiveData(emptyArray())
+    public val haveStickers: MutableLiveData<Boolean> = MutableLiveData(false)
+    public var tryFetchStickers = false
     public var formattingSyntax: String = ""
     public var hasNoAttachmentLimits = false
 
@@ -108,6 +114,8 @@ class ComposeViewModel
             )
         }
     }
+    val instanceStickers: LiveData<Array<StickerPack>> = stickers // .map { stickers -> HashMap<String,String>(stickers) }
+
     val emoji: MutableLiveData<List<Emoji>?> = MutableLiveData()
     val markMediaAsSensitive =
             mutableLiveData(accountManager.activeAccount?.defaultMediaSensitivity ?: false)
@@ -129,7 +137,6 @@ class ComposeViewModel
 
 
     init {
-
         Singles.zip(api.getCustomEmojis(), api.getInstance()) { emojis, instance ->
             InstanceEntity(
                     instance = accountManager.activeAccount?.domain!!,
@@ -154,21 +161,19 @@ class ComposeViewModel
                     Log.w(TAG, "error loading instance data", throwable)
                 })
                 .autoDispose()
-                
-                
-        api.getNodeinfoLinks().subscribe({ links ->
-                if(links.links.size > 0) {
-                    api.getNodeinfo(links.links[0].href).subscribe({ni ->
-                            nodeinfo.postValue(ni)
-                        }, {
-                            err -> Log.d(TAG, "Failed to get nodeinfo", err)
-                        }
-                    )
-                }
-            }, {
-                err -> Log.d(TAG, "Failed to get nodeinfo links", err)
+
+
+        api.getNodeinfoLinks().subscribe({
+            links -> if(links.links.isNotEmpty()) {
+                api.getNodeinfo(links.links[0].href).subscribe({
+                    ni -> nodeinfo.postValue(ni)
+                }, {
+                    err -> Log.d(TAG, "Failed to get nodeinfo", err)
+                }).autoDispose()
             }
-        )
+        }, { err ->
+            Log.d(TAG, "Failed to get nodeinfo links", err)
+        }).autoDispose()
     }
 
     fun pickMedia(uri: Uri, filename: String?): LiveData<Either<Throwable, QueuedMedia>> {
@@ -178,7 +183,7 @@ class ComposeViewModel
         val imageLimit = instanceMetadata.value?.videoLimit ?: STATUS_VIDEO_SIZE_LIMIT
         val videoLimit = instanceMetadata.value?.imageLimit ?: STATUS_IMAGE_SIZE_LIMIT
         
-        mediaUploader.prepareMedia(uri, videoLimit, imageLimit)
+        mediaUploader.prepareMedia(uri, videoLimit, imageLimit, filename)
                 .map { (type, uri, size) ->
                     val mediaItems = media.value!!
                     if (!hasNoAttachmentLimits
@@ -187,7 +192,7 @@ class ComposeViewModel
                             && mediaItems[0].type == QueuedMedia.Type.IMAGE) {
                         throw VideoOrImageException()
                     } else {
-                        addMediaToQueue(type, uri, size, if(filename != null) filename else "unknown")
+                        addMediaToQueue(type, uri, size, filename ?: "unknown")
                     }
                 }
                 .subscribe({ queuedMedia ->
@@ -421,7 +426,41 @@ class ComposeViewModel
         super.onCleared()
     }
 
+    fun getStickers() {
+        if(!tryFetchStickers)
+            return
+
+        api.getStickers().subscribe({ stickers ->
+            if (stickers.isNotEmpty()) {
+                haveStickers.postValue(true)
+
+                val singles = mutableListOf<Single<Response<StickerPack>>>()
+                for(entry in stickers) {
+                    val url = entry.value.removePrefix("/").removeSuffix("/") + "/pack.json";
+                    singles += api.getStickerPack(url)
+                }
+
+                Single.zip(singles) {
+                    it.map {
+                        it as Response<StickerPack>
+                        it.body()!!.internal_url = it.raw().request.url.toString().removeSuffix("pack.json")
+                        it.body()!!
+                    }
+                }.onErrorReturn {
+                    Log.d(TAG, "Failed to get sticker pack.json", it)
+                    emptyList()
+                }.subscribe() { pack ->
+                    if(pack.isNotEmpty())
+                        this.stickers.postValue(pack.toTypedArray())
+                }.autoDispose()
+            }
+        }, {
+            err -> Log.d(TAG, "Failed to get sticker.json", err)
+        }).autoDispose()
+    }
+
     fun setup(composeOptions: ComposeActivity.ComposeOptions?) {
+        getStickers() // early as possible
         val preferredVisibility = accountManager.activeAccount!!.defaultPostPrivacy
 
         val replyVisibility = composeOptions?.replyVisibility ?: Status.Visibility.UNKNOWN
@@ -458,7 +497,6 @@ class ComposeViewModel
                 Attachment.Type.VIDEO, Attachment.Type.GIFV -> QueuedMedia.Type.VIDEO
                 Attachment.Type.UNKNOWN, Attachment.Type.IMAGE -> QueuedMedia.Type.IMAGE
                 Attachment.Type.AUDIO -> QueuedMedia.Type.AUDIO
-                else -> QueuedMedia.Type.IMAGE
             }
             addUploadedMedia(a.id, mediaType, a.url.toUri(), a.description)
         }
@@ -496,8 +534,7 @@ class ComposeViewModel
         replyingStatusContent = composeOptions?.replyingStatusContent
         replyingStatusAuthor = composeOptions?.replyingStatusAuthor
         
-        if(composeOptions?.formattingSyntax != null)
-            formattingSyntax = composeOptions?.formattingSyntax ?: accountManager.activeAccount!!.defaultFormattingSyntax
+        formattingSyntax = composeOptions?.formattingSyntax ?: accountManager.activeAccount!!.defaultFormattingSyntax
     }
 
     fun updatePoll(newPoll: NewPoll) {

@@ -8,6 +8,7 @@
     <string name="action_emoji_reacted_by">Who reacted</string>
     <string name="action_enable_formatting_syntax">Enable %s</string>
     <string name="action_disable_formatting_syntax">Disable %s</string>
+    <string name="action_sticker">Stickers</string>
     
     <string name="title_emoji_reacted_by">%s reacted by</string>
     
@@ -18,6 +19,7 @@
     <string name="moderator">Moderator</string>
 
     <string name="error_media_upload_size">File size exceeds instance limits</string>
+    <string name="error_sticker_fetch">An error occurred while fetching sticker</string>
 
     <string name="notification_emoji_format">%s reacted with %s to your post</string>
     <string name="notification_emoji_name">Emoji Reactions</string>
@@ -27,5 +29,6 @@
     <string name="pref_title_notification_filter_emoji">my posts are reacted with emojis</string>
     <string name="pref_title_hide_muted_users">Hide muted users</string>
     <string name="pref_title_enable_big_emojis">Enable bigger custom emojis</string>
+    <string name="pref_title_enable_experimental_stickers">Enable experimental Pleroma-FE stickers(if available)</string>
 </resources>
         

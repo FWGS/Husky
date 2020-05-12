@@ -59,7 +59,7 @@ fun createNewImageFile(context: Context): File {
 data class PreparedMedia(val type: Int, val uri: Uri, val size: Long)
 
 interface MediaUploader {
-    fun prepareMedia(inUri: Uri, videoLimit: Int, imageLimit: Int): Single<PreparedMedia>
+    fun prepareMedia(inUri: Uri, videoLimit: Int, imageLimit: Int, filename: String?): Single<PreparedMedia>
     fun uploadMedia(media: QueuedMedia, videoLimit: Int, imageLimit: Int): Observable<UploadEvent>
 }
 
@@ -85,13 +85,21 @@ class MediaUploaderImpl(
                 .subscribeOn(Schedulers.io())
     }
 
-	override fun prepareMedia(inUri: Uri, videoLimit: Int, imageLimit: Int): Single<PreparedMedia> {
+    private fun getMimeTypeAndSuffixFromFilenameOrUri(uri: Uri, filename: String?) : Pair<String?, String> {
+        val mimeType = contentResolver.getType(uri)
+        return if(mimeType == null && filename != null) {
+            val extension = filename.substringAfterLast('.', "tmp")
+            Pair(MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension), ".$extension")
+        } else {
+            Pair(mimeType, "." + MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType ?: "tmp"))
+        }
+    }
+
+	override fun prepareMedia(inUri: Uri, videoLimit: Int, imageLimit: Int, filename: String?): Single<PreparedMedia> {
         return Single.fromCallable {
             var mediaSize = getMediaSize(contentResolver, inUri)
             var uri = inUri
-            val mimeType = contentResolver.getType(uri)
-
-            val suffix = "." + MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType ?: "tmp")
+            val (mimeType, suffix) = getMimeTypeAndSuffixFromFilenameOrUri(uri, filename)
 
             try {
                 contentResolver.openInputStream(inUri).use { input ->
@@ -154,10 +162,8 @@ class MediaUploaderImpl(
     
     private fun upload(media: QueuedMedia, videoLimit: Int, imageLimit: Int): Observable<UploadEvent> {
         return Observable.create { emitter ->
-            var mimeType = contentResolver.getType(media.uri)
-            val map = MimeTypeMap.getSingleton()
-            val fileExtension = map.getExtensionFromMimeType(mimeType)
-            val filename = String.format("%s_%s_%s.%s",
+            var (mimeType, fileExtension) = getMimeTypeAndSuffixFromFilenameOrUri(media.uri, media.originalFileName)
+            val filename = String.format("%s_%s_%s%s",
                         context.getString(R.string.app_name),
                         Date().time.toString(),
                         randomAlphanumericString(10),

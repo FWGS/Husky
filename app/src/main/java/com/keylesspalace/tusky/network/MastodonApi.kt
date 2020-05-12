@@ -610,4 +610,15 @@ interface MastodonApi {
         @Path("id") statusId: String,
         @Path("emoji") emoji: String
     ): Single<Response<List<EmojiReaction>>>
+
+    // NOT AN API CALLS NOT AN API CALLS NOT AN API CALLS NOT AN API CALLS
+    // just for testing and because puniko asked me
+    @GET("static/stickers.json")
+    fun getStickers() : Single<Map<String, String>>
+
+    @GET
+    fun getStickerPack(
+        @Url path: String
+    ): Single<Response<StickerPack>>
+    // NOT AN API CALLS NOT AN API CALLS NOT AN API CALLS NOT AN API CALLS
 }

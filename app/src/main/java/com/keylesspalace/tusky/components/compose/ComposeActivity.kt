@@ -26,6 +26,7 @@ import android.content.pm.PackageManager
 import android.content.ContentResolver
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffColorFilter
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -47,6 +48,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.core.net.toUri
 import androidx.core.view.inputmethod.InputConnectionCompat
 import androidx.core.view.inputmethod.InputContentInfoCompat
 import androidx.core.view.isGone
@@ -56,6 +58,10 @@ import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.transition.TransitionManager
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.target.CustomTarget
+import com.bumptech.glide.request.target.SimpleTarget
+import com.bumptech.glide.request.transition.Transition
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.snackbar.Snackbar
 import com.keylesspalace.tusky.BaseActivity
@@ -75,6 +81,7 @@ import com.keylesspalace.tusky.entity.Emoji
 import com.keylesspalace.tusky.entity.NewPoll
 import com.keylesspalace.tusky.entity.Status
 import com.keylesspalace.tusky.util.*
+import com.keylesspalace.tusky.view.EmojiKeyboard
 import com.mikepenz.iconics.IconicsDrawable
 import com.mikepenz.iconics.typeface.library.googlematerial.GoogleMaterial
 import com.mikepenz.iconics.utils.colorInt
@@ -96,7 +103,8 @@ class ComposeActivity : BaseActivity(),
         OnEmojiSelectedListener,
         Injectable,
         InputConnectionCompat.OnCommitContentListener,
-        TimePickerDialog.OnTimeSetListener {
+        TimePickerDialog.OnTimeSetListener,
+        EmojiKeyboard.OnEmojiSelectedListener {
 
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
@@ -105,6 +113,7 @@ class ComposeActivity : BaseActivity(),
     private lateinit var addMediaBehavior: BottomSheetBehavior<*>
     private lateinit var emojiBehavior: BottomSheetBehavior<*>
     private lateinit var scheduleBehavior: BottomSheetBehavior<*>
+    private lateinit var stickerBehavior: BottomSheetBehavior<*>
 
     // this only exists when a status is trying to be sent, but uploads are still occurring
     private var finishingUploadDialog: ProgressDialog? = null
@@ -131,6 +140,7 @@ class ComposeActivity : BaseActivity(),
         // do not do anything when not logged in, activity will be finished in super.onCreate() anyway
         val activeAccount = accountManager.activeAccount ?: return
 
+        viewModel.tryFetchStickers = preferences.getBoolean("stickers", false)
         setupAvatar(preferences, activeAccount)
         val mediaAdapter = MediaPreviewAdapter(
                 this,
@@ -179,13 +189,15 @@ class ComposeActivity : BaseActivity(),
         setupPollView()
         applyShareIntent(intent, savedInstanceState)
         viewModel.setupComplete.value = true
+
+        stickerKeyboard.isSticky = true
     }
     
     private fun uriToFilename(uri: Uri): String {
         var result: String = "unknown"
         if(uri.scheme.equals("content")) {
             val cursor = contentResolver.query(uri, null, null, null, null)
-            if(cursor != null) {
+            cursor?.let {
                 try {
                     if(cursor.moveToFirst()) {
                         result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME))
@@ -193,12 +205,12 @@ class ComposeActivity : BaseActivity(),
                 }
                 finally {
                     cursor.close()
-                }   
+                }
             }
         }
         if(result.equals("unknown")) {
             val path = uri.getPath()
-            if(path != null) {
+            path?.let {
                 result = path
                 val cut = result.lastIndexOf('/')
                 if (cut != -1) {
@@ -332,7 +344,7 @@ class ComposeActivity : BaseActivity(),
         // in case of we already had disabled attachments
         // but got information about extension later
         enableButton(composeAddMediaButton, true, true)
-        enablePollButton(viewModel.poll != null)
+        enablePollButton(viewModel.poll.value != null)
     }
     
     private var supportedFormattingSyntax = arrayListOf<String>()
@@ -373,6 +385,21 @@ class ComposeActivity : BaseActivity(),
                 
                 if(instanceData.software.equals("pleroma")) {
                     reenableAttachments()
+                }
+            }
+            viewModel.haveStickers.observe { haveStickers ->
+                if (haveStickers) {
+                    composeStickerButton.visibility = View.VISIBLE
+                }
+            }
+            viewModel.instanceStickers.observe { stickers ->
+                /*for(sticker in stickers)
+                    Log.d(TAG, "Found sticker pack: %s from %s".format(sticker.title, sticker.internal_url))*/
+
+                if(stickers.isNotEmpty()) {
+                    composeStickerButton.visibility = View.VISIBLE
+                    enableButton(composeStickerButton, true, true)
+                    stickerKeyboard.setupStickerKeyboard(this@ComposeActivity, stickers)
                 }
             }
             viewModel.emoji.observe { emoji -> setEmojiList(emoji) }
@@ -428,9 +455,11 @@ class ComposeActivity : BaseActivity(),
         addMediaBehavior = BottomSheetBehavior.from(addMediaBottomSheet)
         scheduleBehavior = BottomSheetBehavior.from(composeScheduleView)
         emojiBehavior = BottomSheetBehavior.from(emojiView)
+        stickerBehavior = BottomSheetBehavior.from(stickerKeyboard)
 
         emojiView.layoutManager = GridLayoutManager(this, 3, GridLayoutManager.HORIZONTAL, false)
         enableButton(composeEmojiButton, clickable = false, colorActive = false)
+        enableButton(composeStickerButton, false, false)
 
         // Setup the interface buttons.
         composeTootButton.setOnClickListener { onSendClicked() }
@@ -443,6 +472,7 @@ class ComposeActivity : BaseActivity(),
         composeScheduleView.setResetOnClickListener { resetSchedule() }
         composeFormattingSyntax.setOnClickListener { toggleFormattingMode() }
         composeFormattingSyntax.setOnLongClickListener { selectFormattingSyntax() }
+        composeStickerButton.setOnClickListener { showStickers() }
         atButton.setOnClickListener { atButtonClicked() }
         hashButton.setOnClickListener { hashButtonClicked() }
         codeButton.setOnClickListener { codeButtonClicked() }
@@ -742,6 +772,7 @@ class ComposeActivity : BaseActivity(),
         composeScheduleButton.isClickable = enable
         composeFormattingSyntax.isClickable = enable
         composeTootButton.isEnabled = enable
+        composeStickerButton.isEnabled = enable
     }
 
     private fun setStatusVisibility(visibility: Status.Visibility) {
@@ -764,9 +795,10 @@ class ComposeActivity : BaseActivity(),
             composeOptionsBehavior.state = BottomSheetBehavior.STATE_EXPANDED
             addMediaBehavior.state = BottomSheetBehavior.STATE_HIDDEN
             emojiBehavior.state = BottomSheetBehavior.STATE_HIDDEN
-            scheduleBehavior.setState(BottomSheetBehavior.STATE_HIDDEN)
+            stickerBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+            scheduleBehavior.state = BottomSheetBehavior.STATE_HIDDEN
         } else {
-            composeOptionsBehavior.setState(BottomSheetBehavior.STATE_HIDDEN)
+            composeOptionsBehavior.state = BottomSheetBehavior.STATE_HIDDEN
         }
     }
 
@@ -783,9 +815,10 @@ class ComposeActivity : BaseActivity(),
             scheduleBehavior.state = BottomSheetBehavior.STATE_EXPANDED
             composeOptionsBehavior.state = BottomSheetBehavior.STATE_HIDDEN
             addMediaBehavior.state = BottomSheetBehavior.STATE_HIDDEN
-            emojiBehavior.setState(BottomSheetBehavior.STATE_HIDDEN)
+            emojiBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+            stickerBehavior.state = BottomSheetBehavior.STATE_HIDDEN
         } else {
-            scheduleBehavior.setState(BottomSheetBehavior.STATE_HIDDEN)
+            scheduleBehavior.state = BottomSheetBehavior.STATE_HIDDEN
         }
     }
 
@@ -797,11 +830,12 @@ class ComposeActivity : BaseActivity(),
             } else {
                 if (emojiBehavior.state == BottomSheetBehavior.STATE_HIDDEN || emojiBehavior.state == BottomSheetBehavior.STATE_COLLAPSED) {
                     emojiBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+                    stickerBehavior.state = BottomSheetBehavior.STATE_HIDDEN
                     composeOptionsBehavior.state = BottomSheetBehavior.STATE_HIDDEN
                     addMediaBehavior.state = BottomSheetBehavior.STATE_HIDDEN
-                    scheduleBehavior.setState(BottomSheetBehavior.STATE_HIDDEN)
+                    scheduleBehavior.state = BottomSheetBehavior.STATE_HIDDEN
                 } else {
-                    emojiBehavior.setState(BottomSheetBehavior.STATE_HIDDEN)
+                    emojiBehavior.state = BottomSheetBehavior.STATE_HIDDEN
                 }
             }
         }
@@ -812,9 +846,10 @@ class ComposeActivity : BaseActivity(),
             addMediaBehavior.state = BottomSheetBehavior.STATE_EXPANDED
             composeOptionsBehavior.state = BottomSheetBehavior.STATE_HIDDEN
             emojiBehavior.state = BottomSheetBehavior.STATE_HIDDEN
-            scheduleBehavior.setState(BottomSheetBehavior.STATE_HIDDEN)
+            stickerBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+            scheduleBehavior.state = BottomSheetBehavior.STATE_HIDDEN
         } else {
-            addMediaBehavior.setState(BottomSheetBehavior.STATE_HIDDEN)
+            addMediaBehavior.state = BottomSheetBehavior.STATE_HIDDEN
         }
     }
 
@@ -1053,9 +1088,9 @@ class ComposeActivity : BaseActivity(),
         }
     }
 
-    private fun pickMedia(uri: Uri, contentInfoCompat: InputContentInfoCompat? = null) {
+    private fun pickMedia(uri: Uri, contentInfoCompat: InputContentInfoCompat? = null, filename: String? = null) {
         withLifecycleContext {
-            viewModel.pickMedia(uri, uriToFilename(uri)).observe { exceptionOrItem ->
+            viewModel.pickMedia(uri, filename ?: uriToFilename(uri)).observe { exceptionOrItem ->
 
                 contentInfoCompat?.releasePermission()
 
@@ -1074,6 +1109,7 @@ class ComposeActivity : BaseActivity(),
                             R.string.error_media_upload_image_or_video
                         }
                         else -> {
+                            Log.d(TAG, "That file could not be opened", it)
                             R.string.error_media_upload_opening
                         }
                     }
@@ -1114,11 +1150,13 @@ class ComposeActivity : BaseActivity(),
         if (composeOptionsBehavior.state == BottomSheetBehavior.STATE_EXPANDED ||
                 addMediaBehavior.state == BottomSheetBehavior.STATE_EXPANDED ||
                 emojiBehavior.state == BottomSheetBehavior.STATE_EXPANDED ||
-                scheduleBehavior.state == BottomSheetBehavior.STATE_EXPANDED) {
+                scheduleBehavior.state == BottomSheetBehavior.STATE_EXPANDED ||
+                stickerBehavior.state == BottomSheetBehavior.STATE_EXPANDED) {
             composeOptionsBehavior.state = BottomSheetBehavior.STATE_HIDDEN
             addMediaBehavior.state = BottomSheetBehavior.STATE_HIDDEN
             emojiBehavior.state = BottomSheetBehavior.STATE_HIDDEN
             scheduleBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+            stickerBehavior.state = BottomSheetBehavior.STATE_HIDDEN
             return
         }
 
@@ -1183,6 +1221,35 @@ class ComposeActivity : BaseActivity(),
             emojiView.adapter = EmojiAdapter(emojiList, this@ComposeActivity)
             enableButton(composeEmojiButton, true, emojiList.isNotEmpty())
         }
+    }
+
+    private fun showStickers() {
+        if (stickerBehavior.state == BottomSheetBehavior.STATE_HIDDEN || stickerBehavior.state == BottomSheetBehavior.STATE_COLLAPSED) {
+            stickerBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+            addMediaBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+            composeOptionsBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+            emojiBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+            scheduleBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+        } else {
+            stickerBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+        }
+    }
+
+    override fun onEmojiSelected(id: String, shortcode: String) {
+        // pickMedia(Uri.parse(shortcode))
+
+        Glide.with(this).asFile().load(shortcode).into( object : CustomTarget<File>() {
+            override fun onLoadCleared(placeholder: Drawable?) {
+                displayTransientError(R.string.error_sticker_fetch)
+            }
+
+            override fun onResourceReady(resource: File, transition: Transition<in File>?) {
+                val cut = shortcode.lastIndexOf('/')
+                val filename = if(cut != -1) shortcode.substring(cut + 1) else "unknown.png"
+                pickMedia(resource.toUri(), null, filename)
+            }
+        })
+        stickerBehavior.state = BottomSheetBehavior.STATE_HIDDEN
     }
 
     data class QueuedMedia(

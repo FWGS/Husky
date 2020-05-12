@@ -295,6 +295,17 @@
         app:behavior_peekHeight="0dp"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior" />
 
+    <com.keylesspalace.tusky.view.EmojiKeyboard
+        android:id="@+id/stickerKeyboard"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:background="?attr/colorSurface"
+        android:elevation="12dp"
+        android:layout_marginBottom="56dp"
+        app:behavior_hideable="true"
+        app:behavior_peekHeight="0dp"
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior" />
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -397,6 +408,18 @@
                     android:tooltipText="@string/action_markdown"
                     android:visibility="gone"
                     app:srcCompat="@drawable/ic_markdown" />
+
+                <ImageButton
+                    android:id="@+id/composeStickerButton"
+                    style="@style/TuskyImageButton"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_marginEnd="4dp"
+                    android:contentDescription="@string/action_sticker"
+                    android:padding="4dp"
+                    android:tooltipText="@string/action_sticker"
+                    android:visibility="gone"
+                    app:srcCompat="@drawable/ic_sticker" />
             </LinearLayout>
         </HorizontalScrollView>
 

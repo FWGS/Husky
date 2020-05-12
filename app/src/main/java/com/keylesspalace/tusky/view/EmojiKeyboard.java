@@ -8,11 +8,16 @@ import android.app.*;
 import android.text.*;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
+
+import androidx.annotation.NonNull;
 import androidx.viewpager2.widget.ViewPager2;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.preference.PreferenceManager;
 import com.keylesspalace.tusky.R;
+import com.keylesspalace.tusky.adapter.StickerAdapter;
 import com.keylesspalace.tusky.adapter.UnicodeEmojiAdapter;
+import com.keylesspalace.tusky.entity.StickerPack;
+
 import java.util.*;
 
 public class EmojiKeyboard extends LinearLayout {
@@ -22,10 +27,10 @@ public class EmojiKeyboard extends LinearLayout {
     private String preferenceKey;
     private SharedPreferences pref;
     private Set<String> recents;
-    private boolean isSticky = false; // TODO    
     private String RECENTS_DELIM = "; ";
     private int MAX_RECENTS_ITEMS = 50;
     private RecyclerView.Adapter adapter;
+    public boolean isSticky = false; // TODO
 
     public EmojiKeyboard(Context context) {
         super(context);
@@ -53,36 +58,50 @@ public class EmojiKeyboard extends LinearLayout {
     public static final int UNICODE_MODE = 0;
     public static final int CUSTOM_MODE  = 1;
     public static final int STICKER_MODE = 2;
-    
-    void setupKeyboard(String id, int mode, OnEmojiSelectedListener listener) {
-        switch(mode) {
-            case CUSTOM_MODE:
-                preferenceKey = "CUSTOM_RECENTS";
-                break;
-            case STICKER_MODE:
-                preferenceKey = "STICKER_RECENTS";
-                break;
-            default:
-            case UNICODE_MODE:
-                preferenceKey = "UNICODE_RECENTS";
-                adapter = new UnicodeEmojiAdapter(id, listener);
-                break;
-        }
-        
+
+    private void setupKeyboardWithAdapter(RecyclerView.Adapter adapter, String preferenceKey) {
+        this.preferenceKey = preferenceKey;
+        this.adapter = adapter;
+
         List<String> list = Arrays.asList(pref.getString(preferenceKey, "").split(RECENTS_DELIM));
         recents = new LinkedHashSet<String>(list);
         ((EmojiKeyboardAdapter)adapter).onRecentsUpdate(recents);
-        
+
         pager.setAdapter(adapter);
-        
+
         if(currentMediator != null)
             currentMediator.detach();
-        
+
         currentMediator = new TabLayoutMediator(tabs, pager, (TabLayoutMediator.TabConfigurationStrategy)adapter);
         currentMediator.attach();
     }
+
+    public void setupStickerKeyboard(OnEmojiSelectedListener listener, StickerPack packs[]) {
+        MAX_RECENTS_ITEMS = 20;
+        setupKeyboardWithAdapter(new StickerAdapter(packs, (_id, _emoji) -> {
+            this.appendToRecents(_emoji);
+            listener.onEmojiSelected(_id, _emoji);
+        }), "STICKER_RECENTS");
+    }
+
+    public void setupKeyboard(String id, int mode, OnEmojiSelectedListener listener) {
+        switch(mode) {
+            // WOOOPS, I forgot that I need to pass data to adapter
+            // For stickers, use SetupStickerKeyboard instead
+            // For custom emoji, use TODO
+            case CUSTOM_MODE:
+            case STICKER_MODE:
+                throw new IllegalArgumentException();
+            default:
+            case UNICODE_MODE:
+                setupKeyboardWithAdapter(new UnicodeEmojiAdapter(id, (_id, _emoji) -> {
+                    this.appendToRecents(_emoji);
+                    listener.onEmojiSelected(_id, _emoji);
+                }), "UNICODE_RECENTS");
+        }
+    }
     
-    void appendToRecents(String id) {
+    private void appendToRecents(String id) {
         recents.remove(id);
         recents.add(id);
         int size = recents.size();
@@ -109,11 +128,11 @@ public class EmojiKeyboard extends LinearLayout {
     }
 
     public interface OnEmojiSelectedListener {
-        void onEmojiSelected(String id, String emoji);
+        void onEmojiSelected(@NonNull String id, @NonNull String emoji);
     }
     
     public interface EmojiKeyboardAdapter {
-        void onRecentsUpdate(Set<String> set);
+        void onRecentsUpdate(@NonNull Set<String> set);
     }
     
     public static void show(Context ctx, String id, int mode, OnEmojiSelectedListener listener) {
@@ -125,7 +144,6 @@ public class EmojiKeyboard extends LinearLayout {
         EmojiKeyboard kbd = (EmojiKeyboard)dialog.findViewById(R.id.dialog_emoji_keyboard);
         kbd.setupKeyboard(id, mode, (_id, _emoji) -> {
             listener.onEmojiSelected(_id, _emoji);
-            kbd.appendToRecents(_emoji);
             if(!kbd.isSticky)
                 dialog.dismiss();
         });
