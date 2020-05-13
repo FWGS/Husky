@@ -344,7 +344,7 @@ class ComposeActivity : BaseActivity(),
         // in case of we already had disabled attachments
         // but got information about extension later
         enableButton(composeAddMediaButton, true, true)
-        enablePollButton(viewModel.poll.value != null)
+        enablePollButton(true)
     }
     
     private var supportedFormattingSyntax = arrayListOf<String>()
