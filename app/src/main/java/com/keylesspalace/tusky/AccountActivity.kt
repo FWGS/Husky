@@ -117,7 +117,7 @@ class AccountActivity : BottomSheetActivity(), ActionButtonActivity, HasAndroidI
         loadResources()
         makeNotificationBarTransparent()
         setContentView(R.layout.activity_account)
-        
+
         // Obtain information to fill out the profile.
         viewModel.setAccountInfo(intent.getStringExtra(KEY_ACCOUNT_ID)!!)
 
@@ -364,9 +364,9 @@ class AccountActivity : BottomSheetActivity(), ActionButtonActivity, HasAndroidI
 
         val usernameFormatted = getString(R.string.status_username_format, account.username)
         accountUsernameTextView.text = usernameFormatted
-        accountDisplayNameTextView.text = emojifyString(account.name, account.emojis, accountDisplayNameTextView)
+        accountDisplayNameTextView.text = account.name.emojify(account.emojis, accountDisplayNameTextView, true)
 
-        val emojifiedNote = emojifyText(account.note, account.emojis, accountNoteTextView)
+        val emojifiedNote = account.note.emojify(account.emojis, accountNoteTextView)
         LinkHelper.setClickableText(accountNoteTextView, emojifiedNote, null, this)
 
        // accountFieldAdapter.fields = account.fields ?: emptyList()
@@ -438,7 +438,7 @@ class AccountActivity : BottomSheetActivity(), ActionButtonActivity, HasAndroidI
     private fun updateToolbar() {
         loadedAccount?.let { account ->
 
-            val emojifiedName = emojifyString(account.name, account.emojis, accountToolbar, true)
+            val emojifiedName = account.name.emojify(account.emojis, accountToolbar)
 
             try {
                 supportActionBar?.title = EmojiCompat.get().process(emojifiedName)
@@ -546,7 +546,7 @@ class AccountActivity : BottomSheetActivity(), ActionButtonActivity, HasAndroidI
         showingReblogs = relation.showingReblogs
 
         accountFollowsYouTextView.visible(relation.followedBy)
-        
+
         // because subscribing is Pleroma extension, enable it __only__ when we have non-null subscribing field
         if(!viewModel.isSelf && followState == FollowState.FOLLOWING && relation.subscribing != null) {
             accountSubscribeButton.show()
@@ -579,7 +579,7 @@ class AccountActivity : BottomSheetActivity(), ActionButtonActivity, HasAndroidI
                 accountFollowButton.setText(R.string.action_unfollow)
             }
         }
-        updateSubscribeButton()                  
+        updateSubscribeButton()
     }
 
     private fun updateMuteButton() {
@@ -589,19 +589,19 @@ class AccountActivity : BottomSheetActivity(), ActionButtonActivity, HasAndroidI
             accountMuteButton.hide()
         }
     }
-    
+
     private fun updateSubscribeButton() {
         if(followState != FollowState.FOLLOWING) {
             accountSubscribeButton.hide()
         }
-        
+
         if(subscribing) {
             accountSubscribeButton.setIconResource(R.drawable.ic_notifications_active_24dp)
         } else {
             accountSubscribeButton.setIconResource(R.drawable.ic_notifications_24dp)
         }
     }
-    
+
     private fun updateButtons() {
         invalidateOptionsMenu()
 

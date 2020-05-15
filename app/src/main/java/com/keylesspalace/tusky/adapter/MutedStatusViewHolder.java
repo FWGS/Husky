@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.keylesspalace.tusky.R;
 import com.keylesspalace.tusky.entity.Emoji;
 import com.keylesspalace.tusky.interfaces.StatusActionListener;
-import com.keylesspalace.tusky.util.CustomEmojiHelperKt;
+import com.keylesspalace.tusky.util.CustomEmojiHelper;
 import com.keylesspalace.tusky.util.StatusDisplayOptions;
 import com.keylesspalace.tusky.util.TimestampUtils;
 import com.keylesspalace.tusky.viewdata.StatusViewData;
@@ -48,7 +48,7 @@ public class MutedStatusViewHolder extends RecyclerView.ViewHolder {
     }
 
     protected void setDisplayName(String name, List<Emoji> customEmojis) {
-        CharSequence emojifiedName = CustomEmojiHelperKt.emojifyString(name, customEmojis, displayName, true);
+        CharSequence emojifiedName = CustomEmojiHelper.emojify(name, customEmojis, displayName, true);
         displayName.setText(emojifiedName);
     }
 
