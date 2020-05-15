@@ -75,11 +75,11 @@ import com.keylesspalace.tusky.view.EndlessOnScrollListener;
 import com.keylesspalace.tusky.viewdata.StatusViewData;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
@@ -103,7 +103,8 @@ public class TimelineFragment extends SFragment implements
         Injectable, ReselectableFragment, RefreshableFragment {
     private static final String TAG = "TimelineF"; // logging tag
     private static final String KIND_ARG = "kind";
-    private static final String HASHTAG_OR_ID_ARG = "hashtag_or_id";
+    private static final String ID_ARG = "id";
+    private static final String HASHTAGS_ARG = "hastags";
     private static final String ARG_ENABLE_SWIPE_TO_REFRESH = "arg.enable.swipe.to.refresh";
 
     private static final int LOAD_AT_ONCE = 30;
@@ -147,7 +148,8 @@ public class TimelineFragment extends SFragment implements
 
     private TimelineAdapter adapter;
     private Kind kind;
-    private String hashtagOrId;
+    private String id;
+    private List<String> tags;
     private LinearLayoutManager layoutManager;
     private EndlessOnScrollListener scrollListener;
     private boolean filterRemoveReplies;
@@ -188,10 +190,20 @@ public class TimelineFragment extends SFragment implements
 
     public static TimelineFragment newInstance(Kind kind, @Nullable String hashtagOrId, boolean enableSwipeToRefresh) {
         TimelineFragment fragment = new TimelineFragment();
-        Bundle arguments = new Bundle();
+        Bundle arguments = new Bundle(3);
         arguments.putString(KIND_ARG, kind.name());
-        arguments.putString(HASHTAG_OR_ID_ARG, hashtagOrId);
+        arguments.putString(ID_ARG, hashtagOrId);
         arguments.putBoolean(ARG_ENABLE_SWIPE_TO_REFRESH, enableSwipeToRefresh);
+        fragment.setArguments(arguments);
+        return fragment;
+    }
+
+    public static TimelineFragment newHashtagInstance(@NonNull List<String> hashtags) {
+        TimelineFragment fragment = new TimelineFragment();
+        Bundle arguments = new Bundle(3);
+        arguments.putString(KIND_ARG, Kind.TAG.name());
+        arguments.putStringArrayList(HASHTAGS_ARG, new ArrayList<>(hashtags));
+        arguments.putBoolean(ARG_ENABLE_SWIPE_TO_REFRESH, true);
         fragment.setArguments(arguments);
         return fragment;
     }
@@ -201,12 +213,14 @@ public class TimelineFragment extends SFragment implements
         super.onCreate(savedInstanceState);
         Bundle arguments = Objects.requireNonNull(getArguments());
         kind = Kind.valueOf(arguments.getString(KIND_ARG));
-        if (kind == Kind.TAG
-                || kind == Kind.USER
+        if (kind == Kind.USER
                 || kind == Kind.USER_PINNED
                 || kind == Kind.USER_WITH_REPLIES
                 || kind == Kind.LIST) {
-            hashtagOrId = arguments.getString(HASHTAG_OR_ID_ARG);
+            id = arguments.getString(ID_ARG);
+        }
+        if(kind == Kind.TAG) {
+            tags = arguments.getStringArrayList(HASHTAGS_ARG);
         }
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
@@ -828,7 +842,7 @@ public class TimelineFragment extends SFragment implements
 
     @Override
     public void onViewTag(String tag) {
-        if (kind == Kind.TAG && hashtagOrId.equals(tag)) {
+        if (kind == Kind.TAG && tags.size() == 1 && tags.contains(tag)) {
             // If already viewing a tag page, then ignore any request to view that tag again.
             return;
         }
@@ -837,7 +851,7 @@ public class TimelineFragment extends SFragment implements
 
     @Override
     public void onViewAccount(String id) {
-        if ((kind == Kind.USER || kind == Kind.USER_WITH_REPLIES) && hashtagOrId.equals(id)) {
+        if ((kind == Kind.USER || kind == Kind.USER_WITH_REPLIES) && this.id.equals(id)) {
             /* If already viewing an account page, then any requests to view that account page
              * should be ignored. */
             return;
@@ -986,8 +1000,7 @@ public class TimelineFragment extends SFragment implements
         }
     }
 
-    private Call<List<Status>> getFetchCallByTimelineType(Kind kind, String tagOrId, String fromId,
-                                                          String uptoId) {
+    private Call<List<Status>> getFetchCallByTimelineType(String fromId, String uptoId) {
         MastodonApi api = mastodonApi;
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
         boolean withMuted = !preferences.getBoolean("hideMutedUsers", false);
@@ -1000,19 +1013,21 @@ public class TimelineFragment extends SFragment implements
             case PUBLIC_LOCAL:
                 return api.publicTimeline(true, fromId, uptoId, LOAD_AT_ONCE, withMuted);
             case TAG:
-                return api.hashtagTimeline(tagOrId, null, fromId, uptoId, LOAD_AT_ONCE, withMuted);
+                String firstHashtag = tags.get(0);
+                List<String> additionalHashtags = tags.subList(1, tags.size());
+                return api.hashtagTimeline(firstHashtag, additionalHashtags, null, fromId, uptoId, LOAD_AT_ONCE, withMuted);
             case USER:
-                return api.accountStatuses(tagOrId, fromId, uptoId, LOAD_AT_ONCE, true, null, null, withMuted);
+                return api.accountStatuses(id, fromId, uptoId, LOAD_AT_ONCE, true, null, null, withMuted);
             case USER_PINNED:
-                return api.accountStatuses(tagOrId, fromId, uptoId, LOAD_AT_ONCE, null, null, true, withMuted);
+                return api.accountStatuses(id, fromId, uptoId, LOAD_AT_ONCE, null, null, true, withMuted);
             case USER_WITH_REPLIES:
-                return api.accountStatuses(tagOrId, fromId, uptoId, LOAD_AT_ONCE, null, null, null, withMuted);
+                return api.accountStatuses(id, fromId, uptoId, LOAD_AT_ONCE, null, null, null, withMuted);
             case FAVOURITES:
                 return api.favourites(fromId, uptoId, LOAD_AT_ONCE, withMuted);
             case BOOKMARKS:
                 return api.bookmarks(fromId, uptoId, LOAD_AT_ONCE, withMuted);
             case LIST:
-                return api.listTimeline(tagOrId, fromId, uptoId, LOAD_AT_ONCE, withMuted);
+                return api.listTimeline(id, fromId, uptoId, LOAD_AT_ONCE, withMuted);
         }
     }
 
@@ -1054,7 +1069,7 @@ public class TimelineFragment extends SFragment implements
                 }
             };
 
-            Call<List<Status>> listCall = getFetchCallByTimelineType(kind, hashtagOrId, maxId, sinceId);
+            Call<List<Status>> listCall = getFetchCallByTimelineType(maxId, sinceId);
             callList.add(listCall);
             listCall.enqueue(callback);
         }
@@ -1333,7 +1348,7 @@ public class TimelineFragment extends SFragment implements
                 break;
             case USER:
             case USER_WITH_REPLIES:
-                if (status.getAccount().getId().equals(hashtagOrId)) {
+                if (status.getAccount().getId().equals(id)) {
                     break;
                 } else {
                     return;
