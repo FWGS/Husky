@@ -364,7 +364,7 @@ class AccountActivity : BottomSheetActivity(), ActionButtonActivity, HasAndroidI
 
         val usernameFormatted = getString(R.string.status_username_format, account.username)
         accountUsernameTextView.text = usernameFormatted
-        accountDisplayNameTextView.text = account.name.emojify(account.emojis, accountDisplayNameTextView, true)
+        accountDisplayNameTextView.text = account.name.emojify(account.emojis, accountDisplayNameTextView)
 
         val emojifiedNote = account.note.emojify(account.emojis, accountNoteTextView)
         LinkHelper.setClickableText(accountNoteTextView, emojifiedNote, null, this)
@@ -438,7 +438,7 @@ class AccountActivity : BottomSheetActivity(), ActionButtonActivity, HasAndroidI
     private fun updateToolbar() {
         loadedAccount?.let { account ->
 
-            val emojifiedName = account.name.emojify(account.emojis, accountToolbar)
+            val emojifiedName = account.name.emojify(account.emojis, accountToolbar, true)
 
             try {
                 supportActionBar?.title = EmojiCompat.get().process(emojifiedName)
