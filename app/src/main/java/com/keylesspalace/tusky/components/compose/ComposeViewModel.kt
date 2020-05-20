@@ -100,15 +100,15 @@ class ComposeViewModel
                 supportsMarkdown = false,
                 supportsBBcode = false,
                 supportsHTML = false,
-                videoLimit = nodeinfo?.metadata?.config?.uploader?.maxPhotoSize ?: STATUS_VIDEO_SIZE_LIMIT,
-                imageLimit = nodeinfo?.metadata?.config?.uploader?.maxPhotoSize ?: STATUS_IMAGE_SIZE_LIMIT
+                videoLimit = nodeinfo?.metadata?.config?.uploader?.maxPhotoSize?.let { it * 1024 } ?: STATUS_VIDEO_SIZE_LIMIT,
+                imageLimit = nodeinfo?.metadata?.config?.uploader?.maxPhotoSize?.let { it * 1024 } ?: STATUS_IMAGE_SIZE_LIMIT
             )
         } else {
             ComposeInstanceMetadata(
                 software = "mastodon",
-                supportsMarkdown = false,
+                supportsMarkdown = nodeinfo?.software?.version?.contains("+glitch") ?: false,
                 supportsBBcode = false,
-                supportsHTML = false,
+                supportsHTML = nodeinfo?.software?.version?.contains("+glitch") ?: false,
                 videoLimit = STATUS_VIDEO_SIZE_LIMIT,
                 imageLimit = STATUS_IMAGE_SIZE_LIMIT
             )
