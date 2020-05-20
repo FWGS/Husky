@@ -426,7 +426,7 @@ class ComposeViewModel
         super.onCleared()
     }
 
-    fun getStickers() {
+    private fun getStickers() {
         if(!tryFetchStickers)
             return
 
@@ -435,6 +435,7 @@ class ComposeViewModel
                 haveStickers.postValue(true)
 
                 val singles = mutableListOf<Single<Response<StickerPack>>>()
+
                 for(entry in stickers) {
                     val url = entry.value.removePrefix("/").removeSuffix("/") + "/pack.json";
                     singles += api.getStickerPack(url)
@@ -450,8 +451,11 @@ class ComposeViewModel
                     Log.d(TAG, "Failed to get sticker pack.json", it)
                     emptyList()
                 }.subscribe() { pack ->
-                    if(pack.isNotEmpty())
-                        this.stickers.postValue(pack.toTypedArray())
+                    if(pack.isNotEmpty()) {
+                        val array = pack.toTypedArray()
+                        array.sort()
+                        this.stickers.postValue(array)
+                    }
                 }.autoDispose()
             }
         }, {

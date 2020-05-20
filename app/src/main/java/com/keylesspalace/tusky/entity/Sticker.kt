@@ -18,10 +18,13 @@ package com.keylesspalace.tusky.entity
 import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize
 
-@Parcelize
 data class StickerPack(
 	val title: String,
 	val tabIcon: String,
 	val stickers: List<String>,
 	var internal_url: String = ""
-) : Parcelable 
+) : Comparable<StickerPack> {
+	override fun compareTo(pack: StickerPack) : Int {
+		return title.compareTo(pack.title)
+	}
+}
