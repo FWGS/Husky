@@ -1,6 +1,7 @@
 package com.keylesspalace.tusky.components.search
 
 import android.util.Log
+import android.view.View
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.paging.PagedList
@@ -217,6 +218,23 @@ class SearchViewModel @Inject constructor(
         search(currentQuery)
     }
 
+    fun setEmojiReactionForStatus(idx: Int, newStatus: Status) {
+        val newPair = Pair(newStatus,
+           ViewDataUtils.statusToViewData(newStatus, alwaysShowSensitiveMedia, alwaysOpenSpoiler)!!)
+        loadedStatuses[idx] = newPair
+        repoResultStatus.value?.refresh?.invoke()
+    }
+
+    fun emojiReact(react: Boolean, emoji: String, statusId: String) {
+        loadedStatuses.indexOfFirst { it.first.id == statusId }.let { idx ->
+            timelineCases.react(emoji, statusId, react)
+                .subscribe(
+                    { newStatus -> setEmojiReactionForStatus(idx, newStatus)},
+                    { Log.d(TAG,"Failed to react with $emoji to ${loadedStatuses[idx].first.id}", it)}
+                )
+                .autoDispose()
+        }
+    }
 
     companion object {
         private const val TAG = "SearchViewModel"

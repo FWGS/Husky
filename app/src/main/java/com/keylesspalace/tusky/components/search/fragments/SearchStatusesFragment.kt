@@ -25,6 +25,7 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Environment
 import android.util.Log
+import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -38,16 +39,15 @@ import androidx.paging.PagedListAdapter
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.keylesspalace.tusky.BaseActivity
-import com.keylesspalace.tusky.MainActivity
-import com.keylesspalace.tusky.R
-import com.keylesspalace.tusky.ViewMediaActivity
+import com.keylesspalace.tusky.*
+import com.keylesspalace.tusky.AccountListActivity.Companion.newIntent
 import com.keylesspalace.tusky.components.compose.ComposeActivity
 import com.keylesspalace.tusky.components.compose.ComposeActivity.ComposeOptions
 import com.keylesspalace.tusky.components.report.ReportActivity
 import com.keylesspalace.tusky.components.search.adapter.SearchStatusesAdapter
 import com.keylesspalace.tusky.db.AccountEntity
 import com.keylesspalace.tusky.entity.Attachment
+import com.keylesspalace.tusky.entity.EmojiReaction
 import com.keylesspalace.tusky.entity.Status
 import com.keylesspalace.tusky.entity.Status.Mention
 import com.keylesspalace.tusky.interfaces.AccountSelectionListener
@@ -466,4 +466,36 @@ class SearchStatusesFragment : SearchFragment<Pair<Status, StatusViewData.Concre
         }
     }
 
+    override fun onEmojiReact(react: Boolean, emoji: String, statusId: String) {
+        viewModel.emojiReact(react, emoji, statusId)
+    }
+
+    override fun onEmojiReactMenu(view: View, reaction: EmojiReaction, statusId: String) {
+        val context = requireContext()
+        val popup = PopupMenu(context, view)
+
+        popup.inflate(R.menu.emoji_reaction_more)
+        popup.menu.findItem(R.id.emoji_react).isVisible = !reaction.me
+        popup.menu.findItem(R.id.emoji_unreact).isVisible = reaction.me
+
+        popup.setOnMenuItemClickListener { item: MenuItem ->
+            when (item.itemId) {
+                R.id.emoji_react -> {
+                    onEmojiReact(true, reaction.name, statusId)
+                    return@setOnMenuItemClickListener true
+                }
+                R.id.emoji_unreact -> {
+                    onEmojiReact(false, reaction.name, statusId)
+                    return@setOnMenuItemClickListener true
+                }
+                R.id.emoji_reacted_by -> {
+                    val intent = newIntent(context, AccountListActivity.Type.REACTED, statusId, reaction.name)
+                    (requireActivity() as BaseActivity).startActivityWithSlideInAnimation(intent)
+                    return@setOnMenuItemClickListener true
+                }
+            }
+            false
+        }
+        popup.show()
+    }
 }
