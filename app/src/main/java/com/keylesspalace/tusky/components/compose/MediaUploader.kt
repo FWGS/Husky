@@ -78,8 +78,7 @@ class MediaUploaderImpl(
                 .fromCallable {
                     if (shouldResizeMedia(media, imageLimit)) {
                         downsize(media, imageLimit)
-                    }
-                    media
+                    } else media
                 }
                 .switchMap { upload(it, videoLimit, imageLimit) }
                 .subscribeOn(Schedulers.io())
