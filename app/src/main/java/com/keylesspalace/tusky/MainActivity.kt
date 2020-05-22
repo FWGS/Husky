@@ -592,7 +592,7 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, HasAndroidInje
 
     private fun updateProfiles() {
         val profiles: MutableList<IProfile> = accountManager.getAllAccountsOrderedByActive().map { acc ->
-            val emojifiedName = EmojiCompat.get().process(acc.displayName.emojify(acc.emojis, header))
+            val emojifiedName = EmojiCompat.get().process(acc.displayName.emojify(acc.emojis, header, true))
 
             ProfileDrawerItem().apply {
                 isSelected = acc.isActive

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="action_reply_to">Ответ на</string>
-    <string name="action_mute_conversation">Заглушить разговор</string>
-    <string name="action_unmute_conversation">Отменить глушение разговора</string>
+    <!--<string name="action_mute_conversation">Заглушить разговор</string>
+    <string name="action_unmute_conversation">Отменить глушение разговора</string>-->
     <string name="action_emoji_react">Добавить реакцию</string>
     <string name="action_emoji_unreact">Удалить реакцию</string>
     <string name="action_emoji_reacted_by">Реакции</string>
