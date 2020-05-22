@@ -2,8 +2,6 @@
 
 <resources>
     <string name="action_reply_to">Responder a</string>
-    <string name="action_mute_conversation">Ocultar conversación</string>
-    <string name="action_unmute_conversation">Mostrar conversación</string>
     <!-- "Unmute" does not have a proper equivalent in Spanish so I chose "Show". Consequently, I used "Hide" instead of "Mute" in the previous one. -->
     <string name="action_emoji_react">Reaccionar</string>
     <string name="action_emoji_unreact">Eliminar la reacción</string>

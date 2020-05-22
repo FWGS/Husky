@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="action_reply_to">返信</string>
-    <string name="action_mute_conversation">会話をミユート</string>
-    <string name="action_unmute_conversation">会話をミュート解除</string>
     <string name="action_emoji_react">絵文字反応</string>
     <string name="action_emoji_reacted_by">誰が反応したか</string>
     <string name="action_enable_formatting_syntax">可能にする %s</string>

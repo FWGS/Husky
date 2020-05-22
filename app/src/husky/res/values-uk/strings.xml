@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="action_reply_to">Відповісти</string>
-    <string name="action_mute_conversation">Приглушити бесіду</string>
-    <string name="action_unmute_conversation">Скасувати приглушення бесіди</string>
     <string name="action_emoji_react">Відреагувати</string>
     <string name="action_emoji_unreact">Прибрати реакцію</string>
     <string name="action_emoji_reacted_by">Хто відреагував</string>
