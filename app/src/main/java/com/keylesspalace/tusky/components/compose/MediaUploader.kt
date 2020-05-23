@@ -206,7 +206,7 @@ class MediaUploaderImpl(
         // resize only images 
         if(media.type == QueuedMedia.Type.IMAGE) {
             // resize when exceed image limit
-            if(media.mediaSize < imageLimit)
+            if(media.mediaSize >= imageLimit)
                 return true
             
             // don't resize when instance permits any image resolution(Pleroma)
