@@ -25,7 +25,7 @@ data class NodeInfoLink(
 )
 
 data class NodeInfoLinks(
-    val links: ArrayList<NodeInfoLink>
+    val links: List<NodeInfoLink>
 )
 
 // we care only about supported postFormats
@@ -41,14 +41,14 @@ data class NodeInfoSoftware(
 )
 
 data class NodeInfoPleromaUploadLimits(
-    val avatar: Int?,
-    val background: Int?,
-    val banner: Int?,
-    val general: Int?        
+    val avatar: Long?,
+    val background: Long?,
+    val banner: Long?,
+    val general: Long?
 )
 
 data class NodeInfoPixelfedUploadLimits(
-    @SerializedName("max_photo_size") val maxPhotoSize: Int?
+    @SerializedName("max_photo_size") val maxPhotoSize: Long?
 )
 
 data class NodeInfoPixelfedConfig(
@@ -56,7 +56,7 @@ data class NodeInfoPixelfedConfig(
 )
 
 data class NodeInfoMetadata(
-    val postFormats: ArrayList<String>?,
+    val postFormats: List<String>?,
     val uploadLimits: NodeInfoPleromaUploadLimits?,
     val config: NodeInfoPixelfedConfig?
 )

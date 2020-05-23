@@ -41,6 +41,7 @@ import org.mockito.Mockito.mock
 import org.robolectric.Robolectric
 import org.robolectric.annotation.Config
 import org.robolectric.fakes.RoboMenuItem
+import java.lang.Math.pow
 
 /**
  * Created by charlag on 3/7/18.
@@ -75,9 +76,7 @@ class ComposeActivityTest {
             notificationLight = true
     )
     var instanceResponseCallback: (()->Instance)? = null
-    private val nodeinfoLinks = NodeInfoLinks(
-        links = arrayListOf<NodeInfoLink>()
-    )
+    var nodeinfoResponseCallback: (()->NodeInfo)? = null
 
     @Before
     fun setupActivity() {
@@ -89,7 +88,27 @@ class ComposeActivityTest {
 
         apiMock = mock(MastodonApi::class.java)
         `when`(apiMock.getCustomEmojis()).thenReturn(Single.just(emptyList()))
-        `when`(apiMock.getNodeinfoLinks()).thenReturn(Single.just(nodeinfoLinks))
+        `when`(apiMock.getNodeinfoLinks()).thenReturn(object: Single<NodeInfoLinks>() {
+            override fun subscribeActual(observer: SingleObserver<in NodeInfoLinks>) {
+                if (nodeinfoResponseCallback == null) {
+                    observer.onError(Throwable())
+                } else {
+                    observer.onSuccess(NodeInfoLinks(
+                        listOf( NodeInfoLink( "", "" ) )
+                    ))
+                }
+            }
+        })
+        `when`(apiMock.getNodeinfo("")).thenReturn(object: Single<NodeInfo>() {
+            override fun subscribeActual(observer: SingleObserver< in NodeInfo>) {
+                val nodeinfo = nodeinfoResponseCallback?.invoke()
+                if (nodeinfo == null) {
+                    observer.onError(Throwable())
+                } else {
+                    observer.onSuccess(nodeinfo)
+                }
+            }
+        })
         `when`(apiMock.getInstance()).thenReturn(object: Single<Instance>() {
             override fun subscribeActual(observer: SingleObserver<in Instance>) {
                 val instance = instanceResponseCallback?.invoke()
@@ -164,10 +183,64 @@ class ComposeActivityTest {
 
     @Test
     fun whenMaximumTootCharsIsPopulated_customLimitIsUsed() {
-        val customMaximum = 1000
+        val customMaximum = 2147483647
         instanceResponseCallback = { getInstanceWithMaximumTootCharacters(customMaximum) }
         setupActivity()
         assertEquals(customMaximum, activity.maximumTootCharacters)
+    }
+
+    @Test
+    fun whenPleromaInNodeinfo_attachmentLimitsRemoved() {
+        nodeinfoResponseCallback = { getPleromaNodeinfo(
+                null,
+                NodeInfoPleromaUploadLimits( 100, 100, 100, 100 ))
+        }
+        setupActivity()
+        assertEquals(true, activity.viewModel.hasNoAttachmentLimits)
+    }
+
+    @Test
+    fun whenPleromaInNodeinfo_haveFormatting() {
+        nodeinfoResponseCallback = { getPleromaNodeinfo(
+                listOf("text/plain", "text/markdown", "text/bbcode"),
+                NodeInfoPleromaUploadLimits( 100, 100, 100, 100 ))
+        }
+        setupActivity()
+        assertArrayEquals(arrayOf("text/markdown", "text/bbcode"), activity.supportedFormattingSyntax.toTypedArray())
+    }
+
+    @Test
+    fun whenPleromaInNodeinfo_haveCustomUploadLimits() {
+        nodeinfoResponseCallback = { getPleromaNodeinfo(
+                null,
+                NodeInfoPleromaUploadLimits( Long.MAX_VALUE, Long.MAX_VALUE, Long.MAX_VALUE, Long.MAX_VALUE ))
+        }
+        setupActivity()
+        assertEquals(Long.MAX_VALUE, activity.viewModel.instanceMetadata.value!!.imageLimit)
+        assertEquals(Long.MAX_VALUE, activity.viewModel.instanceMetadata.value!!.videoLimit)
+    }
+
+    @Test
+    fun whenPixelfedInNodeInfo_haveCustomUploadLimits() {
+        nodeinfoResponseCallback = { getPixelfedNodeinfo( 1024 * 1024 ) }
+        setupActivity()
+        assertEquals(1024 * 1024 * 1024, activity.viewModel.instanceMetadata.value!!.imageLimit)
+        assertEquals(1024 * 1024 * 1024, activity.viewModel.instanceMetadata.value!!.videoLimit)
+        assertArrayEquals(emptyArray(), activity.supportedFormattingSyntax.toTypedArray()) // pixelfed has no formatting
+    }
+
+    @Test
+    fun whenMastodonInNodeinfo_butItsAGlitch() {
+        nodeinfoResponseCallback = { getMastodonNodeinfo( "3.1.0+glitch" ) }
+        setupActivity()
+        assertArrayEquals(arrayOf("text/markdown", "text/html"), activity.supportedFormattingSyntax.toTypedArray())
+    }
+
+    @Test
+    fun whenMastodonInNodeinfo_butItsBoringVanilla() {
+        nodeinfoResponseCallback = { getMastodonNodeinfo( "3.1.0" ) }
+        setupActivity()
+        assertArrayEquals(emptyArray(), activity.supportedFormattingSyntax.toTypedArray())
     }
 
     @Test
@@ -359,6 +432,43 @@ class ComposeActivityTest {
 
     private fun insertSomeTextInContent(text: String? = null) {
         activity.findViewById<EditText>(R.id.composeEditField).setText(text ?: "Some text")
+    }
+
+    private fun getPleromaNodeinfo(postFormats: List<String>?, limits: NodeInfoPleromaUploadLimits) : NodeInfo
+    {
+        return NodeInfo(
+            NodeInfoMetadata(
+                postFormats,
+                limits,
+                null
+            ),
+            NodeInfoSoftware(
+                "pleroma",
+                "2.0.0"
+            )
+        )
+    }
+
+    private fun getPixelfedNodeinfo(maxPhotoSize: Long) : NodeInfo {
+        return NodeInfo(
+            NodeInfoMetadata(
+                null, null, NodeInfoPixelfedConfig( NodeInfoPixelfedUploadLimits( maxPhotoSize ) )
+            ),
+            NodeInfoSoftware(
+                "pixelfed",
+                "2.0.0"
+            )
+        )
+    }
+
+    private fun getMastodonNodeinfo(version: String) : NodeInfo {
+        return NodeInfo(
+            null,
+            NodeInfoSoftware(
+                "mastodon",
+                version
+            )
+        )
     }
 
     private fun getInstanceWithMaximumTootCharacters(maximumTootCharacters: Int?): Instance

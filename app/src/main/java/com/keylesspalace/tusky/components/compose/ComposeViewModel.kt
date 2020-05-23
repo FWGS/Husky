@@ -560,8 +560,8 @@ fun <T> mutableLiveData(default: T) = MutableLiveData<T>().apply { value = defau
 const val DEFAULT_CHARACTER_LIMIT = 500
 private const val DEFAULT_MAX_OPTION_COUNT = 4
 private const val DEFAULT_MAX_OPTION_LENGTH = 25
-private const val STATUS_VIDEO_SIZE_LIMIT = 41943040 // 40MiB
-private const val STATUS_IMAGE_SIZE_LIMIT = 8388608 // 8MiB
+private const val STATUS_VIDEO_SIZE_LIMIT : Long = 41943040 // 40MiB
+private const val STATUS_IMAGE_SIZE_LIMIT : Long = 8388608 // 8MiB
                 
 
 data class ComposeInstanceParams(
@@ -576,6 +576,6 @@ data class ComposeInstanceMetadata(
         val supportsMarkdown: Boolean,
         val supportsBBcode: Boolean,
         val supportsHTML: Boolean,
-        val videoLimit: Int,
-        val imageLimit: Int
+        val videoLimit: Long,
+        val imageLimit: Long
 )

@@ -122,7 +122,8 @@ class ComposeActivity : BaseActivity(),
     var maximumTootCharacters = DEFAULT_CHARACTER_LIMIT
 
     private var composeOptions: ComposeOptions? = null
-    private val viewModel: ComposeViewModel by viewModels { viewModelFactory }
+    @VisibleForTesting
+    val viewModel: ComposeViewModel by viewModels { viewModelFactory }
     private var suggestFormattingSyntax: String = "text/markdown"
 
     private var mediaCount = 0
@@ -346,8 +347,9 @@ class ComposeActivity : BaseActivity(),
         enableButton(composeAddMediaButton, true, true)
         enablePollButton(true)
     }
-    
-    private var supportedFormattingSyntax = arrayListOf<String>()
+
+    @VisibleForTesting
+    var supportedFormattingSyntax = arrayListOf<String>()
 
     private fun subscribeToUpdates(mediaAdapter: MediaPreviewAdapter) {
         withLifecycleContext {

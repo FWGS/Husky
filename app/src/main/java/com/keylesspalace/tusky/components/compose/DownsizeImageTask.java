@@ -75,7 +75,7 @@ public class DownsizeImageTask extends AsyncTask<Uri, Void, Boolean> {
         super.onPostExecute(successful);
     }
 
-    public static boolean resize(Uri[] uris, int sizeLimit, ContentResolver contentResolver,
+    public static boolean resize(Uri[] uris, long sizeLimit, ContentResolver contentResolver,
                                  File tempFile) {
         for (Uri uri : uris) {
             InputStream inputStream;

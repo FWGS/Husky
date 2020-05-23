@@ -59,8 +59,8 @@ fun createNewImageFile(context: Context): File {
 data class PreparedMedia(val type: Int, val uri: Uri, val size: Long)
 
 interface MediaUploader {
-    fun prepareMedia(inUri: Uri, videoLimit: Int, imageLimit: Int, filename: String?): Single<PreparedMedia>
-    fun uploadMedia(media: QueuedMedia, videoLimit: Int, imageLimit: Int): Observable<UploadEvent>
+    fun prepareMedia(inUri: Uri, videoLimit: Long, imageLimit: Long, filename: String?): Single<PreparedMedia>
+    fun uploadMedia(media: QueuedMedia, videoLimit: Long, imageLimit: Long): Observable<UploadEvent>
 }
 
 class AudioSizeException : Exception()
@@ -73,14 +73,14 @@ class MediaUploaderImpl(
         private val context: Context,
         private val mastodonApi: MastodonApi
 ) : MediaUploader {
-    override fun uploadMedia(media: QueuedMedia, videoLimit: Int, imageLimit: Int): Observable<UploadEvent> {
+    override fun uploadMedia(media: QueuedMedia, videoLimit: Long, imageLimit: Long): Observable<UploadEvent> {
         return Observable
                 .fromCallable {
                     if (shouldResizeMedia(media, imageLimit)) {
                         downsize(media, imageLimit)
                     } else media
                 }
-                .switchMap { upload(it, videoLimit, imageLimit) }
+                .switchMap { upload(it) }
                 .subscribeOn(Schedulers.io())
     }
 
@@ -94,7 +94,7 @@ class MediaUploaderImpl(
         }
     }
 
-	override fun prepareMedia(inUri: Uri, videoLimit: Int, imageLimit: Int, filename: String?): Single<PreparedMedia> {
+	override fun prepareMedia(inUri: Uri, videoLimit: Long, imageLimit: Long, filename: String?): Single<PreparedMedia> {
         return Single.fromCallable {
             var mediaSize = getMediaSize(contentResolver, inUri)
             var uri = inUri
@@ -159,7 +159,7 @@ class MediaUploaderImpl(
 
     private val contentResolver = context.contentResolver
     
-    private fun upload(media: QueuedMedia, videoLimit: Int, imageLimit: Int): Observable<UploadEvent> {
+    private fun upload(media: QueuedMedia): Observable<UploadEvent> {
         return Observable.create { emitter ->
             var (mimeType, fileExtension) = getMimeTypeAndSuffixFromFilenameOrUri(media.uri, media.originalFileName)
             val filename = String.format("%s_%s_%s%s",
@@ -196,13 +196,13 @@ class MediaUploaderImpl(
         }
     }
 
-    private fun downsize(media: QueuedMedia, imageLimit: Int): QueuedMedia {
+    private fun downsize(media: QueuedMedia, imageLimit: Long): QueuedMedia {
         val file = createNewImageFile(context)
         DownsizeImageTask.resize(arrayOf(media.uri), imageLimit, context.contentResolver, file)
         return media.copy(uri = file.toUri(), mediaSize = file.length())
     }
 
-    private fun shouldResizeMedia(media: QueuedMedia, imageLimit: Int): Boolean {
+    private fun shouldResizeMedia(media: QueuedMedia, imageLimit: Long): Boolean {
         // resize only images 
         if(media.type == QueuedMedia.Type.IMAGE) {
             // resize when exceed image limit
