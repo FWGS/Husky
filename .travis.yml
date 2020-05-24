@@ -1,5 +1,7 @@
 language: android
 dist: xenial
+# Disable building on tags
+if: tag IS blank
 android:
   components:
     - android-29
