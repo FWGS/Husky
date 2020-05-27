@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hint_appname">Nazwa aplikacji</string>
+    <string name="action_reblog">Powtórz</string>
+    <string name="status_boosted_format">%s powtórzył(-a)</string>
+    <string name="status_share_link">Udostępnij odnośnik do postu</string>
+    <string name="status_share_content">Udostępnij zawartość postu</string>
+    <string name="send_toot_notification_error_title">Błąd podczas wysyłania postu</string>
+    <plurals name="reblogs">
+        <item quantity="one">&lt;b&gt;%s&lt;/b&gt; powtórzenie</item>
+        <item quantity="few">&lt;b&gt;%s&lt;/b&gt; powtórzenia</item>
+        <item quantity="many">&lt;b&gt;%s&lt;/b&gt; powtórzeń</item>
+        <item quantity="other">&lt;b&gt;%s&lt;/b&gt; powtórzeń</item>
+    </plurals>
+    <string name="title_scheduled_toot">Zaplanowane posty</string>
+    <string name="hint_website">Strona aplikacji</string>
+    <string name="notification_emoji_name">Reakcje emoji</string>
+    <string name="notification_emoji_description">Powiadomienia o nowych reakcjach emoji</string>
+    <string name="action_sticker">Naklejki</string>
+    <string name="notification_emoji_format">%s zareagował %s na Twój post</string>
+    <string name="pref_title_hide_muted_users">Ukrywaj wyciszonych użytkowników</string>
+    <string name="action_emoji_react">Zareaguj</string>
+    <string name="action_emoji_unreact">Usuń reakcję</string>
+    <string name="action_emoji_reacted_by">Kto zareagował</string>
+    <string name="action_schedule_toot">Zaplanuj post</string>
+    <string name="action_toggle_visibility">Widoczność postu</string>
+    <string name="action_reply_to">Odpowiedź do</string>
+    <string name="pref_title_default_formatting">Domyślna składnia formatowania (jeśli jest obsługiwana przez instancję)</string>
+    <string name="pref_title_enable_experimental_stickers">Włącz eksperymentalne naklejki Pleroma-FE (jeśli dostępne)</string>
+</resources>
