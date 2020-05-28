@@ -245,7 +245,7 @@ class ViewMediaActivity : BaseActivity(), ViewImageFragment.PhotoActionsListener
     }
 
     private fun shareMedia() {
-        val directory = applicationContext.getExternalFilesDir("Tusky")
+        val directory = applicationContext.getExternalFilesDir("Husky")
         if (directory == null || !(directory.exists())) {
             Log.e(TAG, "Error obtaining directory to save temporary media.")
             return

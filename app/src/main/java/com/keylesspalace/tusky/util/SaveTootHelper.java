@@ -129,7 +129,7 @@ public final class SaveTootHelper {
     private List<String> saveMedia(@NonNull List<String> mediaUris,
                                    @Nullable List<String> existingUris) {
 
-        File directory = context.getExternalFilesDir("Tusky");
+        File directory = context.getExternalFilesDir("Husky");
 
         if (directory == null || !(directory.exists())) {
             Log.e(TAG, "Error obtaining directory to save media.");
@@ -158,7 +158,7 @@ public final class SaveTootHelper {
             String mimeType = contentResolver.getType(uri);
             MimeTypeMap map = MimeTypeMap.getSingleton();
             String fileExtension = map.getExtensionFromMimeType(mimeType);
-            String filename = String.format("Tusky_Draft_Media_%s.%s", timeStamp, fileExtension);
+            String filename = String.format("Husky_Draft_Media_%s.%s", timeStamp, fileExtension);
             File file = new File(directory, filename);
             filesSoFar.add(file);
             boolean copied = IOUtils.copyToFile(contentResolver, uri, file);

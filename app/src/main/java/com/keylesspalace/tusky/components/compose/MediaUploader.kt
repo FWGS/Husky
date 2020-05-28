@@ -47,7 +47,7 @@ sealed class UploadEvent {
 fun createNewImageFile(context: Context): File {
     // Create an image file name
     val randomId = randomAlphanumericString(12)
-    val imageFileName = "Tusky_${randomId}_"
+    val imageFileName = "Husky_${randomId}_"
     val storageDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
     return File.createTempFile(
             imageFileName, /* prefix */

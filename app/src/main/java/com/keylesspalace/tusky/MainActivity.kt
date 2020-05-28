@@ -208,7 +208,7 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, HasAndroidInje
                 }
 
         // Flush old media that was cached for sharing
-        deleteStaleCachedMedia(applicationContext.getExternalFilesDir("Tusky"))
+        deleteStaleCachedMedia(applicationContext.getExternalFilesDir("Husky"))
     }
 
     override fun onResume() {
