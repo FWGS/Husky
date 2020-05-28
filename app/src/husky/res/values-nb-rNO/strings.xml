@@ -1,2 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources>
+    <string name="notification_emoji_description">Notifikasjoner om nye emoji reaksjoner</string>
+    <string name="pref_title_default_formatting">Standard formatering syntaks(hvis støttet av instansen)</string>
+    <string name="action_schedule_toot">Planlegg post</string>
+    <string name="reblog_private">Repeter til orginale publikum</string>
+    <string name="action_emoji_unreact">Fjern reaksjon</string>
+    <string name="action_emoji_reacted_by">Hvem reagerte</string>
+    <string name="action_disable_formatting_syntax">Deaktiver %s</string>
+    <string name="action_sticker">Klistremerker</string>
+    <string name="hint_appname">Applikasjons navn</string>
+    <string name="hint_website">Applikasjons nettside</string>
+    <string name="admin">Admin</string>
+    <string name="error_sticker_fetch">An feil oppsto under henting av klistremerke</string>
+    <string name="notification_emoji_format">%s reagerte med %s på innlegget ditt</string>
+    <string name="pref_title_enable_experimental_stickers">Aktiver eksperimentelle Pleroma-FE klistremerker(hvis tilgjengelig)</string>
+    <string name="action_toggle_visibility">Innleggs synlighet</string>
+    <string name="action_open_toot">Åpne innlegg</string>
+    <string name="compose_shortcut_long_label">Lag Post</string>
+    <string name="dialog_redraft_toot_warning">Slett og rediger dette innlegget\?</string>
+    <string name="action_hide_reblogs">Skjul gjentagelser</string>
+    <string name="action_reblog">Gjenta</string>
+    <string name="action_unreblog">Fjern gjentagelse</string>
+    <string name="action_show_reblogs">Vis gjentagelser</string>
+    <string name="action_send">POST</string>
+    <string name="action_send_public">POST!</string>
+    <string name="action_open_reblogged_by">Vis repetisjoner</string>
+    <string name="unreblog_private">Fjern repetisjon</string>
+    <string name="send_status_content_to">Del innlegg til…</string>
+    <string name="send_toot_notification_title">Sender innlegg…</string>
+    <string name="send_toot_notification_channel_name">Sender innlegg</string>
+    <string name="send_toot_notification_saved_content">En kopi av innlegget er lagret i utkastene dine</string>
+    <string name="status_share_content">Del innhold av innlegg</string>
+    <string name="status_share_link">Del link til innlegg</string>
+    <string name="status_boosted_format">%s delte</string>
+    <string name="title_scheduled_toot">Planlagte innlegg</string>
+    <string name="title_reblogged_by">Delt av</string>
+    <string name="send_status_link_to">Del innlegg URL til…</string>
+    <string name="action_reply_to">Svar på</string>
+    <string name="send_toot_notification_error_title">Feil ved sending av innlegg</string>
+    <string name="action_enable_formatting_syntax">Aktiver %s</string>
+    <string name="moderator">Moderator</string>
+    <string name="title_emoji_reacted_by">%s reagerte med</string>
+</resources>
