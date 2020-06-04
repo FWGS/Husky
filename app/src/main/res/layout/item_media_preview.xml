@@ -2,7 +2,7 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-	tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout">
+    tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout">
 
         <com.keylesspalace.tusky.view.MediaPreviewImageView
             android:id="@+id/status_media_preview_0"
@@ -25,13 +25,11 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:ignore="ContentDescription" />
 
-
         <com.keylesspalace.tusky.view.MediaPreviewImageView
             android:id="@+id/status_media_preview_2"
             android:layout_width="0dp"
             android:layout_height="@dimen/status_media_preview_height"
             android:layout_marginTop="4dp"
-            android:background="@drawable/media_preview_outline"
             android:scaleType="centerCrop"
             app:layout_constraintEnd_toStartOf="@+id/status_media_preview_3"
             app:layout_constraintStart_toStartOf="parent"
@@ -44,6 +42,7 @@
             android:layout_height="@dimen/status_media_preview_height"
             android:layout_marginStart="4dp"
             android:layout_marginTop="4dp"
+            android:background="@drawable/media_preview_outline"
             android:scaleType="centerCrop"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/status_media_preview_2"
@@ -105,19 +104,18 @@
             android:alpha="0.7"
             android:contentDescription="@null"
             android:padding="@dimen/status_sensitive_media_button_padding"
-            android:tint="@color/white"
             android:visibility="gone"
             app:layout_constraintLeft_toLeftOf="@+id/status_media_preview_container"
             app:layout_constraintTop_toTopOf="@+id/status_media_preview_container"
-            app:srcCompat="@drawable/ic_eye_24dp" />
+            app:srcCompat="@drawable/ic_eye_24dp"
+            app:tint="@color/white" />
 
         <TextView
             android:id="@+id/status_sensitive_media_warning"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:background="@drawable/media_warning_bg"
             android:gravity="center"
-            android:importantForAccessibility="no"
             android:lineSpacingMultiplier="1.2"
             android:orientation="vertical"
             android:paddingLeft="12dp"
@@ -184,6 +182,5 @@
             android:visibility="gone"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/status_media_label_2" />
-
 
 </merge>
