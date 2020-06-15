@@ -47,7 +47,7 @@
 
 
   
-    <string name="dialog_whats_an_instance">Sartu hemen helbidea edo mastodon.eus, mastodon.jalgi.eus, shitposter.club bezalako <a href="https://fediverse.network/pleroma?count=peers">edozein instantzia</a>, 
+    <string name="dialog_whats_an_instance"> Sartu hemen helbidea edo mastodon.eus, mastodon.jalgi.eus, shitposter.club bezalako <a href="https://fediverse.network/pleroma?count=peers">edozein instantzia</a>, 
 \n
 \n Oraindik ez baduzu konturik, instantziaren izena sartu eta bertan kontua sortu dezakezu. 
 \n

@@ -41,7 +41,7 @@
     <string name="add_account_description">Adicionar nova conta Pleroma</string>
   
   
-    <string name="warning_scheduling_interval">Pleroma possui um intervalo mínimo de agendamento de 5 minutos.</string>
+    <string name="warning_scheduling_interval">Pleroma possui um intervalo mínimo de 5 minutos para agendar.</string>
   
 
 
