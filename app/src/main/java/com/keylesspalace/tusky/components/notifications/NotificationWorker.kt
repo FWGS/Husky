@@ -42,9 +42,10 @@ class NotificationWorker(
             if (account.notificationsEnabled) {
                 try {
                     Log.d(TAG, "getting Notifications for " + account.fullName)
+                    // don't care about withMuted because they are always silently ignored
                     val notificationsResponse = mastodonApi.notificationsWithAuth(
                             String.format("Bearer %s", account.accessToken),
-                            account.domain
+                            account.domain, true
                     ).execute()
                     val notifications = notificationsResponse.body()
                     if (notificationsResponse.isSuccessful && notifications != null) {

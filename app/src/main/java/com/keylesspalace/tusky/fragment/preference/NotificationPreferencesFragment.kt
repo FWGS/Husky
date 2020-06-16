@@ -107,7 +107,7 @@ class NotificationPreferencesFragment : PreferenceFragmentCompat(), Injectable {
                     isIconSpaceReserved = false
                     isChecked = activeAccount.notificationsEmojiReactions
                     setOnPreferenceChangeListener { _, newValue ->
-                        updateAccount { it.noitificationsEmojiReactions = newValue as Boolean }
+                        updateAccount { it.notificationsEmojiReactions = newValue as Boolean }
                         true
                     }
                 }
