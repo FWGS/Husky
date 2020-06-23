@@ -70,6 +70,7 @@ import com.keylesspalace.tusky.R
 import com.keylesspalace.tusky.adapter.ComposeAutoCompleteAdapter
 import com.keylesspalace.tusky.adapter.EmojiAdapter
 import com.keylesspalace.tusky.adapter.OnEmojiSelectedListener
+import com.keylesspalace.tusky.appstore.*
 import com.keylesspalace.tusky.components.compose.dialog.makeCaptionDialog
 import com.keylesspalace.tusky.components.compose.dialog.showAddPollDialog
 import com.keylesspalace.tusky.components.compose.view.ComposeOptionsListener
@@ -108,12 +109,16 @@ class ComposeActivity : BaseActivity(),
 
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
+    
+    @Inject
+    lateinit var eventHub: EventHub
 
     private lateinit var composeOptionsBehavior: BottomSheetBehavior<*>
     private lateinit var addMediaBehavior: BottomSheetBehavior<*>
     private lateinit var emojiBehavior: BottomSheetBehavior<*>
     private lateinit var scheduleBehavior: BottomSheetBehavior<*>
     private lateinit var stickerBehavior: BottomSheetBehavior<*>
+    private lateinit var previewBehavior: BottomSheetBehavior<*>
 
     // this only exists when a status is trying to be sent, but uploads are still occurring
     private var finishingUploadDialog: ProgressDialog? = null
@@ -192,6 +197,12 @@ class ComposeActivity : BaseActivity(),
         viewModel.setupComplete.value = true
 
         stickerKeyboard.isSticky = true
+        
+        eventHub.events.subscribe { event ->
+            when(event) {
+                is StatusPreviewEvent -> onStatusPreviewReady(event.status)
+            }
+        }
     }
     
     private fun uriToFilename(uri: Uri): String {
@@ -383,6 +394,7 @@ class ComposeActivity : BaseActivity(),
                 }
                 
                 if(instanceData.software.equals("pleroma")) {
+                    composePreviewButton.visibility = View.VISIBLE
                     reenableAttachments()
                 }
             }
@@ -455,13 +467,15 @@ class ComposeActivity : BaseActivity(),
         scheduleBehavior = BottomSheetBehavior.from(composeScheduleView)
         emojiBehavior = BottomSheetBehavior.from(emojiView)
         stickerBehavior = BottomSheetBehavior.from(stickerKeyboard)
+        previewBehavior = BottomSheetBehavior.from(previewScroll)
 
         emojiView.layoutManager = GridLayoutManager(this, 3, GridLayoutManager.HORIZONTAL, false)
         enableButton(composeEmojiButton, clickable = false, colorActive = false)
         enableButton(composeStickerButton, false, false)
 
         // Setup the interface buttons.
-        composeTootButton.setOnClickListener { onSendClicked() }
+        composeTootButton.setOnClickListener { onSendClicked(false) }
+        composePreviewButton.setOnClickListener { onSendClicked(true) }
         composeAddMediaButton.setOnClickListener { openPickDialog() }
         composeToggleVisibilityButton.setOnClickListener { showComposeOptions() }
         composeContentWarningButton.setOnClickListener { onContentWarningChanged() }
@@ -771,6 +785,7 @@ class ComposeActivity : BaseActivity(),
         composeScheduleButton.isClickable = enable
         composeFormattingSyntax.isClickable = enable
         composeTootButton.isEnabled = enable
+        composePreviewButton.isEnabled = enable
         composeStickerButton.isEnabled = enable
     }
 
@@ -796,6 +811,7 @@ class ComposeActivity : BaseActivity(),
             emojiBehavior.state = BottomSheetBehavior.STATE_HIDDEN
             stickerBehavior.state = BottomSheetBehavior.STATE_HIDDEN
             scheduleBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+            previewBehavior.state = BottomSheetBehavior.STATE_HIDDEN
         } else {
             composeOptionsBehavior.state = BottomSheetBehavior.STATE_HIDDEN
         }
@@ -816,6 +832,7 @@ class ComposeActivity : BaseActivity(),
             addMediaBehavior.state = BottomSheetBehavior.STATE_HIDDEN
             emojiBehavior.state = BottomSheetBehavior.STATE_HIDDEN
             stickerBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+            previewBehavior.state = BottomSheetBehavior.STATE_HIDDEN
         } else {
             scheduleBehavior.state = BottomSheetBehavior.STATE_HIDDEN
         }
@@ -833,6 +850,7 @@ class ComposeActivity : BaseActivity(),
                     composeOptionsBehavior.state = BottomSheetBehavior.STATE_HIDDEN
                     addMediaBehavior.state = BottomSheetBehavior.STATE_HIDDEN
                     scheduleBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+                    previewBehavior.state = BottomSheetBehavior.STATE_HIDDEN
                 } else {
                     emojiBehavior.state = BottomSheetBehavior.STATE_HIDDEN
                 }
@@ -847,6 +865,7 @@ class ComposeActivity : BaseActivity(),
             emojiBehavior.state = BottomSheetBehavior.STATE_HIDDEN
             stickerBehavior.state = BottomSheetBehavior.STATE_HIDDEN
             scheduleBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+            previewBehavior.state = BottomSheetBehavior.STATE_HIDDEN
         } else {
             addMediaBehavior.state = BottomSheetBehavior.STATE_HIDDEN
         }
@@ -947,12 +966,30 @@ class ComposeActivity : BaseActivity(),
         return composeScheduleView.verifyScheduledTime(composeScheduleView.getDateTime(viewModel.scheduledAt.value))
     }
 
-    private fun onSendClicked() {
+    private fun onSendClicked(preview: Boolean) {
+        if(preview && previewBehavior.state == BottomSheetBehavior.STATE_EXPANDED) {
+            previewBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+            return
+        }
+        
         if (verifyScheduledTime()) {
-            sendStatus()
+            sendStatus(preview)
         } else {
             showScheduleView()
         }
+    }
+    
+    private fun onStatusPreviewReady(status: Status) {
+        enableButtons(true)
+        previewView.setupWithStatus(status)
+        previewBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+        addMediaBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+        composeOptionsBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+        emojiBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+        scheduleBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+        stickerBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+
+        // Log.d("ComposeActivityPreview", "Preview: " + status.content)
     }
 
     /** This is for the fancy keyboards which can insert images and stuff. */
@@ -977,7 +1014,7 @@ class ComposeActivity : BaseActivity(),
         return false
     }
 
-    private fun sendStatus() {
+    private fun sendStatus(preview: Boolean) {
         enableButtons(false)
         val contentText = composeEditField.text.toString()
         var spoilerText = ""
@@ -993,9 +1030,10 @@ class ComposeActivity : BaseActivity(),
                     this, getString(R.string.dialog_title_finishing_media_upload),
                     getString(R.string.dialog_message_uploading_media), true, true)
 
-            viewModel.sendStatus(contentText, spoilerText).observe(this, Observer {
+            viewModel.sendStatus(contentText, spoilerText, preview).observe(this, Observer {
                 finishingUploadDialog?.dismiss()
-                deleteDraftAndFinish()
+                if(!preview)
+                    deleteDraftAndFinish()
             })
 
         } else {
@@ -1156,6 +1194,7 @@ class ComposeActivity : BaseActivity(),
             emojiBehavior.state = BottomSheetBehavior.STATE_HIDDEN
             scheduleBehavior.state = BottomSheetBehavior.STATE_HIDDEN
             stickerBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+            previewBehavior.state = BottomSheetBehavior.STATE_HIDDEN
             return
         }
 
@@ -1168,7 +1207,7 @@ class ComposeActivity : BaseActivity(),
             if (event.isCtrlPressed) {
                 if (keyCode == KeyEvent.KEYCODE_ENTER) {
                     // send toot by pressing CTRL + ENTER
-                    this.onSendClicked()
+                    this.onSendClicked(false)
                     return true
                 }
             }
@@ -1229,6 +1268,7 @@ class ComposeActivity : BaseActivity(),
             composeOptionsBehavior.state = BottomSheetBehavior.STATE_HIDDEN
             emojiBehavior.state = BottomSheetBehavior.STATE_HIDDEN
             scheduleBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+            previewBehavior.state = BottomSheetBehavior.STATE_HIDDEN
         } else {
             stickerBehavior.state = BottomSheetBehavior.STATE_HIDDEN
         }

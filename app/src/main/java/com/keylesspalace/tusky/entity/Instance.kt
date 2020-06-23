@@ -30,7 +30,8 @@ data class Instance (
         @SerializedName("contact_account") val contactAccount: Account,
         @SerializedName("max_toot_chars") val maxTootChars: Int?,
         @SerializedName("max_bio_chars") val maxBioChars: Int?,
-        @SerializedName("poll_limits") val pollLimits: PollLimits?
+        @SerializedName("poll_limits") val pollLimits: PollLimits?,
+        val pleroma: InstancePleroma
 ) {
     override fun hashCode(): Int {
         return uri.hashCode()
@@ -44,6 +45,14 @@ data class Instance (
         return instance?.uri.equals(uri)
     }
 }
+
+data class InstancePleroma (
+    val metadata: InstancePleromaMetadata
+)
+
+data class InstancePleromaMetadata (
+    val features: List<String>
+)
 
 data class PollLimits (
         @SerializedName("max_options") val maxOptions: Int?,

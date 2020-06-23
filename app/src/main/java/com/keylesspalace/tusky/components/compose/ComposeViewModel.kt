@@ -302,7 +302,8 @@ class ComposeViewModel
      */
     fun sendStatus(
             content: String,
-            spoilerText: String
+            spoilerText: String,
+            preview: Boolean
     ): LiveData<Unit> {
         return media
                 .filter { items -> items.all { it.uploadPercent == -1 } }
@@ -330,6 +331,7 @@ class ComposeViewModel
                             replyingStatusContent = null,
                             replyingStatusAuthorUsername = null,
                             formattingSyntax = formattingSyntax,
+                            preview = preview,
                             savedJsonUrls = null,
                             accountId = accountManager.activeAccount!!.id,
                             savedTootUid = 0,

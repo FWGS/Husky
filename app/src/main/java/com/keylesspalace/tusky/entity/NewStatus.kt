@@ -28,7 +28,8 @@ data class NewStatus(
         @SerializedName("media_ids") val mediaIds: List<String>?,
         @SerializedName("scheduled_at") val scheduledAt: String?,
         val poll: NewPoll?,
-        var content_type: String?
+        var content_type: String?,
+        val preview: Boolean?
 )
 
 @Parcelize
