@@ -25,5 +25,6 @@ data class Relationship (
     val muting: Boolean,
     val requested: Boolean,
     @SerializedName("showing_reblogs") val showingReblogs: Boolean,
-    val subscribing: Boolean? = null // Pleroma extension
+    val subscribing: Boolean? = null, // Pleroma extension
+    @SerializedName("domain_blocking") val blockingDomain: Boolean
 )
