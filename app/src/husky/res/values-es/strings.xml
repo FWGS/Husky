@@ -56,7 +56,7 @@
         <item quantity="one"><b>%s</b> Repetición</item>
         <item quantity="other"><b>%s</b> Repeticiónes</item>
     </plurals>
-    <string name="send_status_link_to">Compartir la URL de la publicación con...</string>
+    <string name="send_status_link_to">Compartir la URL de la publicación con…</string>
     <string name="send_status_content_to">Compartir publicación con. . .</string>
     <string name="send_toot_notification_title">Enviando publicación. . .</string>
     <string name="send_toot_notification_channel_name">enviando publicaciones</string>
