@@ -24,7 +24,7 @@
     <string name="error_sticker_fetch">Se produjo un error al buscar la pegatina</string>
     <string name="pref_title_enable_experimental_stickers">Habilite los adhesivos experimentales de Pleroma-FE (si están disponibles)</string>
     <string name="dialog_delete_toot_warning">eliminar esta publicación\?</string>
-    <string name="action_hide_reblogs">esconder repeticiones</string>
+    <string name="action_hide_reblogs">Ocultar repeticiones</string>
     <string name="reblog_private">Repetir la audiencia original</string>
     <string name="dialog_redraft_toot_warning">eliminar y re-hacer esta publicación\?</string>
     <string name="error_sender_account_gone">Error al enviar la publicación</string>
