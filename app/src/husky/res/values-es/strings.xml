@@ -1,6 +1,5 @@
-<!-- These are mostly literal translations; I'm not sure what the usual jargon in Spanish for some terms (like "reacting") is -->
-
-<resources>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- These are mostly literal translations; I'm not sure what the usual jargon in Spanish for some terms (like "reacting") is --><resources>
     <string name="action_reply_to">Responder a</string>
     <!-- "Unmute" does not have a proper equivalent in Spanish so I chose "Show". Consequently, I used "Hide" instead of "Mute" in the previous one. -->
     <string name="action_emoji_react">Reaccionar</string>
@@ -8,24 +7,65 @@
     <string name="action_emoji_reacted_by">Quién ha reaccionado</string>
     <string name="action_enable_formatting_syntax">Activar %s</string>
     <string name="action_disable_formatting_syntax">Desactivar %s</string>
-    
     <string name="title_emoji_reacted_by">%s ha reaccionado con</string>
-    
     <string name="hint_appname">Nombre de la aplicación</string>
     <string name="hint_website">Página web de la aplicación</string>
-
     <string name="admin">Administrador/a</string>
     <!-- "Admin" in Spanish is a gendered word. I used "masculine/femenine" since it is the more conservative option and should avoid more complaints than the informal neutral. -->
     <string name="moderator">Moderador/a</string>
-
     <string name="error_media_upload_size">El archivo es demasiado grande</string>
-
     <string name="notification_emoji_format">%s ha reaccionado con %s a tu publicación</string>
     <string name="notification_emoji_name">Reacciones</string>
     <string name="notification_emoji_description">Notificaciones acerca de reacciones nuevas</string>
-
     <string name="pref_title_default_formatting">
     Sintaxis de formato por defecto(si la instancia los admite)</string>
     <string name="pref_title_notification_filter_emoji">se pueden enviar reacciones a mis publicaciones</string>
     <string name="pref_title_hide_muted_users">Ocultar a los usuarios silenciados</string>
+    <string name="error_sticker_fetch">Se produjo un error al buscar la pegatina</string>
+    <string name="pref_title_enable_experimental_stickers">Habilite los adhesivos experimentales de Pleroma-FE (si están disponibles)</string>
+    <string name="dialog_delete_toot_warning">eliminar esta publicación\?</string>
+    <string name="action_hide_reblogs">esconder repeticiones</string>
+    <string name="reblog_private">Repetir la audiencia original</string>
+    <string name="dialog_redraft_toot_warning">eliminar y re-hacer esta publicación\?</string>
+    <string name="error_sender_account_gone">Error al enviar la publicación</string>
+    <string name="notification_favourite_description">Notificaciones cuando tus publicaciones se marcan como favoritas</string>
+    <string name="action_sticker">pegatinas</string>
+    <string name="pref_title_enable_big_emojis">Habilitar emojis personalizados más grandes</string>
+    <string name="action_toggle_visibility">Visibilidad de publicaciones</string>
+    <string name="action_schedule_toot">Programar publicación</string>
+    <string name="action_reblog">repetir</string>
+    <string name="action_unreblog">remover repeticiónes</string>
+    <string name="action_show_reblogs">mostrar repeticiones</string>
+    <string name="action_send">ENVIAR</string>
+    <string name="action_open_reblogger">Abrir autor repetido</string>
+    <string name="action_open_reblogged_by">Mostrar repeticiones</string>
+    <string name="unreblog_private">remover la repetición</string>
+    <string name="action_open_toot">abrir publicación</string>
+    <string name="compose_shortcut_long_label">Redactar publicación</string>
+    <string name="description_status_reblogged">repetido</string>
+    <string name="action_send_public">ENVIAR!</string>
+    <string name="notification_reblog_format">%s repitió tu publicación</string>
+    <string name="notification_favourite_format">%s marcó tu publicación como favorita</string>
+    <string name="notification_boost_name">repeticiónes</string>
+    <string name="notification_boost_description">Notificaciones cuando tus publicaciones se repiten</string>
+    <string name="pref_title_confirm_reblogs">Mostrar diálogo de confirmación antes de repetir</string>
+    <string name="pref_title_notification_filter_reblogs">mis publicaciones se repiten</string>
+    <string name="pref_title_show_boosts">Mostrar repeticiones</string>
+    <string name="pref_title_alway_open_spoiler">Siempre expandir las publicaciones marcadas con advertencias de contenido</string>
+    <plurals name="reblogs">
+        <item quantity="one"><b>%s</b> Repetir</item>
+        <item quantity="other"><b>%s</b> se repite</item>
+    </plurals>
+    <string name="send_status_link_to">Compartir URL de publicación para …</string>
+    <string name="send_status_content_to">Compartir publicación en …</string>
+    <string name="send_toot_notification_title">enviando publicación…</string>
+    <string name="send_toot_notification_channel_name">enviando publicaciones</string>
+    <string name="send_toot_notification_saved_content">Se ha guardado una copia de la publicación en sus borradores</string>
+    <string name="status_share_content">Compartir contenido de la publicación</string>
+    <string name="status_share_link">Compartir enlace para publicar</string>
+    <string name="status_boosted_format">%s repetido</string>
+    <string name="title_reblogged_by">Repetido por</string>
+    <string name="title_view_thread">Enviar</string>
+    <string name="send_toot_notification_error_title">Error al enviar la publicación</string>
+    <string name="title_scheduled_toot">Publicaciones programadas</string>
 </resources>
