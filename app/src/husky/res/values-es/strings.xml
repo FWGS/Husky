@@ -33,7 +33,7 @@
     <string name="pref_title_enable_big_emojis">Habilitar emojis personalizados más grandes</string>
     <string name="action_toggle_visibility">Visibilidad de publicaciones</string>
     <string name="action_schedule_toot">Programar publicación</string>
-    <string name="action_reblog">repetir</string>
+    <string name="action_reblog">Repetir</string>
     <string name="action_unreblog">remover repeticiónes</string>
     <string name="action_show_reblogs">mostrar repeticiones</string>
     <string name="action_send">ENVIAR</string>
