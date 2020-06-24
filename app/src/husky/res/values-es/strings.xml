@@ -21,15 +21,15 @@
     Sintaxis de formato por defecto(si la instancia los admite)</string>
     <string name="pref_title_notification_filter_emoji">se pueden enviar reacciones a mis publicaciones</string>
     <string name="pref_title_hide_muted_users">Ocultar a los usuarios silenciados</string>
-    <string name="error_sticker_fetch">Se produjo un error al buscar la pegatina</string>
-    <string name="pref_title_enable_experimental_stickers">Habilite los adhesivos experimentales de Pleroma-FE (si están disponibles)</string>
+    <string name="error_sticker_fetch">Se produjo un error al buscar el sticker</string>
+    <string name="pref_title_enable_experimental_stickers">Habilitar reacciones experimentales de Pleroma-FE (si está disponible)</string>
     <string name="dialog_delete_toot_warning">eliminar esta publicación\?</string>
     <string name="action_hide_reblogs">Ocultar repeticiones</string>
     <string name="reblog_private">Repetir la audiencia original</string>
     <string name="dialog_redraft_toot_warning">¿Borrar y editar esta publicación\?</string>
     <string name="error_sender_account_gone">Error al enviar la publicación</string>
     <string name="notification_favourite_description">Notificaciones cuando tus publicaciones se marcan como favoritas</string>
-    <string name="action_sticker">pegatinas</string>
+    <string name="action_sticker">Stickers</string>
     <string name="pref_title_enable_big_emojis">Habilitar emojis personalizados más grandes</string>
     <string name="action_toggle_visibility">Visibilidad de publicaciones</string>
     <string name="action_schedule_toot">Programar publicación</string>
