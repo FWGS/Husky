@@ -63,7 +63,7 @@
     <string name="send_toot_notification_saved_content">Se ha guardado una copia de la publicación en sus borradores</string>
     <string name="status_share_content">Compartir contenido de la publicación</string>
     <string name="status_share_link">Compartir enlace para publicar</string>
-    <string name="status_boosted_format">%s repitió</string>
+    <string name="status_boosted_format">%s repitido</string>
     <string name="title_reblogged_by">Repetido por</string>
     <string name="title_view_thread">Enviar</string>
     <string name="send_toot_notification_error_title">Error al enviar la publicación</string>
