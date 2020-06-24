@@ -26,7 +26,7 @@
     <string name="dialog_delete_toot_warning">eliminar esta publicación\?</string>
     <string name="action_hide_reblogs">Ocultar repeticiones</string>
     <string name="reblog_private">Repetir la audiencia original</string>
-    <string name="dialog_redraft_toot_warning">eliminar y re-hacer esta publicación\?</string>
+    <string name="dialog_redraft_toot_warning">¿Borrar y editar esta publicación\?</string>
     <string name="error_sender_account_gone">Error al enviar la publicación</string>
     <string name="notification_favourite_description">Notificaciones cuando tus publicaciones se marcan como favoritas</string>
     <string name="action_sticker">pegatinas</string>
@@ -53,10 +53,10 @@
     <string name="pref_title_show_boosts">Mostrar repeticiones</string>
     <string name="pref_title_alway_open_spoiler">Siempre expandir las publicaciones marcadas con advertencias de contenido</string>
     <plurals name="reblogs">
-        <item quantity="one"><b>%s</b> Repetir</item>
-        <item quantity="other"><b>%s</b> se repite</item>
+        <item quantity="one"><b>%s</b> Repetición</item>
+        <item quantity="other"><b>%s</b> Repeticiónes</item>
     </plurals>
-    <string name="send_status_link_to">Compartir URL de publicación para …</string>
+    <string name="send_status_link_to">Compartir la URL de la publicación con...</string>
     <string name="send_status_content_to">Compartir publicación con. . .</string>
     <string name="send_toot_notification_title">Enviando publicación. . .</string>
     <string name="send_toot_notification_channel_name">enviando publicaciones</string>
