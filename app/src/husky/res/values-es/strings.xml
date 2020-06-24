@@ -58,7 +58,7 @@
     </plurals>
     <string name="send_status_link_to">Compartir URL de publicación para …</string>
     <string name="send_status_content_to">Compartir publicación con. . .</string>
-    <string name="send_toot_notification_title">enviando publicación…</string>
+    <string name="send_toot_notification_title">Enviando publicación. . .</string>
     <string name="send_toot_notification_channel_name">enviando publicaciones</string>
     <string name="send_toot_notification_saved_content">Se ha guardado una copia de la publicación en sus borradores</string>
     <string name="status_share_content">Compartir contenido de la publicación</string>
