@@ -27,7 +27,7 @@
     <string name="action_hide_reblogs">Ocultar repeticiones</string>
     <string name="reblog_private">Repetir para la audencia original</string>
     <string name="dialog_redraft_toot_warning">¿Borrar y editar esta publicación\?</string>
-    <string name="error_sender_account_gone">Error al enviar la publicación</string>
+    <string name="error_sender_account_gone">Error al enviar la publicación.</string>
     <string name="notification_favourite_description">Notificarte cuando tus publicaciones sean marcadas como favoritas</string>
     <string name="action_sticker">Stickers</string>
     <string name="pref_title_enable_big_emojis">Habilitar emojis personalizados más grandes</string>
@@ -58,7 +58,7 @@
     </plurals>
     <string name="send_status_link_to">Compartir la URL de la publicación con…</string>
     <string name="send_status_content_to">Compartir publicación con. . .</string>
-    <string name="send_toot_notification_title">Enviando publicación.</string>
+    <string name="send_toot_notification_title">Enviando publicación…</string>
     <string name="send_toot_notification_channel_name">Enviando publicaciones</string>
     <string name="send_toot_notification_saved_content">Una copia de la publicación ha sido guardada en tus borradores</string>
     <string name="status_share_content">Compartir el contenido de la publicación</string>
