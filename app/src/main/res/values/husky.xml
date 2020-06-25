@@ -9,6 +9,7 @@
     <string name="action_enable_formatting_syntax">Enable %s</string>
     <string name="action_disable_formatting_syntax">Disable %s</string>
     <string name="action_sticker">Stickers</string>
+    <string name="action_open_in_external_app">Open in external app</string>
     
     <string name="title_emoji_reacted_by">%s reacted by</string>
     

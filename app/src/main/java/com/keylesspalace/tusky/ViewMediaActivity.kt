@@ -142,6 +142,7 @@ class ViewMediaActivity : BaseActivity(), ViewImageFragment.PhotoActionsListener
         toolbar.setNavigationOnClickListener { supportFinishAfterTransition() }
         toolbar.setOnMenuItemClickListener { item: MenuItem ->
             when (item.itemId) {
+                R.id.action_open_in_external_app -> openInExternalApp()
                 R.id.action_download -> requestDownloadMedia()
                 R.id.action_open_status -> onOpenStatus()
                 R.id.action_share_media -> shareMedia()
@@ -267,6 +268,19 @@ class ViewMediaActivity : BaseActivity(), ViewImageFragment.PhotoActionsListener
         sendIntent.putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(applicationContext, "$APPLICATION_ID.fileprovider", file))
         sendIntent.type = mimeType
         startActivity(Intent.createChooser(sendIntent, resources.getText(R.string.send_media_to)))
+    }
+
+    private fun openInExternalApp() {
+        val url = attachments!![viewPager.currentItem].attachment.url
+        val intent = Intent(Intent.ACTION_VIEW)
+        val extension = MimeTypeMap.getFileExtensionFromUrl(url)
+        if(extension != null) {
+            intent.setDataAndType(Uri.parse(url), MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension))
+        } else {
+            intent.data = Uri.parse(url)
+        }
+
+        startActivity(intent)
     }
 
 
