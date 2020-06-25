@@ -19,8 +19,8 @@
     <string name="action_toggle_visibility">การมองเห็นโพสต์</string>
     <string name="action_schedule_toot">โพสต์แบบกำหนดเวลา</string>
     <string name="notification_boost_name">รีพีต</string>
-    <string name="notification_favourite_description">การแจ้งเตือนเมื่อโพสต์ของคุณถูกทำเครื่องหมายโปรดปราน</string>
-    <string name="notification_favourite_format">%s โปรดปรานโพสต์คุณ</string>
+    <string name="notification_favourite_description">การแจ้งเตือนเมื่อโพสต์ของคุณถูกชื่นชอบ</string>
+    <string name="notification_favourite_format">%s ชื่นชอบโพสต์คุณ</string>
     <string name="pref_title_notification_filter_reblogs">โพสต์ฉันถูกรีพีตแล้ว</string>
     <string name="pref_title_show_boosts">แสดงรีพีต</string>
     <string name="pref_title_alway_open_spoiler">ขยายโพสต์ที่มีเครื่องหมายคำเตือนเนื้อหาเสมอ</string>
@@ -52,7 +52,7 @@
     <string name="send_toot_notification_saved_content">สำเนาโพสต์ได้บันทึกลงในฉบับร่างแล้ว</string>
     <string name="notification_emoji_format">%s โต้ตอบด้วย %s แก่โพสต์คุณ</string>
     <string name="pref_title_confirm_reblogs">แสดงข้อความยืนยันก่อนที่จะรีพีต</string>
-    <string name="status_share_link">แบ่งปันลิงก์ไปที่โพสต์</string>
+    <string name="status_share_link">แบ่งปันลิงก์ของโพสต์</string>
     <string name="reblog_private">รีพีตโพสต์ต้นตอ</string>
     <string name="action_enable_formatting_syntax">เปิดใช้งาน %s</string>
     <string name="action_disable_formatting_syntax">ปิดใช้งาน %s</string>
