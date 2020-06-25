@@ -1,7 +1,8 @@
 # Husky
 [![Build Status](https://api.travis-ci.org/FWGS/Husky.svg?branch=develop)](https://travis-ci.org/FWGS/Husky)\
-
-[![Download F-Droid](https://img.shields.io/badge/download-fdroid-blue)](https://f-droid.org/repository/browse/?fdid=su.xash.husky) [![Download Google Play](https://img.shields.io/badge/download-googleplay-blue)](https://play.google.com/store/apps/details?id=su.xash.husky) [![Download Testing](https://img.shields.io/badge/downloads-testing-green)](https://github.com/FWGS/Husky/releases/tag/continuous)
+[![Download F-Droid](https://img.shields.io/badge/download-fdroid-blue)](https://f-droid.org/repository/browse/?fdid=su.xash.husky)\
+[![Download Google Play](https://img.shields.io/badge/download-googleplay-blue)](https://play.google.com/store/apps/details?id=su.xash.husky)\
+[![Download Testing](https://img.shields.io/badge/downloads-testing-green)](https://github.com/FWGS/Husky/releases/tag/continuous)
 
 ![icon](https://git.mentality.rip/FWGS/Husky/raw/branch/develop/assets/splash.xcf)
 
@@ -20,12 +21,14 @@ Tusky is quote, unquote, `... a beautiful Android client for [Mastodon](https://
 - Support for seen notifications to less annoy you
 - "Reply to" feature that allows to jump to replied status, useful for hellthreading ;)
 - Bigger emojis!
+- "Preview" feature on Pleroma
 
 ### Support
 
 If you have any bug reports, feature requests or questions please open an issue or send us a post at [Husky@enigmatic.observer](https://enigmatic.observer/users/Husky)!
 
-For translating Tusky into your language, visit https://weblate.tusky.app/. For translating Husky, translate app/src/main/res/values/husky.xml file and send it to profile above or send a pull request.
+For translating Tusky into your language, visit https://weblate.tusky.app/.\
+For translating Husky, visit https://l10n.mentality.rip.
 
 ### Head of development
 
