@@ -19,6 +19,7 @@ package com.keylesspalace.tusky
 import android.text.SpannedString
 import android.widget.EditText
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.keylesspalace.tusky.appstore.*
 import com.keylesspalace.tusky.components.compose.ComposeActivity
 import com.keylesspalace.tusky.components.compose.ComposeViewModel
 import com.keylesspalace.tusky.components.compose.DEFAULT_CHARACTER_LIMIT
@@ -142,6 +143,8 @@ class ComposeActivityTest {
 
         activity.accountManager = accountManagerMock
         activity.viewModelFactory = viewModelFactoryMock
+        
+        activity.eventHub = EventHubImpl
 
         controller.create().start()
     }
