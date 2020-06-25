@@ -195,6 +195,10 @@ class SearchStatusesFragment : SearchFragment<Pair<Status, StatusViewData.Concre
         }
     }
 
+    private fun onShowReplyTo(replyToId: String) {
+        bottomSheetActivity?.viewThread(replyToId, null)
+    }
+
     companion object {
         fun newInstance() = SearchStatusesFragment()
     }
@@ -268,6 +272,10 @@ class SearchStatusesFragment : SearchFragment<Pair<Status, StatusViewData.Concre
         }
         openAsItem.title = openAsTitle
 
+        if(status.inReplyToId == null) {
+            popup.menu.findItem(R.id.status_reply_to)?.isVisible = false
+        }
+
         popup.setOnMenuItemClickListener { item ->
             when (item.itemId) {
                 R.id.status_share_content -> {
@@ -299,6 +307,10 @@ class SearchStatusesFragment : SearchFragment<Pair<Status, StatusViewData.Concre
                 }
                 R.id.status_open_in_web -> {
                     LinkHelper.openLinkInBrowser(Uri.parse(statusUrl), context);
+                    return@setOnMenuItemClickListener true
+                }
+                R.id.status_reply_to -> {
+                    onShowReplyTo(status.inReplyToId!!)
                     return@setOnMenuItemClickListener true
                 }
                 R.id.status_open_as -> {
