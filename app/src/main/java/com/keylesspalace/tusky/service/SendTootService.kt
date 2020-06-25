@@ -11,6 +11,7 @@ import android.content.Intent
 import android.os.Build
 import android.os.IBinder
 import android.os.Parcelable
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
 import androidx.core.content.ContextCompat
@@ -130,8 +131,8 @@ class SendTootService : Service(), Injectable {
 
         tootToSend.retries++
 
-        val contentType : String? = if(tootToSend.formattingSyntax.length == 0) null else tootToSend.formattingSyntax
-        val preview : Boolean? = if(tootToSend.preview) tootToSend.preview else null
+        val contentType : String? = if(tootToSend.formattingSyntax.isNotEmpty()) tootToSend.formattingSyntax else null
+        val preview : Boolean? = if(tootToSend.preview) true else null
 
         val newStatus = NewStatus(
                 tootToSend.text,
@@ -167,14 +168,11 @@ class SendTootService : Service(), Injectable {
                         saveTootHelper.deleteDraft(tootToSend.savedTootUid)
                     }
 
-                    if (tootToSend.preview) {
-                        response.body()?.let(::StatusPreviewEvent)?.let(eventHub::dispatch)
-                    } else if (scheduled) {
-                        response.body()?.let(::StatusScheduledEvent)?.let(eventHub::dispatch)
-                    } else {
-                        response.body()?.let(::StatusComposedEvent)?.let(eventHub::dispatch)
+                    when {
+                        tootToSend.preview -> response.body()?.let(::StatusPreviewEvent)?.let(eventHub::dispatch)
+                        scheduled -> response.body()?.let(::StatusScheduledEvent)?.let(eventHub::dispatch)
+                        else -> response.body()?.let(::StatusComposedEvent)?.let(eventHub::dispatch)
                     }
-
                     notificationManager.cancel(tootId)
 
                 } else {

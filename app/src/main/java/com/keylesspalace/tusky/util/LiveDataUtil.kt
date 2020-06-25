@@ -27,6 +27,24 @@ inline fun <X, Y> LiveData<X>.switchMap(
         crossinline switchMapFunction: (X) -> LiveData<Y>
 ): LiveData<Y> = Transformations.switchMap(this) { input -> switchMapFunction(input) }
 
+fun <T> LiveData<T>.observeOnce(observer: (T) -> Unit) {
+    observeForever(object: Observer<T> {
+        override fun onChanged(value: T) {
+            removeObserver(this)
+            observer(value)
+        }
+    })
+}
+
+fun <T> LiveData<T>.observeOnce(owner: LifecycleOwner, observer: (T) -> Unit) {
+    observe(owner, object: Observer<T> {
+        override fun onChanged(value: T) {
+            removeObserver(this)
+            observer(value)
+        }
+    })
+}
+
 inline fun <X> LiveData<X>.filter(crossinline predicate: (X) -> Boolean): LiveData<X> {
     val liveData = MediatorLiveData<X>()
     liveData.addSource(this) { value ->

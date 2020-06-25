@@ -54,6 +54,7 @@ import androidx.core.view.inputmethod.InputContentInfoCompat
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.lifecycle.Observer
+import androidx.lifecycle.Lifecycle
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -97,6 +98,8 @@ import kotlin.collections.ArrayList
 import kotlin.math.max
 import kotlin.math.min
 import me.thanel.markdownedit.MarkdownEdit
+import io.reactivex.android.schedulers.AndroidSchedulers
+import com.uber.autodispose.android.lifecycle.autoDispose
 
 class ComposeActivity : BaseActivity(),
         ComposeOptionsListener,
@@ -197,12 +200,14 @@ class ComposeActivity : BaseActivity(),
         viewModel.setupComplete.value = true
 
         stickerKeyboard.isSticky = true
-        
-        eventHub.events.subscribe { event ->
-            when(event) {
-                is StatusPreviewEvent -> onStatusPreviewReady(event.status)
-            }
-        }
+
+        eventHub.events.observeOn(AndroidSchedulers.mainThread())
+                .autoDispose(this, Lifecycle.Event.ON_DESTROY)
+                .subscribe { event: Event? ->
+                    when(event) {
+                        is StatusPreviewEvent -> onStatusPreviewReady(event.status)
+                    }
+                }
     }
     
     private fun uriToFilename(uri: Uri): String {
@@ -967,9 +972,8 @@ class ComposeActivity : BaseActivity(),
     }
 
     private fun onSendClicked(preview: Boolean) {
-        if(preview && previewBehavior.state == BottomSheetBehavior.STATE_EXPANDED) {
+        if(preview && previewBehavior.state != BottomSheetBehavior.STATE_HIDDEN) {
             previewBehavior.state = BottomSheetBehavior.STATE_HIDDEN
-            return
         }
         
         if (verifyScheduledTime()) {
@@ -988,8 +992,6 @@ class ComposeActivity : BaseActivity(),
         emojiBehavior.state = BottomSheetBehavior.STATE_HIDDEN
         scheduleBehavior.state = BottomSheetBehavior.STATE_HIDDEN
         stickerBehavior.state = BottomSheetBehavior.STATE_HIDDEN
-
-        // Log.d("ComposeActivityPreview", "Preview: " + status.content)
     }
 
     /** This is for the fancy keyboards which can insert images and stuff. */
@@ -1030,11 +1032,11 @@ class ComposeActivity : BaseActivity(),
                     this, getString(R.string.dialog_title_finishing_media_upload),
                     getString(R.string.dialog_message_uploading_media), true, true)
 
-            viewModel.sendStatus(contentText, spoilerText, preview).observe(this, Observer {
+            viewModel.sendStatus(contentText, spoilerText, preview).observeOnce(this) {
                 finishingUploadDialog?.dismiss()
                 if(!preview)
                     deleteDraftAndFinish()
-            })
+            }
 
         } else {
             composeEditField.error = getString(R.string.error_compose_character_limit)

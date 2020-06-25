@@ -17,6 +17,7 @@
     <dimen name="card_image_horizontal_width">100dp</dimen>
 
     <dimen name="compose_activity_snackbar_elevation">16dp</dimen>
+    <dimen name="compose_activity_bottom_bar_height">60dp</dimen>
 
     <dimen name="account_activity_scroll_title_visible_height">200dp</dimen>
     <dimen name="account_activity_avatar_size">100dp</dimen>
