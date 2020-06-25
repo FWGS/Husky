@@ -43,7 +43,4 @@
     <item
         android:id="@+id/status_delete"
         android:title="@string/action_delete" />
-    <item
-        android:id="@+id/status_delete_and_redraft"
-        android:title="@string/action_delete_and_redraft" />
 </menu>

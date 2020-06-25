@@ -369,10 +369,6 @@ public abstract class SFragment extends BaseFragment implements Injectable {
                     showConfirmDeleteDialog(id, position);
                     return true;
                 }
-                case R.id.status_delete_and_redraft: {
-                    showConfirmEditDialog(id, position, status);
-                    return true;
-                }
                 case R.id.pin: {
                     timelineCases.pin(status, !status.isPinned());
                     return true;
