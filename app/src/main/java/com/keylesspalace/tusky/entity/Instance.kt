@@ -31,7 +31,7 @@ data class Instance (
         @SerializedName("max_toot_chars") val maxTootChars: Int?,
         @SerializedName("max_bio_chars") val maxBioChars: Int?,
         @SerializedName("poll_limits") val pollLimits: PollLimits?,
-        val pleroma: InstancePleroma
+        val pleroma: InstancePleroma?
 ) {
     override fun hashCode(): Int {
         return uri.hashCode()
