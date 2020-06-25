@@ -62,6 +62,7 @@ import com.keylesspalace.tusky.entity.Status;
 import com.keylesspalace.tusky.entity.EmojiReaction;
 import com.keylesspalace.tusky.network.MastodonApi;
 import com.keylesspalace.tusky.network.TimelineCases;
+import com.keylesspalace.tusky.util.LinkHelper;
 import com.keylesspalace.tusky.viewdata.AttachmentViewData;
 import com.keylesspalace.tusky.interfaces.StatusActionListener;
 
@@ -318,6 +319,10 @@ public abstract class SFragment extends BaseFragment implements Injectable {
                             getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
                     ClipData clip = ClipData.newPlainText(null, statusUrl);
                     clipboard.setPrimaryClip(clip);
+                    return true;
+                }
+                case R.id.status_open_in_web: {
+                    LinkHelper.openLinkInBrowser(Uri.parse(statusUrl), getContext());
                     return true;
                 }
                 case R.id.status_reply_to: {

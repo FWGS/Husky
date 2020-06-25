@@ -19,6 +19,9 @@
         android:id="@+id/status_copy_link"
         android:title="@string/action_copy_link" />
     <item
+        android:id="@+id/status_open_in_web"
+        android:title="@string/action_open_in_web" />
+    <item
         android:id="@+id/status_open_as"
         android:title="@string/action_open_as" />
     <item

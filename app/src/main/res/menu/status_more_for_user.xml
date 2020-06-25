@@ -22,6 +22,9 @@
         android:id="@+id/status_open_as"
         android:title="@string/action_open_as" />
     <item
+        android:id="@+id/status_open_in_web"
+        android:title="@string/action_open_in_web" />
+    <item
         android:id="@+id/status_mute_conversation"
         android:title="@string/action_mute_conversation"
         android:visible="false" />

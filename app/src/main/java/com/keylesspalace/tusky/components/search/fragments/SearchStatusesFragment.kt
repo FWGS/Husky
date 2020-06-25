@@ -53,6 +53,7 @@ import com.keylesspalace.tusky.entity.Status.Mention
 import com.keylesspalace.tusky.interfaces.AccountSelectionListener
 import com.keylesspalace.tusky.interfaces.StatusActionListener
 import com.keylesspalace.tusky.util.CardViewMode
+import com.keylesspalace.tusky.util.LinkHelper
 import com.keylesspalace.tusky.util.NetworkState
 import com.keylesspalace.tusky.util.StatusDisplayOptions
 import com.keylesspalace.tusky.viewdata.AttachmentViewData
@@ -294,6 +295,10 @@ class SearchStatusesFragment : SearchFragment<Pair<Status, StatusViewData.Concre
                 R.id.status_copy_link -> {
                     val clipboard = requireActivity().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                     clipboard.setPrimaryClip(ClipData.newPlainText(null, statusUrl))
+                    return@setOnMenuItemClickListener true
+                }
+                R.id.status_open_in_web -> {
+                    LinkHelper.openLinkInBrowser(Uri.parse(statusUrl), context);
                     return@setOnMenuItemClickListener true
                 }
                 R.id.status_open_as -> {

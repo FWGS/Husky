@@ -114,10 +114,6 @@ public class ViewThreadActivity extends BottomSheetActivity implements HasAndroi
                 onBackPressed();
                 return true;
             }
-            case R.id.action_open_in_web: {
-                LinkHelper.openLink(getIntent().getStringExtra(URL_EXTRA), this);
-                return true;
-            }
             case R.id.action_reveal: {
                 fragment.onRevealPressed();
                 return true;
