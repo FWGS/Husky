@@ -1,2 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources>
+    <string name="action_emoji_react">Reagera</string>
+    <string name="action_emoji_unreact">Ta bort reaktion</string>
+    <string name="action_emoji_reacted_by">Vem reagerade</string>
+    <string name="action_enable_formatting_syntax">Aktivera %s</string>
+    <string name="action_disable_formatting_syntax">Avaktivera %s</string>
+    <string name="title_emoji_reacted_by">%s reagerade av</string>
+    <string name="hint_appname">Applikationsmanamn</string>
+    <string name="admin">Administratör</string>
+    <string name="action_sticker">Klistermärken</string>
+    <string name="error_media_upload_size">Filstorleken är större än vad instanser tillåter</string>
+    <string name="error_sticker_fetch">Ett fel inträffade vid hämtning av klistermärke</string>
+    <string name="notification_emoji_name">Emoji Reaktioner</string>
+    <string name="pref_title_hide_muted_users">Dölj tystade användare</string>
+    <string name="pref_title_enable_big_emojis">Aktivera större anpassade emojis</string>
+    <string name="action_toggle_visibility">Inläggssynlighet</string>
+    <string name="action_schedule_toot">Schemalägg inlägg</string>
+    <string name="action_reblog">Repetera</string>
+    <string name="action_unreblog">Ta bort repetering</string>
+    <string name="action_hide_reblogs">Dölj repeteringar</string>
+    <string name="action_show_reblogs">Visa repeteringar</string>
+    <string name="action_send">SKICKA</string>
+    <string name="action_send_public">SKICKA!</string>
+    <string name="action_reply_to">Svara till</string>
+    <string name="hint_website">Applikationswebbplats</string>
+    <string name="moderator">Moderator</string>
+    <string name="notification_emoji_format">%s reagerade med %s på ditt inlägg</string>
+    <string name="notification_emoji_description">Aviseringar på nya emoji-reaktioner</string>
+    <string name="pref_title_default_formatting">Syntax på formatteringsstandard (om instansen stödjer det)</string>
+    <string name="pref_title_notification_filter_emoji">reaktioner på mina inlägg med emojis</string>
+    <string name="pref_title_enable_experimental_stickers">Aktivera experimentell Pleroma-FE klistermärke (om möjligt)</string>
+</resources>
