@@ -33,13 +33,14 @@
     <string name="action_toggle_visibility">Post visibility</string>
     <string name="action_schedule_toot">Schedule post</string>
     <string name="action_reblog">Repeat</string>
-    <string name="action_unreblog">Remove repeats</string>
+    <string name="action_unreblog">Remove repeat</string>
     <string name="action_hide_reblogs">Hide repeats</string>
     <string name="action_show_reblogs">Show repeats</string>
     <string name="action_send">POST</string>
     <string name="action_send_public">POST!</string>
     <string name="action_open_reblogger">Open repeat author</string>
     <string name="action_open_reblogged_by">Show repeats</string>
+    <string name="action_access_scheduled_toot">Scheduled posts</string>
     <string name="reblog_private">Repeat to original audience</string>
     <string name="unreblog_private">Remove repeat</string>
     <string name="action_open_toot">Open post</string>
