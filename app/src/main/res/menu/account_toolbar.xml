@@ -4,6 +4,7 @@
 
     <item android:id="@+id/action_open_in_web"
         android:icon="@drawable/ic_exit_to_app_24px"
+        android:iconTint="@color/textColorPrimary"
         android:title="@string/action_open_in_web"
         app:showAsAction="always" />
 
