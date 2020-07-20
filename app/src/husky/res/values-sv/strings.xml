@@ -30,4 +30,13 @@
     <string name="pref_title_default_formatting">Syntax på formatteringsstandard (om instansen stödjer det)</string>
     <string name="pref_title_notification_filter_emoji">reaktioner på mina inlägg med emojis</string>
     <string name="pref_title_enable_experimental_stickers">Aktivera experimentell Pleroma-FE klistermärke (om möjligt)</string>
+    <string name="action_open_reblogged_by">Visa repeteringar</string>
+    <string name="action_access_scheduled_toot">Schemalagda inlägg</string>
+    <string name="reblog_private">Repetera till den ursprungliga målgruppen</string>
+    <string name="unreblog_private">Ta bort repetering</string>
+    <string name="action_open_toot">Öppna inlägg</string>
+    <string name="compose_shortcut_long_label">Skriv inlägg</string>
+    <string name="dialog_delete_toot_warning">Ta bort detta inlägg\?</string>
+    <string name="action_open_reblogger">Öppna avsändaren av repeteringen</string>
+    <string name="description_status_reblogged">Repeterat</string>
 </resources>
