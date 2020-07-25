@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="pref_title_default_formatting">ไวยากรณ์การจัดรูปแบบเริ่มต้น (ถ้ารองรับโดย Instance)</string>
+    <string name="pref_title_default_formatting">ค่าปริยายของไวยากรณ์การจัดรูปแบบ (ถ้ารองรับโดย Instance)</string>
     <string name="pref_title_enable_big_emojis">เปิดใช้งานเอโมจิที่กำหนดเองขนาดใหญ่</string>
     <string name="action_send">โพสต์</string>
     <string name="action_send_public">โพสต์!</string>
@@ -15,12 +15,12 @@
     <string name="action_hide_reblogs">ซ่อนรีพีต</string>
     <string name="unreblog_private">ลบรีพีต</string>
     <string name="description_status_reblogged">รีพีตแล้ว</string>
-    <string name="pref_title_hide_muted_users">ซ่อนผู้ใช้ที่ถูกทำให้เป็นใบ้ไว้</string>
+    <string name="pref_title_hide_muted_users">ซ่อนผู้ใช้ที่ปิดเสียงไว้</string>
     <string name="action_toggle_visibility">การมองเห็นโพสต์</string>
     <string name="action_schedule_toot">โพสต์แบบกำหนดเวลา</string>
     <string name="notification_boost_name">รีพีต</string>
-    <string name="notification_favourite_description">การแจ้งเตือนเมื่อโพสต์ของคุณถูกทำเครื่องหมายโปรดปราน</string>
-    <string name="notification_favourite_format">%s โปรดปรานโพสต์คุณ</string>
+    <string name="notification_favourite_description">การแจ้งเตือนเมื่อโพสต์ของคุณถูกชื่นชอบ</string>
+    <string name="notification_favourite_format">%s ชื่นชอบโพสต์คุณ</string>
     <string name="pref_title_notification_filter_reblogs">โพสต์ฉันถูกรีพีตแล้ว</string>
     <string name="pref_title_show_boosts">แสดงรีพีต</string>
     <string name="pref_title_alway_open_spoiler">ขยายโพสต์ที่มีเครื่องหมายคำเตือนเนื้อหาเสมอ</string>
@@ -30,7 +30,7 @@
     <string name="send_toot_notification_title">กำลังส่งโพสต์…</string>
     <string name="send_toot_notification_error_title">เกิดข้อผิดพลาดในการส่งโพสต์</string>
     <string name="status_share_content">แบ่งปันเนื้อหาของโพสต์</string>
-    <string name="status_boosted_format">%s ถูกรีพีต</string>
+    <string name="status_boosted_format">%s ได้รีพีต</string>
     <string name="notification_emoji_name">การโต้ตอบเอโมจิ</string>
     <string name="send_status_link_to">แบ่งปัน URL โพสต์ไป…</string>
     <string name="title_view_thread">โพสต์</string>
@@ -52,7 +52,7 @@
     <string name="send_toot_notification_saved_content">สำเนาโพสต์ได้บันทึกลงในฉบับร่างแล้ว</string>
     <string name="notification_emoji_format">%s โต้ตอบด้วย %s แก่โพสต์คุณ</string>
     <string name="pref_title_confirm_reblogs">แสดงข้อความยืนยันก่อนที่จะรีพีต</string>
-    <string name="status_share_link">แบ่งปันลิงก์ไปที่โพสต์</string>
+    <string name="status_share_link">แบ่งปันลิงก์ของโพสต์</string>
     <string name="reblog_private">รีพีตโพสต์ต้นตอ</string>
     <string name="action_enable_formatting_syntax">เปิดใช้งาน %s</string>
     <string name="action_disable_formatting_syntax">ปิดใช้งาน %s</string>
