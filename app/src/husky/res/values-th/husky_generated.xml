@@ -9,7 +9,7 @@
     <string name="about_tusky_account">บัญชีทางการของ Husky</string>
   
   
-    <string name="about_tusky_license">Husky คือซอฟต์แวร์เสรีและโอเพนซอร์ส &lt;!-- --&gt; ภายใต้สัญญาอนุญาต GNU General Public License Version 3 &lt;!-- --&gt;ดูสัญญาที่ : https://www.gnu.org/licenses/gpl-3.0.ja.html</string>
+    <string name="about_tusky_license">Husky คือซอฟต์แวร์เสรีและโอเพนซอร์ส ภายใต้สัญญาอนุญาต GNU General Public License Version 3 ดูสัญญาที่ : https://www.gnu.org/licenses/gpl-3.0.ja.html</string>
   
   
     <string name="about_powered_by_tusky">ขับเคลื่อนด้วย Husky</string>
@@ -44,19 +44,13 @@
 
 
   
-    <string name="dialog_whats_an_instance">"ใส่ที่อยู่หรือโดเมนของ Instance ได้ที่นี่ เช่น shitposter.club blob.cat expired.mentality.rip และ &lt;a href=\"https://fediverse.network/pleroma?count=peers\"&gt;อีกมากมาย!&lt;/a&gt;
-\n
-\nถ้ายังไม่มีบัญชี สามารถใส่ชื่อ Instance ที่ต้องการจะร่วมแล้วสร้างบัญชีที่นั่น
-\n
-\nInstance คือที่ที่หนึ่งไว้โฮสต์บัญชีคุณ แต่คุณยังสามารถสื่อสาร ติดตามบุคคลบน Instance อื่นได้เหมือนอยู่บนไซต์เดียวกัน
-\n
-\nพบข้อมูลเพิ่มเติมได้ที่ &lt;a href=\"https://joinmastodon.org\"&gt;joinmastodon.org&lt;/a&gt; "<a href="https://fediverse.network/pleroma?count=peers">more!</a>
-        \n\nIf you don\'t yet have an account, you can enter the name of the instance you\'d like to
-        join and create an account there.\n\nAn instance is a single place where your account is
-        hosted, but you can easily communicate with and follow folks on other instances as though
-        you were on the same site.
-        \n\nMore info can be found at <a href="https://joinmastodon.org">joinmastodon.org</a>.
-    </string>
+    <string name="dialog_whats_an_instance">ใส่ที่อยู่หรือโดเมนของ Instance ได้ที่นี่ เช่น shitposter.club blob.cat expired.mentality.rip และ <a href="https://fediverse.network/pleroma?count=peers">อีกมากมาย!</a>
+\n 
+\nถ้ายังไม่มีบัญชี สามารถใส่ชื่อ Instance ที่ต้องการจะร่วมแล้วสร้างบัญชีที่นั่น 
+\n 
+\nInstance คือที่ที่หนึ่งไว้โฮสต์บัญชีคุณ แต่คุณยังสามารถสื่อสาร ติดตามบุคคลบน Instance อื่นได้เหมือนอยู่บนไซต์เดียวกัน 
+\n 
+\nพบข้อมูลเพิ่มเติมได้ที่ <a href="https://joinmastodon.org">joinmastodon.org</a> </string>
   
 
 </resources>

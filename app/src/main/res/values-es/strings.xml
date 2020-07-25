@@ -3,7 +3,7 @@
     <string name="error_generic">Ha ocurrido un error.</string>
     <string name="error_network">¡Se ha producido un error de red! ¡Por favor, comprueba tu conexión e inténtalo de nuevo!</string>
     <string name="error_empty">Este campo no puede estar vacío.</string>
-    <string name="error_invalid_domain">Nombre de dominio incorrecto</string>
+    <string name="error_invalid_domain">Nombre de dominio no válido</string>
     <string name="error_failed_app_registration">Fallo de autenticación con esta instancia.</string>
     <string name="error_no_web_browser_found">No se ha encontrado ningún navegador web.</string>
     <string name="error_authorization_unknown">Ocurrió un error de autorización no identificado.</string>
@@ -446,7 +446,6 @@
     <string name="select_list_title">Seleccionar lista</string>
     <string name="list">Lista</string>
     <string name="error_audio_upload_size">Los ficheros de audio deben ser menores de 40MB.</string>
-    <string name="gradient_for_media">Mostrar degradados coloridos para el contenido multimedia oculto</string>
     <string name="no_saved_status">No tienes ningún borrador.</string>
     <string name="no_scheduled_status">No tienes ningún estado programado.</string>
     <string name="warning_scheduling_interval">Mastodon tiene un intervalo de programación mínimo de 5 minutos.</string>
@@ -467,4 +466,9 @@
     <string name="hashtags">Etiquetas</string>
     <string name="add_hashtag_title">Añadir etiqueta</string>
     <string name="notification_follow_request_format">%s solicita seguirte</string>
+    <string name="pref_main_nav_position_option_bottom">Fondo</string>
+    <string name="pref_main_nav_position_option_top">Arriba</string>
+    <string name="pref_main_nav_position">Posición de navegación principal</string>
+    <string name="pref_title_gradient_for_media">Mostrar degradados colorido para los medios ocultos</string>
+    <string name="action_unmute_domain">Dejar de silenciar %s</string>
 </resources>

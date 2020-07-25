@@ -450,7 +450,6 @@
     <string name="description_status_bookmarked">Bokmärkt</string>
     <string name="select_list_title">Välj lista</string>
     <string name="list">Lista</string>
-    <string name="gradient_for_media">Visa färgglada gradienter för gömd media</string>
     <string name="no_scheduled_status">Du har inga schemalagda statusar.</string>
     <string name="error_audio_upload_size">Ljudfiler måste vara mindre än 40MB.</string>
     <string name="no_saved_status">Du har inga utkast.</string>
@@ -472,4 +471,9 @@
     <string name="notification_follow_request_format">%s vill följa dig</string>
     <string name="add_hashtag_title">Lägg till hashtag</string>
     <string name="hashtags">Hashtaggar</string>
+    <string name="pref_main_nav_position_option_top">Topp</string>
+    <string name="pref_main_nav_position_option_bottom">Botten</string>
+    <string name="pref_main_nav_position">Standard navigationsposition</string>
+    <string name="pref_title_gradient_for_media">Visa färgglada gradienter för gömd media</string>
+    <string name="action_unmute_domain">Ta bort tystad %s</string>
 </resources>
