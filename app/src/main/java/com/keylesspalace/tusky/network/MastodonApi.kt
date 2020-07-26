@@ -622,4 +622,57 @@ interface MastodonApi {
         @Url path: String
     ): Single<Response<StickerPack>>
     // NOT AN API CALLS NOT AN API CALLS NOT AN API CALLS NOT AN API CALLS
+
+    @POST("api/v1/pleroma/chats/{id}/messages/{message_id}/read")
+    fun markChatMessageAsRead(
+            @Path("id") chatId: String,
+            @Path("message_id") messageId: String
+    ): Single<ChatMessage>
+
+    @DELETE("api/v1/pleroma/chats/{id}/messages/{message_id}")
+    fun deleteChatMessage(
+            @Path("id") chatId: String,
+            @Path("message_id") messageId: String
+    ): Single<ChatMessage>
+
+    @GET("api/v1/pleroma/chats")
+    fun getChats(
+            @Query("max_id") maxId: String?,
+            @Query("min_id") minId: String?,
+            @Query("since_id") sinceId: String?,
+            @Query("offset") offset: Int?,
+            @Query("limit") limit: Int?
+    ): Single<List<Chat>>
+
+    @GET("api/v1/pleroma/chats/{id}/messages")
+    fun getChatMessages(
+            @Path("id") chatId: String,
+            @Query("max_id") maxId: String?,
+            @Query("min_id") minId: String?,
+            @Query("since_id") sinceId: String?,
+            @Query("offset") offset: Int?,
+            @Query("limit") limit: Int?
+    ): Single<List<ChatMessage>>
+
+    @POST("api/v1/pleroma/chats/{id}/messages")
+    fun createChatMessage(
+            @Path("id") chatId: String,
+            @Body chatMessage: NewChatMessage
+    ): Single<ChatMessage>
+
+    @POST("api/v1/pleroma/chats/{id}/read")
+    fun markChatAsRead(
+            @Path("id") chatId: String,
+            @Field("last_read_id") lastReadId: String
+    ): Single<Chat>
+
+    @POST("api/v1/pleroma/chats/by-account-id/{id}")
+    fun createChat(
+            @Path("id") accountId: String
+    ): Single<Chat>
+
+    @GET("api/v1/pleroma/chats/{id}")
+    fun getChat(
+            @Path("id") chatId: String
+    ): Single<Chat>
 }
