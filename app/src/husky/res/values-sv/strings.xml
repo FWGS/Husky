@@ -24,7 +24,7 @@
     <string name="action_send_public">SKICKA!</string>
     <string name="action_reply_to">Svara till</string>
     <string name="hint_website">Applikationswebbplats</string>
-    <string name="moderator">Moderator</string>
+    <string name="moderator">Moderatorn</string>
     <string name="notification_emoji_format">%s reagerade med %s på ditt inlägg</string>
     <string name="notification_emoji_description">Aviseringar på nya emoji-reaktioner</string>
     <string name="pref_title_default_formatting">Syntax på formatteringsstandard (om instansen stödjer det)</string>
@@ -39,4 +39,31 @@
     <string name="dialog_delete_toot_warning">Ta bort detta inlägg\?</string>
     <string name="action_open_reblogger">Öppna avsändaren av repeteringen</string>
     <string name="description_status_reblogged">Repeterat</string>
+    <string name="dialog_redraft_toot_warning">Radera och skriva en nytt inlägg\?</string>
+    <string name="error_sender_account_gone">Fel vid sändning av inlägg.</string>
+    <string name="notification_reblog_format">%s upprepade ditt inlägg</string>
+    <string name="notification_favourite_format">%s favoriserade ditt inlägg</string>
+    <string name="notification_boost_name">Upprepningar</string>
+    <string name="notification_favourite_description">Aviseringar när dina inlägg blir favoriserade</string>
+    <string name="pref_title_notification_filter_reblogs">mina inlägg är repeterade</string>
+    <string name="pref_title_show_boosts">Visa upprepningar</string>
+    <string name="pref_title_alway_open_spoiler">Expandera alltid inlägg med innehållsvarningar</string>
+    <plurals name="reblogs">
+        <item quantity="one"><b>%s</b> Repeterade</item>
+        <item quantity="other"><b>%s</b> Repeterades</item>
+    </plurals>
+    <string name="send_status_link_to">Dela inläggs-URL till…</string>
+    <string name="send_status_content_to">Dela inlägg till…</string>
+    <string name="send_toot_notification_title">Skickar inlägg…</string>
+    <string name="send_toot_notification_channel_name">Skickar inläggen</string>
+    <string name="send_toot_notification_saved_content">En kopia av inlägget har sparats i dina utkast</string>
+    <string name="status_share_content">Dela innehåll av inlägg</string>
+    <string name="status_share_link">Dela länk till inlägg</string>
+    <string name="status_boosted_format">%s repeterade</string>
+    <string name="title_scheduled_toot">Schemalagda inlägg</string>
+    <string name="title_reblogged_by">Upprepad av</string>
+    <string name="title_view_thread">Posta</string>
+    <string name="notification_boost_description">Aviseringar när dina inlägg blir upprepade</string>
+    <string name="pref_title_confirm_reblogs">Visa en bekräftelsedialog innan du repeterar</string>
+    <string name="send_toot_notification_error_title">Fel vid sändning av inlägg</string>
 </resources>
