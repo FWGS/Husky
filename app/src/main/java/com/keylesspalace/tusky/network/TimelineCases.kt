@@ -35,7 +35,7 @@ interface TimelineCases {
     fun favourite(status: Status, favourite: Boolean): Single<Status>
     fun bookmark(status: Status, bookmark: Boolean): Single<Status>
     fun muteStatus(status: Status, mute: Boolean)
-    fun mute(id: String)
+    fun mute(id: String, notifications: Boolean)
     fun block(id: String)
     fun delete(id: String): Single<DeletedStatus>
     fun pin(status: Status, pin: Boolean)

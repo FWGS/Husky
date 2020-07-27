@@ -327,6 +327,7 @@ interface MastodonApi {
             @Path("id") accountId: String
     ): Single<Relationship>
 
+    @FormUrlEncoded
     @POST("api/v1/accounts/{id}/mute")
     fun muteAccount(
             @Path("id") accountId: String,

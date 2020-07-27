@@ -119,12 +119,12 @@ class AccountViewModel @Inject constructor(
         }
     }
 
-    fun changeMuteState() {
-        if (relationshipData.value?.data?.muting == true) {
-            changeRelationship(RelationShipAction.UNMUTE)
-        } else {
-            changeRelationship(RelationShipAction.MUTE)
-        }
+    fun muteAccount(notifications: Boolean) {
+        changeRelationship(RelationShipAction.MUTE, notifications)
+    }
+
+    fun unmuteAccount() {
+        changeRelationship(RelationShipAction.UNMUTE)
     }
     
     fun changeSubscribingState() {
@@ -182,7 +182,10 @@ class AccountViewModel @Inject constructor(
         }
     }
 
-    private fun changeRelationship(relationshipAction: RelationShipAction, showReblogs: Boolean = true) {
+    /**
+     * @param parameter showReblogs if RelationShipAction.FOLLOW, notifications if MUTE
+     */
+    private fun changeRelationship(relationshipAction: RelationShipAction, parameter: Boolean? = null) {
         val relation = relationshipData.value?.data
         val account = accountData.value?.data
 

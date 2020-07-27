@@ -66,6 +66,7 @@ import com.keylesspalace.tusky.interfaces.LinkListener
 import com.keylesspalace.tusky.interfaces.ReselectableFragment
 import com.keylesspalace.tusky.pager.AccountPagerAdapter
 import com.keylesspalace.tusky.util.*
+import com.keylesspalace.tusky.view.showMuteAccountDialog
 import com.keylesspalace.tusky.viewmodel.AccountViewModel
 import com.uber.autodispose.android.lifecycle.AndroidLifecycleScopeProvider.from
 import com.uber.autodispose.autoDispose
@@ -402,7 +403,7 @@ class AccountActivity : BottomSheetActivity(), ActionButtonActivity, HasAndroidI
         invalidateOptionsMenu()
 
         accountMuteButton.setOnClickListener {
-            viewModel.changeMuteState()
+            viewModel.unmuteAccount()
             updateMuteButton()
         }
     }
@@ -841,13 +842,15 @@ class AccountActivity : BottomSheetActivity(), ActionButtonActivity, HasAndroidI
 
     private fun toggleMute() {
         if (viewModel.relationshipData.value?.data?.muting != true) {
-            AlertDialog.Builder(this)
-                    .setMessage(getString(R.string.dialog_mute_warning, loadedAccount?.username))
-                    .setPositiveButton(android.R.string.ok) { _, _ -> viewModel.changeMuteState() }
-                    .setNegativeButton(android.R.string.cancel, null)
-                    .show()
+            loadedAccount?.let {
+                showMuteAccountDialog(
+                    this,
+                    it.username,
+                    { notifications -> viewModel.muteAccount(notifications) }
+                )
+            }
         } else {
-            viewModel.changeMuteState()
+            viewModel.unmuteAccount()
         }
     }
 

@@ -24,6 +24,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.SimpleItemAnimator
 import com.google.android.material.snackbar.Snackbar
 import com.keylesspalace.tusky.AccountActivity
 import com.keylesspalace.tusky.AccountListActivity.Type
@@ -47,6 +48,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.io.IOException
+import java.util.HashMap
 import javax.inject.Inject
 
 class AccountListFragment : BaseFragment(), AccountActionListener, Injectable {
@@ -80,6 +82,7 @@ class AccountListFragment : BaseFragment(), AccountActionListener, Injectable {
         recyclerView.setHasFixedSize(true)
         val layoutManager = LinearLayoutManager(view.context)
         recyclerView.layoutManager = layoutManager
+        (recyclerView.itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
 
         recyclerView.addItemDecoration(DividerItemDecoration(view.context, DividerItemDecoration.VERTICAL))
 
@@ -116,7 +119,7 @@ class AccountListFragment : BaseFragment(), AccountActionListener, Injectable {
         if (!mute) {
             api.unmuteAccount(id)
         } else {
-            api.muteAccount(id)
+            api.muteAccount(id, notifications)
         }
                 .autoDispose(from(this))
                 .subscribe({
@@ -126,26 +129,31 @@ class AccountListFragment : BaseFragment(), AccountActionListener, Injectable {
                 })
     }
 
-    private fun onMuteSuccess(muted: Boolean, id: String, position: Int) {
+    private fun onMuteSuccess(muted: Boolean, id: String, position: Int, notifications: Boolean) {
+        val mutesAdapter = adapter as MutesAdapter
         if (muted) {
+            mutesAdapter.updateMutingNotifications(id, notifications, position)
             return
         }
-        val mutesAdapter = adapter as MutesAdapter
         val unmutedUser = mutesAdapter.removeItem(position)
 
         if (unmutedUser != null) {
             Snackbar.make(recyclerView, R.string.confirmation_unmuted, Snackbar.LENGTH_LONG)
                     .setAction(R.string.action_undo) {
                         mutesAdapter.addItem(unmutedUser, position)
-                        onMute(true, id, position)
+                        onMute(true, id, position, notifications)
                     }
                     .show()
         }
     }
 
-    private fun onMuteFailure(mute: Boolean, accountId: String) {
+    private fun onMuteFailure(mute: Boolean, accountId: String, notifications: Boolean) {
         val verb = if (mute) {
-            "mute"
+            if (notifications) {
+                "mute (notifications = true)"
+            } else {
+                "mute (notifications = false)"
+            }
         } else {
             "unmute"
         }
@@ -329,6 +337,10 @@ class AccountListFragment : BaseFragment(), AccountActionListener, Injectable {
             adapter.update(accounts)
         }
 
+        if (adapter is MutesAdapter) {
+            fetchRelationships(accounts.map { it.id })
+        }
+
         bottomId = fromId
 
         fetching = false
@@ -345,8 +357,6 @@ class AccountListFragment : BaseFragment(), AccountActionListener, Injectable {
         }
     }
 
-<<<<<<< HEAD
-=======
     private fun fetchRelationships(ids: List<String>) {
         api.relationships(ids)
                 .autoDispose(from(this))
@@ -357,7 +367,7 @@ class AccountListFragment : BaseFragment(), AccountActionListener, Injectable {
 
     private fun onFetchRelationshipsSuccess(relationships: List<Relationship>) {
         val mutesAdapter = adapter as MutesAdapter
-        val mutingNotificationsMap = HashMap<String, Boolean>()
+        var mutingNotificationsMap = HashMap<String, Boolean>()
         relationships.map { mutingNotificationsMap.put(it.id, it.mutingNotifications) }
         mutesAdapter.updateMutingNotificationsMap(mutingNotificationsMap)
     }
@@ -366,7 +376,6 @@ class AccountListFragment : BaseFragment(), AccountActionListener, Injectable {
         Log.e(TAG, "Fetch failure for relationships of accounts: $ids")
     }
 
->>>>>>> ce973ea7... Personal account notes (#1978)
     private fun onFetchAccountsFailure(throwable: Throwable) {
         fetching = false
         Log.e(TAG, "Fetch failure", throwable)
