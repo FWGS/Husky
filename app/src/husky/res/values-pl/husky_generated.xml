@@ -41,7 +41,7 @@
     <string name="add_account_description">Dodaj nowe Konto Pleroma</string>
   
   
-    <string name="warning_scheduling_interval">Pleroma umożliwia wysłanie minimalnie 5 minut od zaplanowania</string>
+    <string name="warning_scheduling_interval">Pleroma umożliwia wysłanie minimalnie 5 minut od zaplanowania.</string>
   
 
 
