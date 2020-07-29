@@ -64,4 +64,5 @@
     <string name="error_sticker_fetch">เกิดข้อผิดพลาดขณะดึงข้อมูลสติกเกอร์</string>
     <string name="action_emoji_unreact">ลบโต้ตอบแบบเอโมจิ</string>
     <string name="action_emoji_reacted_by">ผู้โต้ตอบ</string>
+    <string name="action_access_scheduled_toot">โพสต์แบบตั้งเวลา</string>
 </resources>
