@@ -41,9 +41,8 @@ import com.keylesspalace.tusky.R
 import com.keylesspalace.tusky.util.withLifecycleContext
 import java.io.File
 
-// https://github.com/tootsuite/mastodon/blob/1656663/app/models/media_attachment.rb#L94
-private const val MEDIA_DESCRIPTION_CHARACTER_LIMIT = 420
-
+// https://github.com/tootsuite/mastodon/blob/c6904c0d3766a2ea8a81ab025c127169ecb51373/app/models/media_attachment.rb#L32
+private const val MEDIA_DESCRIPTION_CHARACTER_LIMIT = 1500
 
 fun <T> T.makeCaptionDialog(existingDescription: String?,
                             previewUri: Uri,
