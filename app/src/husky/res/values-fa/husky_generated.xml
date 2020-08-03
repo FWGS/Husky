@@ -1,6 +1,7 @@
 <resources>
   
-    <string name="about_tusky_license">تاسکی نرم‌افزاری آزاد است که تحت نگارش ۳ از پروانهٔ جامع همگانی گنو منتشر شده است. پروانه را می‌توانید از این‌جا ببینید: https://www.gnu.org/licenses/gpl-3.0.en.html</string>
+    <string name="about_tusky_license">تاسکی نرم‌افزاری آزاد است که تحت نگارش ۳ از پروانهٔ جامع همگانی گنو منتشر شده است. پروانه را می‌توانید از این‌جا ببینید:
+\nhttps://www.gnu.org/licenses/gpl-3.0.en.html</string>
   
   
     <string name="about_tusky_account">نمایهٔ تاسکی</string>
@@ -33,7 +34,7 @@
 
 
   
-    <string name="action_login">ورود با ماستودون</string>
+    <string name="action_login">با ماستودون وارد شو</string>
   
   
     <string name="add_account_description">افزودن حساب جدید ماستودون</string>

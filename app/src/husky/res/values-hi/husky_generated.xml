@@ -33,7 +33,13 @@
 
 
   
-    <string name="action_login">मास्टोडन के साथ लॉगिन करें</string>
+    <string name="action_login">हिंदी</string>
+  
+  
+    <string name="warning_scheduling_interval">मास्टोडन का न्यूनतम शेड्यूलिंग अंतराल 5 मिनट है।</string>
+  
+  
+    <string name="add_account_description">नया मास्टोडन खाता जोड़ें</string>
   
 
 

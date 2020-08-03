@@ -9,7 +9,7 @@
     <string name="about_tusky_version">Husky %s</string>
   
   
-    <string name="about_tusky_account"/>
+    <string name="about_tusky_account">Trang cá nhân Husky</string>
   
   
     <string name="license_description">Husky có sử dụng mã nguồn từ những dự án mã nguồn mở sau:</string>
