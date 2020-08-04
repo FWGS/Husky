@@ -27,7 +27,7 @@ Tusky is quote, unquote, `... a beautiful Android client for [Mastodon](https://
 
 If you have any bug reports, feature requests or questions please open an issue or send us a post at [Husky@enigmatic.observer](https://enigmatic.observer/users/Husky)!
 
-For translating Tusky into your language, visit https://weblate.tusky.app/.\
+For translating Tusky into your language, visit https://weblate.tusky.app.
 For translating Husky, visit https://l10n.mentality.rip.
 
 ### Head of development
