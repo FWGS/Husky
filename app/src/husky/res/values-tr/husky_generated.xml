@@ -3,16 +3,16 @@
     <string name="about_tusky_version">Husky %s</string>
   
   
-    <string name="about_tusky_license">Husky özgür ve açık kaynak bir yazılımdır. GNU Genel Kamu Lisansı sürüm 3 altında lisanslanmıştır. Lisansı buradan görüntüleyebilirsiniz: https://www.gnu.org/licenses/gpl-3.0.en.html</string>
+    <string name="about_tusky_license">Husky ücretsiz ve açık kaynaklı bir yazılımdır. GNU Genel Kamu Lisansı sürüm 3 altında lisanslanmıştır. Lisansı buradan görebilirsiniz: https://www.gnu.org/licenses/gpl-3.0.en.html</string>
   
   
     <string name="about_tusky_account">Husky\'in Profili</string>
   
   
-    <string name="restart_emoji">Değişikliklerin uygulanabilmesi için uygulama yeniden başlatılmalı</string>
+    <string name="restart_emoji">Bu değişiklikleri uygulamak için Husky\'yi yeniden başlatmanız gerekecek</string>
   
   
-    <string name="license_description">Husky aşağıdakı açık kaynaklı projelerden kod ve materyal içeriyor:</string>
+    <string name="license_description">Husky, aşağıdaki açık kaynaklı projelerden kod ve varlıklar içerir:</string>
   
   
     <string name="about_powered_by_tusky">Husky tarafından desteklenmektedir</string>
@@ -37,6 +37,9 @@
   
   
     <string name="add_account_description">Yeni Pleroma hesabı ekle</string>
+  
+  
+    <string name="warning_scheduling_interval">Pleroma\'un minimum 5 dakikalık zamanlama aralığı vardır.</string>
   
 
 
