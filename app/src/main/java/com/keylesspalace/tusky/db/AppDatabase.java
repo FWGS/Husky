@@ -29,7 +29,7 @@ import androidx.annotation.NonNull;
  */
 
 @Database(entities = {TootEntity.class, AccountEntity.class, InstanceEntity.class, TimelineStatusEntity.class,
-                TimelineAccountEntity.class, ConversationEntity.class}, version = 24)
+                TimelineAccountEntity.class, ConversationEntity.class, ChatEntity.class, ChatMessageEntity.class}, version = 25)
 public abstract class AppDatabase extends RoomDatabase {
 
     public abstract TootDao tootDao();
@@ -37,6 +37,7 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract InstanceDao instanceDao();
     public abstract ConversationsDao conversationDao();
     public abstract TimelineDao timelineDao();
+    public abstract ChatsDao chatsDao();
 
     public static final Migration MIGRATION_2_3 = new Migration(2, 3) {
         @Override
@@ -347,6 +348,28 @@ public abstract class AppDatabase extends RoomDatabase {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase database) {
             database.execSQL("ALTER TABLE `AccountEntity` ADD COLUMN `notificationsFollowRequested` INTEGER NOT NULL DEFAULT 0");
+        }
+    };
+
+    public static final Migration MIGRATION_24_25 = new Migration(24, 25) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL("CREATE TABLE `ChatEntity` (`localId` INTEGER NOT NULL," +
+                    "`chatId` TEXT NOT NULL," +
+                    "`accountId` TEXT NOT NULL," +
+                    "`unread` INTEGER NOT NULL," +
+                    "`updatedAt` INTEGER NOT NULL," +
+                    "`lastMessageId` TEXT," +
+                    "PRIMARY KEY (`localId`, `chatId`))");
+            database.execSQL("CREATE TABLE `ChatMessageEntity` (`localId` INTEGER NOT NULL," +
+                    "`messageId` TEXT NOT NULL," +
+                    "`content` TEXT NOT NULL," +
+                    "`chatId` TEXT NOT NULL," +
+                    "`accountId` TEXT NOT NULL," +
+                    "`createdAt` INTEGER NOT NULL," +
+                    "`attachment` TEXT," +
+                    "`emojis` TEXT NOT NULL," +
+                    "PRIMARY KEY (`localId`, `messageId`))");
         }
     };
 }

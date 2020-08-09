@@ -20,6 +20,7 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
 import com.keylesspalace.tusky.components.conversation.ConversationsFragment
+import com.keylesspalace.tusky.fragment.ChatsFragment
 import com.keylesspalace.tusky.fragment.NotificationsFragment
 import com.keylesspalace.tusky.fragment.TimelineFragment
 
@@ -32,6 +33,7 @@ const val FEDERATED = "Federated"
 const val DIRECT = "Direct"
 const val HASHTAG = "Hashtag"
 const val LIST = "List"
+const val CHATS = "Chats"
 
 data class TabData(val id: String,
                    @StringRes val text: Int,
@@ -89,6 +91,12 @@ fun createTabDataFromId(id: String, arguments: List<String> = emptyList()): TabD
                     arguments,
                 { arguments.getOrNull(1).orEmpty() }
             )
+        CHATS -> TabData(
+                CHATS,
+                R.string.chats,
+                R.drawable.ic_forum_24px,
+                { ChatsFragment() }
+        )
         else -> throw IllegalArgumentException("unknown tab type")
     }
 }
@@ -98,6 +106,7 @@ fun defaultTabs(): List<TabData> {
             createTabDataFromId(HOME),
             createTabDataFromId(NOTIFICATIONS),
             createTabDataFromId(LOCAL),
-            createTabDataFromId(FEDERATED)
+            createTabDataFromId(FEDERATED),
+            createTabDataFromId(CHATS)
     )
 }

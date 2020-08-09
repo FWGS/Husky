@@ -286,6 +286,10 @@ class TabPreferenceActivity : BaseActivity(), Injectable, ItemInteractionListene
         if (!currentTabs.contains(directMessagesTab)) {
             addableTabs.add(directMessagesTab)
         }
+        val chatTab = createTabDataFromId(CHATS)
+        if (!currentTabs.contains(chatTab)) {
+            addableTabs.add(chatTab)
+        }
 
         addableTabs.add(createTabDataFromId(HASHTAG))
         addableTabs.add(createTabDataFromId(LIST))
@@ -343,7 +347,7 @@ class TabPreferenceActivity : BaseActivity(), Injectable, ItemInteractionListene
 
     companion object {
         private const val MIN_TAB_COUNT = 2
-        private const val MAX_TAB_COUNT = 5
+        private const val MAX_TAB_COUNT = 9
     }
 
 }

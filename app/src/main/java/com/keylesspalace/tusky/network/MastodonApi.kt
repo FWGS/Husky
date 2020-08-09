@@ -660,10 +660,11 @@ interface MastodonApi {
             @Body chatMessage: NewChatMessage
     ): Single<ChatMessage>
 
+    @FormUrlEncoded
     @POST("api/v1/pleroma/chats/{id}/read")
     fun markChatAsRead(
             @Path("id") chatId: String,
-            @Field("last_read_id") lastReadId: String
+            @Field("last_read_id") lastReadId: String? = null
     ): Single<Chat>
 
     @POST("api/v1/pleroma/chats/by-account-id/{id}")

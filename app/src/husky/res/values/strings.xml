@@ -1,5 +1,8 @@
 <resources>
     <!-- HUSKY SPECIFIC STRINGS -->
+    <string name="chats">Chats</string>
+    <string name="action_mark_as_read">Mark as read</string>
+
     <string name="action_reply_to">Reply to</string>
     <string name="action_emoji_react">React</string>
     <string name="action_emoji_unreact">Remove reaction</string>

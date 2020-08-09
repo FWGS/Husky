@@ -1,28 +1,30 @@
 package com.keylesspalace.tusky.viewdata
 
+import android.text.Spanned
 import com.keylesspalace.tusky.entity.*
 import java.util.*
 
 
 abstract class ChatViewData {
-    abstract fun getViewDataId() : Int
-    abstract fun deepEquals(val o: ChatViewData) : Boolean
+    abstract fun getViewDataId() : Long
+    abstract fun deepEquals(o: ChatViewData) : Boolean
 
     class Concrete(val account : Account,
         val id: String,
-        val unread: Int,
+        val unread: Long,
         val lastMessage: ChatMessageViewData.Concrete?,
         val updatedAt: Date ) : ChatViewData() {
-        override fun getViewDataId(): Int {
-            return id.hashCode()
+        override fun getViewDataId(): Long {
+            return id.hashCode().toLong()
         }
 
         override fun deepEquals(o: ChatViewData): Boolean {
             if (o !is Concrete) return false
-            return o.account == account && o.id == id &&
-                    o.unread == unread &&
-                    (lastMessage != null && o.lastMessage?.deepEquals(lastMessage) ?: false) &&
-                    o.updatedAt == updatedAt
+            return Objects.equals(o.account, account)
+                    && Objects.equals(o.id, id)
+                    && o.unread == unread
+                    && (lastMessage == o.lastMessage || (lastMessage != null && o.lastMessage != null && o.lastMessage.deepEquals(lastMessage)))
+                    && Objects.equals(o.updatedAt, updatedAt)
         }
 
         override fun hashCode(): Int {
@@ -30,12 +32,12 @@ abstract class ChatViewData {
         }
     }
 
-    class Placeholder(val id: Int, val isLoading: Boolean) : ChatViewData() {
-        override fun getViewDataId(): Int {
-            return id
+    class Placeholder(val id: String, val isLoading: Boolean) : ChatViewData() {
+        override fun getViewDataId(): Long {
+            return id.hashCode().toLong()
         }
 
-        override fun deepEquals(val o: ChatViewData): Boolean {
+        override fun deepEquals(o: ChatViewData): Boolean {
             if( o !is Placeholder ) return false
             return o.isLoading == isLoading && o.id == id
         }
@@ -43,27 +45,31 @@ abstract class ChatViewData {
 }
 
 abstract class ChatMessageViewData {
-    abstract fun getViewDataId() : Int
-    abstract fun deepEquals(val o: ChatMessageViewData) : Boolean
+    abstract fun getViewDataId() : Long
+    abstract fun deepEquals(o: ChatMessageViewData) : Boolean
 
     class Concrete(val id: String,
-        val content: String,
-        val chatId: String,
-        val accountId: String,
-        val createdAt: Date,
-        val attachment: Attachment?,
-        val emojis: List<Emoji>) : ChatMessageViewData()
+                   val content: Spanned,
+                   val chatId: String,
+                   val accountId: String,
+                   val createdAt: Date,
+                   val attachment: Attachment?,
+                   val emojis: List<Emoji>) : ChatMessageViewData()
     {
-        override fun getViewDataId(): Int {
-            return id.hashCode()
+        override fun getViewDataId(): Long {
+            return id.hashCode().toLong()
         }
 
         override fun deepEquals(o: ChatMessageViewData): Boolean {
             if( o !is Concrete ) return false
 
-            return o.id == id && o.content == content && o.chatId == chatId &&
-                    o.accountId == accountId && o.createdAt == createdAt &&
-                    o.attachment == attachment && o.emojis == emojis
+            return Objects.equals(o.id, id)
+                    && Objects.equals(o.content, content)
+                    && Objects.equals(o.chatId, chatId)
+                    && Objects.equals(o.accountId, accountId)
+                    && Objects.equals(o.createdAt, createdAt)
+                    && Objects.equals(o.attachment, attachment)
+                    && Objects.equals(o.emojis, emojis)
         }
 
         override fun hashCode() : Int {
@@ -71,12 +77,12 @@ abstract class ChatMessageViewData {
         }
     }
 
-    class Placeholder(val id: Int, private val isLoading: Boolean) : ChatMessageViewData() {
-        override fun getViewDataId(): Int {
-            return id
+    class Placeholder(val id: String, private val isLoading: Boolean) : ChatMessageViewData() {
+        override fun getViewDataId(): Long {
+            return id.hashCode().toLong()
         }
 
-        override fun deepEquals(val o: ChatMessageViewData): Boolean {
+        override fun deepEquals(o: ChatMessageViewData): Boolean {
             if( o !is Placeholder) return false
             return o.isLoading == isLoading && o.id == id
         }
