@@ -158,7 +158,7 @@ public final class SaveTootHelper {
             String mimeType = contentResolver.getType(uri);
             MimeTypeMap map = MimeTypeMap.getSingleton();
             String fileExtension = map.getExtensionFromMimeType(mimeType);
-            String filename = String.format("Husky_Draft_Media_%s.%s", timeStamp, fileExtension);
+            String filename = String.format("Tusky_Draft_Media_%s.%s", timeStamp, fileExtension);
             File file = new File(directory, filename);
             filesSoFar.add(file);
             boolean copied = IOUtils.copyToFile(contentResolver, uri, file);

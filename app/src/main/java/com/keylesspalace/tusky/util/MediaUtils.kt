@@ -36,7 +36,7 @@ import java.util.Locale
  * Helper methods for obtaining and resizing media files
  */
 private const val TAG = "MediaUtils"
-private const val MEDIA_TEMP_PREFIX = "Husky_Share_Media"
+private const val MEDIA_TEMP_PREFIX = "Tusky_Share_Media"
 const val MEDIA_SIZE_UNKNOWN = -1L
 
 /**
