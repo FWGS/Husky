@@ -42,7 +42,7 @@ class ChatsViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         if(payload == null) {
             displayName.text = chat.account.displayName?.emojify(chat.account.emojis, displayName, true)
                     ?: ""
-            userName.text = userName.context.getString(R.string.status_username_format, chat.account.localUsername)
+            userName.text = userName.context.getString(R.string.status_username_format, chat.account.username)
             setUpdatedAt(chat.updatedAt, statusDisplayOptions)
             setAvatar(chat.account.avatar, chat.account.bot, statusDisplayOptions)
             if(chat.unread <= 0) {
@@ -57,11 +57,16 @@ class ChatsViewHolder(view: View) : RecyclerView.ViewHolder(view) {
                 listener.onMore(chat.id, it)
                 true
             }
+            val onClickListener = View.OnClickListener {
+                val pos = adapterPosition
+                if(pos != RecyclerView.NO_POSITION)
+                    listener.openChat(pos)
+            }
 
             content.setOnLongClickListener(onLongClickListener)
             itemView.setOnLongClickListener(onLongClickListener)
-            content.setOnClickListener { }
-            itemView.setOnClickListener { }
+            content.setOnClickListener(onClickListener)
+            itemView.setOnClickListener(onClickListener)
 
             chat.lastMessage?.let {
                 content.text = it.content.emojify(it.emojis, content, true)

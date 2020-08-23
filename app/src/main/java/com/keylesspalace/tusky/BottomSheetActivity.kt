@@ -23,6 +23,8 @@ import android.widget.Toast
 import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.Lifecycle
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.keylesspalace.tusky.components.chat.ChatActivity
+import com.keylesspalace.tusky.entity.Chat
 import com.keylesspalace.tusky.network.MastodonApi
 import com.keylesspalace.tusky.util.LinkHelper
 import com.uber.autodispose.android.lifecycle.AndroidLifecycleScopeProvider
@@ -110,6 +112,10 @@ abstract class BottomSheetActivity : BaseActivity() {
     open fun viewAccount(id: String) {
         val intent = AccountActivity.getIntent(this, id)
         startActivityWithSlideInAnimation(intent)
+    }
+
+    open fun openChat(chat: Chat) {
+        startActivityWithSlideInAnimation(ChatActivity.getIntent(this, chat))
     }
 
     protected open fun performUrlFallbackAction(url: String, fallbackBehavior: PostLookupFallbackBehavior) {

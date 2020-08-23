@@ -7,4 +7,6 @@ interface ChatActionListener: LinkListener {
     fun onLoadMore(position: Int)
 
     fun onMore(chatId: String, v: View)
+
+    fun openChat(position: Int)
 }

@@ -107,6 +107,9 @@
             android:theme="@style/TuskyDialogActivityTheme"
             android:windowSoftInputMode="stateVisible|adjustResize"/>
         <activity
+            android:name=".components.chat.ChatActivity"
+            android:windowSoftInputMode="stateVisible|adjustResize"/>
+        <activity
             android:name=".ViewThreadActivity"
             android:configChanges="orientation|screenSize" />
         <activity android:name=".ViewTagActivity" />

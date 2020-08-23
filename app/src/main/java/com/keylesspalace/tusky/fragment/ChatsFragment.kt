@@ -1,6 +1,7 @@
 package com.keylesspalace.tusky.fragment
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -19,6 +20,7 @@ import com.keylesspalace.tusky.adapter.ChatsAdapter
 import com.keylesspalace.tusky.adapter.StatusBaseViewHolder
 import com.keylesspalace.tusky.adapter.TimelineAdapter
 import com.keylesspalace.tusky.appstore.*
+import com.keylesspalace.tusky.components.chat.ChatActivity
 import com.keylesspalace.tusky.db.AccountManager
 import com.keylesspalace.tusky.di.Injectable
 import com.keylesspalace.tusky.entity.Chat
@@ -718,5 +720,12 @@ class ChatsFragment : BaseFragment(), Injectable, RefreshableFragment, Reselecta
             }
         }
         popup.show()
+    }
+
+    override fun openChat(position: Int) {
+        val chat = chats[position].asRightOrNull()
+        chat?.let {
+            bottomSheetActivity.openChat(it)
+        }
     }
 }
