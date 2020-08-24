@@ -23,10 +23,13 @@ import java.util.concurrent.TimeUnit
 import kotlin.collections.ArrayList
 
 typealias ChatStatus = Either<Placeholder, Chat>
+typealias ChatMessageStatus = Either<Placeholder, ChatMessage>
 
 interface ChatRepository {
     fun getChats(maxId: String?, sinceId: String?, sincedIdMinusOne: String?, limit: Int,
                     requestMode: TimelineRequestMode): Single<out List<ChatStatus>>
+
+    fun getChatMessages(chatId: String, maxId: String?, sinceId: String?, sincedIdMinusOne: String?, limit: Int, requestMode: TimelineRequestMode) : Single<out List<ChatMessageStatus>>
 }
 
 class ChatRepositoryImpl(
@@ -49,6 +52,13 @@ class ChatRepositoryImpl(
         }
     }
 
+    override fun getChatMessages(chatId: String, maxId: String?, sinceId: String?, sincedIdMinusOne: String?, limit: Int, requestMode: TimelineRequestMode) : Single<out List<ChatMessageStatus>> {
+        val acc = accountManager.activeAccount ?: throw IllegalStateException()
+        val accountId = acc.id
+
+        return getChatMessagesFromNetwork(chatId, maxId, sinceId, sincedIdMinusOne, limit, accountId, requestMode)
+    }
+
     private fun getChatsFromNetwork(maxId: String?, sinceId: String?,
                                        sinceIdMinusOne: String?, limit: Int,
                                        accountId: Long, requestMode: TimelineRequestMode
@@ -68,6 +78,16 @@ class ChatRepositoryImpl(
                     }
                 }
     }
+
+    private fun getChatMessagesFromNetwork(chatId: String, maxId: String?, sinceId: String?,
+                                    sinceIdMinusOne: String?, limit: Int,
+                                    accountId: Long, requestMode: TimelineRequestMode
+    ): Single<out List<ChatMessageStatus>> {
+        return mastodonApi.getChatMessages(chatId, maxId, null, sinceIdMinusOne, 0, limit + 1).map {
+            it.mapTo(mutableListOf(), ChatMessage::lift)
+        }
+    }
+
 
     private fun addFromDbIfNeeded(accountId: Long, chats: List<ChatStatus>,
                                   maxId: String?, sinceId: String?, limit: Int,
@@ -234,4 +254,6 @@ fun ChatEntityWithAccount.toChat(gson: Gson) : ChatStatus {
     ).lift()
 }
 
-fun Chat.lift(): Either<Placeholder, Chat> = Either.Right(this)
+fun ChatMessage.lift(): ChatMessageStatus = Either.Right(this)
+
+fun Chat.lift(): ChatStatus = Either.Right(this)

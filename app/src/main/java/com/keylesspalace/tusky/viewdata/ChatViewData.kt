@@ -77,7 +77,7 @@ abstract class ChatMessageViewData {
         }
     }
 
-    class Placeholder(val id: String, private val isLoading: Boolean) : ChatMessageViewData() {
+    class Placeholder(val id: String, val isLoading: Boolean) : ChatMessageViewData() {
         override fun getViewDataId(): Long {
             return id.hashCode().toLong()
         }

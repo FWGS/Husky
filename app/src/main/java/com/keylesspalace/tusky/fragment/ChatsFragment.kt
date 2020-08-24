@@ -115,7 +115,7 @@ class ChatsFragment : BaseFragment(), Injectable, RefreshableFragment, Reselecta
         }
     }
 
-    private val diffCallback: DiffUtil.ItemCallback<ChatViewData> = object : DiffUtil.ItemCallback<ChatViewData>() {
+    private val diffCallback = object : DiffUtil.ItemCallback<ChatViewData>() {
         override fun areItemsTheSame(oldItem: ChatViewData, newItem: ChatViewData): Boolean {
             return oldItem.getViewDataId() == newItem.getViewDataId()
         }
@@ -136,7 +136,7 @@ class ChatsFragment : BaseFragment(), Injectable, RefreshableFragment, Reselecta
     private val differ = AsyncListDiffer(listUpdateCallback,
             AsyncDifferConfig.Builder(diffCallback).build())
 
-    private val dataSource: TimelineAdapter.AdapterDataSource<ChatViewData> = object : TimelineAdapter.AdapterDataSource<ChatViewData> {
+    private val dataSource = object : TimelineAdapter.AdapterDataSource<ChatViewData> {
         override fun getItemCount(): Int {
             return differ.currentList.size
         }
