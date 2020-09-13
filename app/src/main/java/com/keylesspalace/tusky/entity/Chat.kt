@@ -21,12 +21,13 @@ import java.util.*
 
 data class ChatMessage(
         val id: String,
-        val content: Spanned,
+        val content: Spanned?,
         @SerializedName("chat_id") val chatId: String,
         @SerializedName("account_id") val accountId: String,
         @SerializedName("created_at") val createdAt: Date,
         val attachment: Attachment?,
-        val emojis: List<Emoji>
+        val emojis: List<Emoji>,
+        val card: Card?
 )
 
 data class Chat(

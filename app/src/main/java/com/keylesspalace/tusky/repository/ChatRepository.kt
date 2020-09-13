@@ -1,6 +1,5 @@
 package com.keylesspalace.tusky.repository
 
-import android.text.Spanned
 import android.text.SpannedString
 import androidx.core.text.parseAsHtml
 import androidx.core.text.toHtml
@@ -19,17 +18,15 @@ import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import java.io.IOException
 import java.util.*
-import java.util.concurrent.TimeUnit
-import kotlin.collections.ArrayList
 
 typealias ChatStatus = Either<Placeholder, Chat>
-typealias ChatMessageStatus = Either<Placeholder, ChatMessage>
+typealias ChatMesssageOrPlaceholder = Either<Placeholder, ChatMessage>
 
 interface ChatRepository {
     fun getChats(maxId: String?, sinceId: String?, sincedIdMinusOne: String?, limit: Int,
                     requestMode: TimelineRequestMode): Single<out List<ChatStatus>>
 
-    fun getChatMessages(chatId: String, maxId: String?, sinceId: String?, sincedIdMinusOne: String?, limit: Int, requestMode: TimelineRequestMode) : Single<out List<ChatMessageStatus>>
+    fun getChatMessages(chatId: String, maxId: String?, sinceId: String?, sincedIdMinusOne: String?, limit: Int, requestMode: TimelineRequestMode) : Single<out List<ChatMesssageOrPlaceholder>>
 }
 
 class ChatRepositoryImpl(
@@ -52,9 +49,15 @@ class ChatRepositoryImpl(
         }
     }
 
-    override fun getChatMessages(chatId: String, maxId: String?, sinceId: String?, sincedIdMinusOne: String?, limit: Int, requestMode: TimelineRequestMode) : Single<out List<ChatMessageStatus>> {
+    override fun getChatMessages(chatId: String, maxId: String?, sinceId: String?, sincedIdMinusOne: String?, limit: Int, requestMode: TimelineRequestMode) : Single<out List<ChatMesssageOrPlaceholder>> {
         val acc = accountManager.activeAccount ?: throw IllegalStateException()
         val accountId = acc.id
+
+        /*return if (requestMode == DISK) {
+            getChatMessagesFromDb(chatId, accountId, maxId, sinceId, limit)
+        } else {
+            getChatMessagesFromNetwork(chatId, maxId, sinceId, sincedIdMinusOne, limit, accountId, requestMode)
+        }*/
 
         return getChatMessagesFromNetwork(chatId, maxId, sinceId, sincedIdMinusOne, limit, accountId, requestMode)
     }
@@ -82,7 +85,7 @@ class ChatRepositoryImpl(
     private fun getChatMessagesFromNetwork(chatId: String, maxId: String?, sinceId: String?,
                                     sinceIdMinusOne: String?, limit: Int,
                                     accountId: Long, requestMode: TimelineRequestMode
-    ): Single<out List<ChatMessageStatus>> {
+    ): Single<out List<ChatMesssageOrPlaceholder>> {
         return mastodonApi.getChatMessages(chatId, maxId, null, sinceIdMinusOne, 0, limit + 1).map {
             it.mapTo(mutableListOf(), ChatMessage::lift)
         }
@@ -122,6 +125,7 @@ class ChatRepositoryImpl(
                     chats.map { it.toChat(gson) }
                 }
     }
+
 
     private fun saveChatsToDb(accountId: Long, chats: List<Chat>,
                                  maxId: String?, sinceId: String?
@@ -209,7 +213,7 @@ fun ChatMessage.toEntity(timelineUserId: Long, gson: Gson) : ChatMessageEntity {
     return ChatMessageEntity(
             localId = timelineUserId,
             messageId = this.id,
-            content = this.content.toHtml(),
+            content = this.content?.toHtml(),
             chatId = this.chatId,
             accountId = this.accountId,
             createdAt = this.createdAt.time,
@@ -225,19 +229,20 @@ fun Chat.toEntity(timelineUserId: Long, gson: Gson): Pair<ChatEntity, ChatMessag
             accountId = this.account.id,
             unread = this.unread,
             updatedAt = this.updatedAt.time,
-            lastMessageId = this.lastMessage?.let { it.id }
+            lastMessageId = this.lastMessage?.id
     ), this.lastMessage?.toEntity(timelineUserId, gson))
 }
 
 fun ChatMessageEntity.toChatMessage(gson: Gson) : ChatMessage {
     return ChatMessage(
             id = this.messageId,
-            content = this.content.parseAsHtml().trimTrailingWhitespace(),
+            content = this.content?.let { it.parseAsHtml().trimTrailingWhitespace() },
             chatId = this.chatId,
             accountId = this.accountId,
             createdAt = Date(this.createdAt),
             attachment = this.attachment?.let { gson.fromJson(it, Attachment::class.java) },
-            emojis = gson.fromJson(this.emojis, object : TypeToken<List<Emoji>>() {}.type )
+            emojis = gson.fromJson(this.emojis, object : TypeToken<List<Emoji>>() {}.type ),
+            card = null /* don't care about card */
     )
 }
 
@@ -254,6 +259,6 @@ fun ChatEntityWithAccount.toChat(gson: Gson) : ChatStatus {
     ).lift()
 }
 
-fun ChatMessage.lift(): ChatMessageStatus = Either.Right(this)
+fun ChatMessage.lift(): ChatMesssageOrPlaceholder = Either.Right(this)
 
 fun Chat.lift(): ChatStatus = Either.Right(this)

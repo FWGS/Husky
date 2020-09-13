@@ -5,29 +5,31 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingTop="@dimen/chat_between_messages_padding"
-    android:paddingBottom="@dimen/chat_between_messages_padding"
-    android:paddingStart="@dimen/chat_message_h_padding"
-    android:paddingEnd="@dimen/chat_message_h_padding"
-    android:layout_gravity="end">
+    android:layout_marginEnd="@dimen/chat_message_h_padding"
+    android:layout_marginBottom="@dimen/chat_message_v_padding">
 
-    <LinearLayout
-        android:id="@+id/contentLayout"
-        android:layout_width="wrap_content"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:background="@drawable/message_background"
-        android:orientation="vertical"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:backgroundTint="@color/colorBackgroundAccent"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintWidth_max="wrap"
+        app:layout_constraintWidth_percent="0.8"
+        >
 
         <FrameLayout
             android:id="@+id/attachmentLayout"
-            android:layout_width="match_parent"
+            android:layout_width="@dimen/chat_message_max_width"
             android:layout_height="@dimen/chat_media_preview_item_height"
             android:layout_marginTop="@dimen/chat_message_h_padding"
             android:visibility="gone"
-            tools:visibility="visible">
+            tools:visibility="visible"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            >
 
             <com.keylesspalace.tusky.view.MediaPreviewImageView
                 android:id="@+id/attachment"
@@ -42,32 +44,33 @@
                 android:scaleType="center"
                 app:srcCompat="@drawable/ic_play_indicator"
                 tools:ignore="ContentDescription" />
-
         </FrameLayout>
-
 
         <androidx.emoji.widget.EmojiTextView
             android:id="@+id/content"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingStart="@dimen/chat_message_h_padding"
             android:paddingTop="@dimen/chat_message_v_padding"
-            android:paddingEnd="@dimen/chat_message_h_padding"
-            android:paddingBottom="@dimen/chat_message_v_padding"
             android:textColor="@color/textColorPrimary"
             android:textSize="?attr/status_text_large"
-            tools:text="AAAAAAAA" />
-    </LinearLayout>
+            android:paddingStart="@dimen/chat_message_h_padding"
+            android:paddingEnd="50dp"
+            android:paddingBottom="@dimen/chat_message_v_padding"
+            app:layout_constraintTop_toBottomOf="@id/attachmentLayout"
+            app:layout_constraintBottom_toBottomOf="@id/datetime"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:text="MeowMeowMeow" />
 
-    <TextView
-        android:id="@+id/datetime"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:paddingStart="@dimen/chat_message_h_padding"
-        android:paddingEnd="@dimen/chat_message_h_padding"
-        app:layout_constraintEnd_toStartOf="@id/contentLayout"
-        app:layout_constraintBottom_toBottomOf="@id/contentLayout"
-        tools:text="12:39"
-        />
-
+        <TextView
+            android:id="@+id/datetime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:paddingStart="@dimen/chat_message_h_padding"
+            android:paddingEnd="@dimen/chat_message_h_padding"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="12:39"
+            />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

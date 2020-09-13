@@ -28,7 +28,7 @@ ELSE 1 END)
 AND (CASE WHEN :sinceId IS NOT NULL THEN
 (LENGTH(c.chatId) > LENGTH(:sinceId) OR LENGTH(c.chatId) == LENGTH(:sinceId) AND c.chatId > :sinceId)
 ELSE 1 END)
-ORDER BY LENGTH(c.chatId) DESC, c.chatId DESC
+ORDER BY c.updatedAt DESC
 LIMIT :limit
     """)
     abstract fun getChatsForAccount(localId: Long, maxId: String?, sinceId: String?, limit: Int) : Single<List<ChatEntityWithAccount>>

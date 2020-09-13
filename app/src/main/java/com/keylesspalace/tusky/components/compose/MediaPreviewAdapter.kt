@@ -133,7 +133,6 @@ class MediaPreviewAdapter(
                 view.marqueeRepeatLimit = -1
                 view.setSingleLine()
                 view.setSelected(true)
-                view.maxLines = 1
                 view.textSize = 16.0f
                 view.setOnClickListener {
                     onMediaClick(adapterPosition, view)

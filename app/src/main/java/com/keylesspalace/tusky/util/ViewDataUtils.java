@@ -104,7 +104,8 @@ public final class ViewDataUtils {
                 msg.getAccountId(),
                 msg.getCreatedAt(),
                 msg.getAttachment(),
-                msg.getEmojis()
+                msg.getEmojis(),
+                msg.getCard()
         );
     }
 

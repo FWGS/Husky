@@ -1,6 +1,7 @@
 <resources>
     <!-- HUSKY SPECIFIC STRINGS -->
     <string name="chats">Chats</string>
+    <string name="chat_our_last_message">You: %s</string>
     <string name="action_mark_as_read">Mark as read</string>
 
     <string name="action_reply_to">Reply to</string>
@@ -31,6 +32,11 @@
     <string name="pref_title_hide_muted_users">Hide muted users</string>
     <string name="pref_title_enable_big_emojis">Enable bigger custom emojis</string>
     <string name="pref_title_enable_experimental_stickers">Enable experimental Pleroma-FE stickers(if available)</string>
+
+    <string name="attachment_type_image">Image</string>
+    <string name="attachment_type_video">Video</string>
+    <string name="attachment_type_audio">Audio</string>
+    <string name="attachment_type_unknown">Attachment</string>
     
     <!-- REPLACEMENT FOR TUSKY STRINGS -->
     <string name="action_toggle_visibility">Post visibility</string>
@@ -87,7 +93,6 @@
     <string name="title_scheduled_toot">Scheduled posts</string>
     <string name="title_reblogged_by">Repeated by</string>
     <string name="title_view_thread">Post</string>
-    <string name="chat_message_hint_text">Just landed in L.A.</string>
 
     <!-- 
     <string name="about_tusky_version">Husky %s</string>

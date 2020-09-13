@@ -11,38 +11,38 @@ import com.keylesspalace.tusky.R
 import com.keylesspalace.tusky.ViewTagActivity
 import com.keylesspalace.tusky.adapter.ChatMessagesAdapter
 import com.keylesspalace.tusky.adapter.ChatMessagesViewHolder
-import com.keylesspalace.tusky.adapter.StatusBaseViewHolder
 import com.keylesspalace.tusky.adapter.TimelineAdapter
 import com.keylesspalace.tusky.appstore.EventHub
 import com.keylesspalace.tusky.di.Injectable
 import com.keylesspalace.tusky.entity.Chat
-import com.keylesspalace.tusky.entity.ChatMessage
 import com.keylesspalace.tusky.entity.Emoji
 import com.keylesspalace.tusky.interfaces.ChatActionListener
 import com.keylesspalace.tusky.network.MastodonApi
-import com.keylesspalace.tusky.repository.ChatMessageStatus
+import com.keylesspalace.tusky.repository.ChatMesssageOrPlaceholder
 import com.keylesspalace.tusky.repository.ChatRepository
-import com.keylesspalace.tusky.repository.ChatStatus
 import com.keylesspalace.tusky.viewdata.ChatMessageViewData
-import com.keylesspalace.tusky.viewdata.ChatViewData
 import kotlinx.android.synthetic.main.activity_chat.*
 import kotlinx.android.synthetic.main.toolbar_basic.toolbar
 import androidx.arch.core.util.Function
 import androidx.lifecycle.Lifecycle
+import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.*
-import com.keylesspalace.tusky.db.AccountManager
+import com.keylesspalace.tusky.repository.Placeholder
 import com.keylesspalace.tusky.repository.TimelineRequestMode
 import com.keylesspalace.tusky.util.*
 import com.uber.autodispose.android.lifecycle.autoDispose
+import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.activity_chat.progressBar
 import kotlinx.android.synthetic.main.fragment_timeline.*
+import java.io.IOException
 import java.lang.Exception
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class ChatActivity: BottomSheetActivity(),
         Injectable, ChatActionListener {
-    private val TAG = "ChatsF" // logging tag
+    private val TAG = "ChatsActivity" // logging tag
     private val LOAD_AT_ONCE = 30
 
     @Inject
@@ -54,10 +54,20 @@ class ChatActivity: BottomSheetActivity(),
 
     lateinit var adapter: ChatMessagesAdapter
 
-    private val msgs = PairedList<ChatMessageStatus, ChatMessageViewData?>(Function<ChatMessageStatus, ChatMessageViewData?> {input ->
+    private val msgs = PairedList<ChatMesssageOrPlaceholder, ChatMessageViewData?>(Function<ChatMesssageOrPlaceholder, ChatMessageViewData?> { input ->
         input.asRightOrNull()?.let(ViewDataUtils::chatMessageToViewData) ?:
             ChatMessageViewData.Placeholder(input.asLeft().id, false)
     })
+
+    private var bottomLoading = false
+    private var eventRegistered = false
+    private var isNeedRefresh = false
+    private var didLoadEverythingBottom = false
+    private var initialUpdateFailed = false
+
+    private enum class FetchEnd {
+        TOP, BOTTOM, MIDDLE
+    }
 
     private val listUpdateCallback = object : ListUpdateCallback {
         override fun onInserted(position: Int, count: Int) {
@@ -119,7 +129,7 @@ class ChatActivity: BottomSheetActivity(),
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        chatId = intent.getStringExtra(ID)
+        val chatId = intent.getStringExtra(ID)
         val avatarUrl = intent.getStringExtra(AVATAR_URL)
         val displayName = intent.getStringExtra(DISPLAY_NAME)
         val username = intent.getStringExtra(USERNAME)
@@ -128,6 +138,7 @@ class ChatActivity: BottomSheetActivity(),
         if(chatId == null || avatarUrl == null || displayName == null || username == null || emojis == null) {
             throw IllegalArgumentException("Can't open ChatActivity without chat id")
         }
+        this.chatId = chatId
 
         if(accountManager.activeAccount == null) {
             throw Exception("No active account!")
@@ -164,10 +175,14 @@ class ChatActivity: BottomSheetActivity(),
         val layoutManager = LinearLayoutManager(this)
         layoutManager.reverseLayout = true
         recycler.layoutManager = layoutManager
-        recycler.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL))
+        // recycler.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL))
         recycler.adapter = adapter
 
         tryCache()
+    }
+
+    private fun clearPlaceholdersForResponse(msgs: MutableList<ChatMesssageOrPlaceholder>) {
+        msgs.removeAll { it.isLeft() }
     }
 
     private fun tryCache() {
@@ -178,20 +193,292 @@ class ChatActivity: BottomSheetActivity(),
                 .autoDispose(this, Lifecycle.Event.ON_DESTROY)
                 .subscribe { msgs ->
                     if (msgs.size > 1) {
-                        val mutableChats = msgs.toMutableList()
+                        val mutableMsgs = msgs.toMutableList()
+                        clearPlaceholdersForResponse(mutableMsgs)
                         this.msgs.clear()
-                        this.msgs.addAll(mutableChats)
+                        this.msgs.addAll(mutableMsgs)
                         updateAdapter()
                         progressBar.visibility = View.GONE
                         // Request statuses including current top to refresh all of them
                     }
+                    updateCurrent()
+                    loadAbove()
                 }
+    }
+
+    private fun updateCurrent() {
+        if (msgs.isEmpty()) {
+            return
+        }
+
+        val topId  = msgs.first { it.isRight() }.asRight().id
+        chatsRepo.getChatMessages(chatId, topId, null, null, LOAD_AT_ONCE, TimelineRequestMode.NETWORK)
+                .observeOn(AndroidSchedulers.mainThread())
+                .autoDispose(this, Lifecycle.Event.ON_DESTROY)
+                .subscribe({ messages ->
+                    initialUpdateFailed = false
+                    // When cached timeline is too old, we would replace it with nothing
+                    if (messages.isNotEmpty()) {
+                        // clear old cached statuses
+                        if(this.msgs.isNotEmpty()) {
+                            this.msgs.removeAll {
+                                if(it.isRight()) {
+                                    val chat = it.asRight()
+                                    chat.id.length < topId.length || chat.id < topId
+                                } else {
+                                    val placeholder = it.asLeft()
+                                    placeholder.id.length < topId.length || placeholder.id < topId
+                                }
+                            }
+                        }
+                        this.msgs.addAll(messages)
+                        updateAdapter()
+                    }
+                    bottomLoading = false
+                }, {
+                    initialUpdateFailed = true
+                    // Indicate that we are not loading anymore
+                    progressBar.visibility = View.GONE
+                })
+    }
+
+    private fun showNothing() {
+        messageView.visibility = View.VISIBLE
+        messageView.setup(R.drawable.elephant_friend_empty, R.string.message_empty, null)
+    }
+
+    private fun loadAbove() {
+        var firstOrNull: String? = null
+        var secondOrNull: String? = null
+        for (i in msgs.indices) {
+            val msg = msgs[i]
+            if (msg.isRight()) {
+                firstOrNull = msg.asRight().id
+                if (i + 1 < msgs.size && msgs[i + 1].isRight()) {
+                    secondOrNull = msgs[i + 1].asRight().id
+                }
+                break
+            }
+        }
+        if (firstOrNull != null) {
+            sendFetchMessagesRequest(null, firstOrNull, secondOrNull, FetchEnd.TOP, -1)
+        } else {
+            sendFetchMessagesRequest(null, null, null, FetchEnd.BOTTOM, -1)
+        }
+    }
+
+    private fun sendFetchMessagesRequest(maxId: String?, sinceId: String?,
+                                      sinceIdMinusOne: String?,
+                                      fetchEnd: FetchEnd, pos: Int) {
+        // allow getting old statuses/fallbacks for network only for for bottom loading
+        val mode = if (fetchEnd == FetchEnd.BOTTOM) {
+            TimelineRequestMode.ANY
+        } else {
+            TimelineRequestMode.NETWORK
+        }
+        chatsRepo.getChatMessages(chatId, maxId, sinceId, sinceIdMinusOne, LOAD_AT_ONCE, mode)
+                .observeOn(AndroidSchedulers.mainThread())
+                .autoDispose(this, Lifecycle.Event.ON_DESTROY)
+                .subscribe( { result -> onFetchTimelineSuccess(result.toMutableList(), fetchEnd, pos) },
+                        { onFetchTimelineFailure(Exception(it), fetchEnd, pos) })
     }
 
     private fun updateAdapter() {
         Log.d(TAG, "updateAdapter")
         differ.submitList(msgs.pairedCopy)
     }
+
+    private fun updateMessages(newMsgs: MutableList<ChatMesssageOrPlaceholder>, fullFetch: Boolean) {
+        if (newMsgs.isEmpty()) {
+            updateAdapter()
+            return
+        }
+        if (msgs.isEmpty()) {
+            msgs.addAll(newMsgs)
+        } else {
+            val lastOfNew = newMsgs[newMsgs.size - 1]
+            val index = msgs.indexOf(lastOfNew)
+            if (index >= 0) {
+                msgs.subList(0, index).clear()
+            }
+            val newIndex = newMsgs.indexOf(msgs[0])
+            if (newIndex == -1) {
+                if (index == -1 && fullFetch) {
+                    newMsgs.findLast { it.isRight() }?.let {
+                        val placeholderId = it.asRight().id.inc()
+                        newMsgs.add(Either.Left(Placeholder(placeholderId)))
+                    }
+                }
+                msgs.addAll(0, newMsgs)
+            } else {
+                msgs.addAll(0, newMsgs.subList(0, newIndex))
+            }
+        }
+        // Remove all consecutive placeholders
+        removeConsecutivePlaceholders()
+        updateAdapter()
+    }
+
+    private fun removeConsecutivePlaceholders() {
+        for (i in 0 until msgs.size - 1) {
+            if (msgs[i].isLeft() && msgs[i + 1].isLeft()) {
+                msgs.removeAt(i)
+            }
+        }
+    }
+
+    private fun replacePlaceholderWithMessages(newMsgs: MutableList<ChatMesssageOrPlaceholder>,
+                                            fullFetch: Boolean, pos: Int) {
+        val placeholder = msgs[pos]
+        if (placeholder.isLeft()) {
+            msgs.removeAt(pos)
+        }
+        if (newMsgs.isEmpty()) {
+            updateAdapter()
+            return
+        }
+        if (fullFetch) {
+            newMsgs.add(placeholder)
+        }
+        msgs.addAll(pos, newMsgs)
+        removeConsecutivePlaceholders()
+        updateAdapter()
+    }
+
+    private fun addItems(newMsgs: List<ChatMesssageOrPlaceholder>) {
+        if (newMsgs.isEmpty()) {
+            return
+        }
+        val last = msgs.findLast { it.isRight() }
+
+        // I was about to replace findStatus with indexOf but it is incorrect to compare value
+        // types by ID anyway and we should change equals() for Status, I think, so this makes sense
+        if (last != null && !newMsgs.contains(last)) {
+            msgs.addAll(newMsgs)
+            removeConsecutivePlaceholders()
+            updateAdapter()
+        }
+    }
+
+    private fun onFetchTimelineSuccess(msgs: MutableList<ChatMesssageOrPlaceholder>,
+                                       fetchEnd: FetchEnd, pos: Int) {
+
+        // We filled the hole (or reached the end) if the server returned less statuses than we
+        // we asked for.
+        val fullFetch = msgs.size >= LOAD_AT_ONCE
+
+        when (fetchEnd) {
+            FetchEnd.TOP -> {
+                updateMessages(msgs, fullFetch)
+            }
+            FetchEnd.MIDDLE -> {
+                replacePlaceholderWithMessages(msgs, fullFetch, pos)
+            }
+            FetchEnd.BOTTOM -> {
+                if (this.msgs.isNotEmpty() && !this.msgs.last().isRight()) {
+                    this.msgs.removeAt(this.msgs.size - 1)
+                    updateAdapter()
+                }
+
+                if (msgs.isNotEmpty() && !msgs.last().isRight()) {
+                    // Removing placeholder if it's the last one from the cache
+                    msgs.removeAt(msgs.size - 1)
+                }
+
+                val oldSize = this.msgs.size
+                if (this.msgs.size > 1) {
+                    addItems(msgs)
+                } else {
+                    updateMessages(msgs, fullFetch)
+                }
+
+                if (this.msgs.size == oldSize) {
+                    // This may be a brittle check but seems like it works
+                    // Can we check it using headers somehow? Do all server support them?
+                    didLoadEverythingBottom = true
+                }
+            }
+        }
+        updateBottomLoadingState(fetchEnd)
+        progressBar.visibility = View.GONE
+        if (this.msgs.size == 0) {
+            showNothing()
+        } else {
+            messageView.visibility = View.GONE
+        }
+    }
+
+    private fun onRefresh() {
+        messageView.visibility = View.GONE
+        isNeedRefresh = false
+
+        if (this.initialUpdateFailed) {
+            updateCurrent()
+        }
+        loadAbove()
+    }
+
+    private fun onFetchTimelineFailure(exception: Exception, fetchEnd: FetchEnd, position: Int) {
+        topProgressBar.hide()
+        if (fetchEnd == FetchEnd.MIDDLE && !msgs[position].isRight()) {
+            var placeholder = msgs[position].asLeftOrNull()
+            val newViewData: ChatMessageViewData
+            if (placeholder == null) {
+                val msg = msgs[position - 1].asRight()
+                val newId = msg.id.dec()
+                placeholder = Placeholder(newId)
+            }
+            newViewData = ChatMessageViewData.Placeholder(placeholder.id, false)
+            msgs.setPairedItem(position, newViewData)
+            updateAdapter()
+        } else if (msgs.isEmpty()) {
+            messageView.visibility = View.VISIBLE
+            if (exception is IOException) {
+                messageView.setup(R.drawable.elephant_offline, R.string.error_network) {
+                    progressBar.visibility = View.VISIBLE
+                    onRefresh()
+                }
+            } else {
+                messageView.setup(R.drawable.elephant_error, R.string.error_generic) {
+                    progressBar.visibility = View.VISIBLE
+                    onRefresh()
+                }
+            }
+        }
+        Log.e(TAG, "Fetch Failure: " + exception.message)
+        updateBottomLoadingState(fetchEnd)
+        progressBar.visibility = View.GONE
+    }
+
+    private fun updateBottomLoadingState(fetchEnd: FetchEnd) {
+        if (fetchEnd == FetchEnd.BOTTOM) {
+            bottomLoading = false
+        }
+    }
+
+    override fun onLoadMore(position: Int) {
+        //check bounds before accessing list,
+        if (msgs.size >= position && position > 0) {
+            val fromChat = msgs[position - 1].asRightOrNull()
+            val toChat = msgs[position + 1].asRightOrNull()
+            if (fromChat == null || toChat == null) {
+                Log.e(TAG, "Failed to load more at $position, wrong placeholder position")
+                return
+            }
+
+            val maxMinusOne = if (msgs.size > position + 1 && msgs[position + 2].isRight()) msgs[position + 1].asRight().id else null
+            sendFetchMessagesRequest(fromChat.id, toChat.id, maxMinusOne,
+                    FetchEnd.MIDDLE, position)
+
+            val (id) = msgs[position].asLeft()
+            val newViewData = ChatMessageViewData.Placeholder(id, true)
+            msgs.setPairedItem(position, newViewData)
+            updateAdapter()
+        } else {
+            Log.e(TAG, "error loading more")
+        }
+    }
+
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
@@ -201,6 +488,27 @@ class ChatActivity: BottomSheetActivity(),
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        startUpdateTimestamp()
+    }
+
+    /**
+     * Start to update adapter every minute to refresh timestamp
+     * If setting absoluteTimeView is false
+     * Auto dispose observable on pause
+     */
+    private fun startUpdateTimestamp() {
+        val preferences = PreferenceManager.getDefaultSharedPreferences(this)
+        val useAbsoluteTime = preferences.getBoolean("absoluteTimeView", false)
+        if (!useAbsoluteTime) {
+            Observable.interval(1, TimeUnit.MINUTES)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .autoDispose(this, Lifecycle.Event.ON_PAUSE)
+                    .subscribe { updateAdapter() }
+        }
     }
 
     override fun onViewAccount(id: String) {

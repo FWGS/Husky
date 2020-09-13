@@ -157,7 +157,7 @@
             android:textSize="?attr/status_text_large"
             android:singleLine="false"
             android:background="@null"
-            android:hint="@string/chat_message_hint_text"
+            android:hint="@string/hint_compose"
             app:layout_constraintEnd_toStartOf="@+id/emojiButton"
             app:layout_constraintRight_toLeftOf="@id/emojiButton"
             app:layout_constraintStart_toEndOf="@+id/attachmentButton"

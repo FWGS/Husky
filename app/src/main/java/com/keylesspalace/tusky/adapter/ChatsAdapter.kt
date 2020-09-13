@@ -1,5 +1,6 @@
 package com.keylesspalace.tusky.adapter
 
+import android.graphics.Typeface
 import android.opengl.Visibility
 import android.text.TextUtils
 import android.text.format.DateUtils
@@ -38,16 +39,20 @@ class ChatsViewHolder(view: View) : RecyclerView.ViewHolder(view) {
     private val shortSdf = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
     private val longSdf = SimpleDateFormat("MM/dd HH:mm:ss", Locale.getDefault())
 
-    fun setupWithChat(chat: ChatViewData.Concrete, listener: ChatActionListener, statusDisplayOptions: StatusDisplayOptions, payload: Any?) {
-        if(payload == null) {
+    fun setupWithChat(chat: ChatViewData.Concrete,
+                      listener: ChatActionListener,
+                      statusDisplayOptions: StatusDisplayOptions,
+                      localUserId: String,
+                      payload: Any?) {
+        if (payload == null) {
             displayName.text = chat.account.displayName?.emojify(chat.account.emojis, displayName, true)
                     ?: ""
             userName.text = userName.context.getString(R.string.status_username_format, chat.account.username)
             setUpdatedAt(chat.updatedAt, statusDisplayOptions)
             setAvatar(chat.account.avatar, chat.account.bot, statusDisplayOptions)
-            if(chat.unread <= 0) {
+            if (chat.unread <= 0) {
                 unread.visibility = View.GONE
-            } else if(chat.unread > 99) {
+            } else if (chat.unread > 99) {
                 unread.text = ":)"
             } else {
                 unread.text = chat.unread.toString()
@@ -59,7 +64,7 @@ class ChatsViewHolder(view: View) : RecyclerView.ViewHolder(view) {
             }
             val onClickListener = View.OnClickListener {
                 val pos = adapterPosition
-                if(pos != RecyclerView.NO_POSITION)
+                if (pos != RecyclerView.NO_POSITION)
                     listener.openChat(pos)
             }
 
@@ -69,7 +74,19 @@ class ChatsViewHolder(view: View) : RecyclerView.ViewHolder(view) {
             itemView.setOnClickListener(onClickListener)
 
             chat.lastMessage?.let {
-                content.text = it.content.emojify(it.emojis, content, true)
+                var text = if (it.content != null) {
+                    content.setTypeface(null, Typeface.NORMAL)
+
+                    it.content.emojify(it.emojis, content, true)
+                } else if (it.attachment != null) {
+                    content.setTypeface(null, Typeface.ITALIC)
+
+                    content.resources.getString(it.attachment.describeAttachmentType())
+                } else ""
+
+                content.text = if(it.accountId == localUserId) {
+                    content.resources.getString(R.string.chat_our_last_message).format(text)
+                } else text
             }
         } else {
             if(payload is List<*>) {
@@ -127,7 +144,8 @@ class ChatsViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
 class ChatsAdapter(private val dataSource: TimelineAdapter.AdapterDataSource<ChatViewData>,
                    val statusDisplayOptions: StatusDisplayOptions,
-                   private val chatActionListener: ChatActionListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+                   private val chatActionListener: ChatActionListener,
+                   val localUserId: String) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private val VIEW_TYPE_CHAT = 0
     private val VIEW_TYPE_PLACEHOLDER = 1
@@ -149,7 +167,8 @@ class ChatsAdapter(private val dataSource: TimelineAdapter.AdapterDataSource<Cha
         if(holder is PlaceholderViewHolder) {
             holder.setup(chatActionListener, (chat as ChatViewData.Placeholder).isLoading)
         } else if(holder is ChatsViewHolder) {
-            holder.setupWithChat(chat as ChatViewData.Concrete, chatActionListener, statusDisplayOptions,
+            holder.setupWithChat(chat as ChatViewData.Concrete, chatActionListener,
+                    statusDisplayOptions, localUserId,
                     if (payloads != null && payloads.isNotEmpty()) payloads[0] else null)
         }
     }
@@ -175,6 +194,6 @@ class ChatsAdapter(private val dataSource: TimelineAdapter.AdapterDataSource<Cha
     }
 
     override fun getItemId(position: Int): Long {
-        return dataSource.getItemAt(position).getViewDataId()
+        return dataSource.getItemAt(position).getViewDataId().toLong()
     }
 }

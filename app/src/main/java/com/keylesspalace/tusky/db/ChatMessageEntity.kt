@@ -12,7 +12,7 @@ import androidx.room.Entity
 data class ChatMessageEntity(
         val localId: Long,
         val messageId: String,
-        val content: String,
+        val content: String?,
         val chatId: String,
         val accountId: String,
         val createdAt: Long,

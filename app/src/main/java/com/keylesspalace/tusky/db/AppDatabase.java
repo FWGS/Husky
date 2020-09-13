@@ -363,7 +363,7 @@ public abstract class AppDatabase extends RoomDatabase {
                     "PRIMARY KEY (`localId`, `chatId`))");
             database.execSQL("CREATE TABLE `ChatMessageEntity` (`localId` INTEGER NOT NULL," +
                     "`messageId` TEXT NOT NULL," +
-                    "`content` TEXT NOT NULL," +
+                    "`content` TEXT," +
                     "`chatId` TEXT NOT NULL," +
                     "`accountId` TEXT NOT NULL," +
                     "`createdAt` INTEGER NOT NULL," +

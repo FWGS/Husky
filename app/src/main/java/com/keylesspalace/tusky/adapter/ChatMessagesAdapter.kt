@@ -1,27 +1,24 @@
 package com.keylesspalace.tusky.adapter
 
 import android.content.Context
-import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.ColorDrawable
 import android.text.TextUtils
 import android.text.format.DateUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.FrameLayout
-import android.widget.ImageView
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.keylesspalace.tusky.R
 import com.keylesspalace.tusky.entity.Attachment
-import com.keylesspalace.tusky.entity.ChatMessage
 import com.keylesspalace.tusky.interfaces.ChatActionListener
-import com.keylesspalace.tusky.util.*
+import com.keylesspalace.tusky.util.StatusDisplayOptions
+import com.keylesspalace.tusky.util.ThemeUtils
+import com.keylesspalace.tusky.util.TimestampUtils
+import com.keylesspalace.tusky.util.emojify
 import com.keylesspalace.tusky.view.MediaPreviewImageView
 import com.keylesspalace.tusky.viewdata.ChatMessageViewData
-import com.keylesspalace.tusky.viewdata.ChatViewData
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.roundToInt
@@ -37,21 +34,22 @@ class ChatMessagesViewHolder(view: View) : RecyclerView.ViewHolder(view) {
     private val mediaOverlay: ImageView = view.findViewById(R.id.mediaOverlay)
     private val attachmentLayout: FrameLayout = view.findViewById(R.id.attachmentLayout)
 
-    private val shortSdf = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
-    private val longSdf = SimpleDateFormat("MM/dd HH:mm:ss", Locale.getDefault())
+    private val sdf = SimpleDateFormat("HH:mm", Locale.getDefault())
 
     private val mediaPreviewUnloaded = ColorDrawable(ThemeUtils.getColor(itemView.context, R.attr.colorBackgroundAccent))
 
     fun setupWithChatMessage(msg: ChatMessageViewData.Concrete, chatActionListener: ChatActionListener, statusDisplayOptions: StatusDisplayOptions, payload: Any?) {
         if(payload == null) {
-            content.text = msg.content.emojify(msg.emojis, content)
+            if(msg.content != null)
+                content.text = msg.content.emojify(msg.emojis, content)
+
             setAttachment(msg.attachment, chatActionListener)
-            setCreatedAt(msg.createdAt, statusDisplayOptions)
+            setCreatedAt(msg.createdAt)
         } else {
             if(payload is List<*>) {
                 for (item in payload) {
                     if (ChatsViewHolder.Key.KEY_CREATED == item) {
-                        setCreatedAt(msg.createdAt, statusDisplayOptions)
+                        setCreatedAt(msg.createdAt)
                     }
                 }
             }
@@ -154,26 +152,8 @@ class ChatMessagesViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         }
     }
 
-    private fun getAbsoluteTime(createdAt: Date?): String? {
-        if (createdAt == null) {
-            return "??:??:??"
-        }
-        return if (DateUtils.isToday(createdAt.time)) {
-            shortSdf.format(createdAt)
-        } else {
-            longSdf.format(createdAt)
-        }
-    }
-
-    private fun setCreatedAt(createdAt: Date, statusDisplayOptions: StatusDisplayOptions) {
-        if (statusDisplayOptions.useAbsoluteTime) {
-            timestamp.text = getAbsoluteTime(createdAt)
-        } else {
-            val then = createdAt.time
-            val now = System.currentTimeMillis()
-            val readout = TimestampUtils.getRelativeTimeSpanString(timestamp.context, then, now)
-            timestamp.text = readout
-        }
+    private fun setCreatedAt(createdAt: Date) {
+        timestamp.text = sdf.format(createdAt)
     }
 }
 
@@ -242,6 +222,6 @@ class ChatMessagesAdapter(private val dataSource : TimelineAdapter.AdapterDataSo
     }
 
     override fun getItemId(position: Int): Long {
-        return dataSource.getItemAt(position).getViewDataId()
+        return dataSource.getItemAt(position).getViewDataId().toLong()
     }
 }
