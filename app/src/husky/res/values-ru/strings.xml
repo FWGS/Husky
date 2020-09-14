@@ -26,4 +26,17 @@
     <string name="action_schedule_toot">Отложить пост</string>
     <string name="pref_title_enable_experimental_stickers">Включить эксперементальные стикеры Pleroma-FE (если доступны)</string>
     <string name="action_send">ОТПРАВИТЬ</string>
+    <string name="description_status_reblogged">Повторенно</string>
+    <string name="dialog_delete_toot_warning">Удалить запись\?</string>
+    <string name="action_hide_reblogs">Скрыть повторения</string>
+    <string name="pref_title_enable_big_emojis">Включить большие пользовательские эмодзи</string>
+    <string name="action_open_toot">Открыть запись</string>
+    <string name="action_reblog">Повторить</string>
+    <string name="action_show_reblogs">Показать повторения</string>
+    <string name="reblog_private">Повторить в оригинальной версии</string>
+    <string name="action_open_reblogged_by">Показать повторения</string>
+    <string name="action_unreblog">Отменить повторение</string>
+    <string name="action_access_scheduled_toot">Записи по расписанию</string>
+    <string name="unreblog_private">Удалить повторение</string>
+    <string name="compose_shortcut_long_label">Сделать запись</string>
 </resources>
