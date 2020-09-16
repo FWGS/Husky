@@ -40,5 +40,5 @@ data class Chat(
 
 data class NewChatMessage(
     val content: String,
-    val media_id: String
+    val media_id: String?
 )

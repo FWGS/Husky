@@ -12,7 +12,6 @@ import com.keylesspalace.tusky.ViewTagActivity
 import com.keylesspalace.tusky.adapter.ChatMessagesAdapter
 import com.keylesspalace.tusky.adapter.ChatMessagesViewHolder
 import com.keylesspalace.tusky.adapter.TimelineAdapter
-import com.keylesspalace.tusky.appstore.EventHub
 import com.keylesspalace.tusky.di.Injectable
 import com.keylesspalace.tusky.entity.Chat
 import com.keylesspalace.tusky.entity.Emoji
@@ -27,8 +26,11 @@ import androidx.arch.core.util.Function
 import androidx.lifecycle.Lifecycle
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.*
+import com.keylesspalace.tusky.appstore.*
 import com.keylesspalace.tusky.repository.Placeholder
 import com.keylesspalace.tusky.repository.TimelineRequestMode
+import com.keylesspalace.tusky.service.MessageToSend
+import com.keylesspalace.tusky.service.ServiceClient
 import com.keylesspalace.tusky.util.*
 import com.uber.autodispose.android.lifecycle.autoDispose
 import io.reactivex.Observable
@@ -51,6 +53,8 @@ class ChatActivity: BottomSheetActivity(),
     lateinit var api: MastodonApi
     @Inject
     lateinit var chatsRepo: ChatRepository
+    @Inject
+    lateinit var serviceClient: ServiceClient
 
     lateinit var adapter: ChatMessagesAdapter
 
@@ -177,6 +181,32 @@ class ChatActivity: BottomSheetActivity(),
         recycler.layoutManager = layoutManager
         // recycler.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL))
         recycler.adapter = adapter
+
+        sendButton.setOnClickListener {
+            serviceClient.sendChatMessage( MessageToSend(
+                    editText.text.toString(),
+                    null,
+                    null,
+                    accountManager.activeAccount!!.id,
+                    this.chatId,
+                    0
+            ))
+        }
+
+        if (!eventRegistered) {
+            eventHub.events
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .autoDispose(this, Lifecycle.Event.ON_DESTROY)
+                    .subscribe { event: Event? ->
+                        when(event) {
+                            is ChatMessageDeliveredEvent -> {
+                                onRefresh()
+                                editText.text.clear()
+                            }
+                        }
+                    }
+            eventRegistered = true
+        }
 
         tryCache()
     }

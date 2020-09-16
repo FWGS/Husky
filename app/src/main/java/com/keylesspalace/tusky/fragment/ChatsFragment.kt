@@ -336,7 +336,8 @@ class ChatsFragment : BaseFragment(), Injectable, RefreshableFragment, Reselecta
             }
 
             override fun onLoadMore(totalItemsCount: Int, view: RecyclerView) {
-                this@ChatsFragment.onLoadMore()
+                if(!BROKEN_PAGINATION_IN_BACKEND)
+                    this@ChatsFragment.onLoadMore()
             }
         }
         recyclerView.addOnScrollListener(scrollListener)
