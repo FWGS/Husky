@@ -77,6 +77,8 @@ public abstract class StatusViewData {
         private final int favouritesCount;
         @Nullable
         private final String inReplyToId;
+        @Nullable
+        private final String inReplyToAccountAcct;
         // I would rather have something else but it would be too much of a rewrite
         @Nullable
         private final Status.Mention[] mentions;
@@ -104,7 +106,7 @@ public abstract class StatusViewData {
                         @Nullable String rebloggedByUsername, @Nullable String rebloggedAvatar, boolean sensitive, boolean isExpanded,
                         boolean isShowingContent, String userFullName, String nickname, String avatar,
                         Date createdAt, int reblogsCount, int favouritesCount, @Nullable String inReplyToId,
-                        @Nullable Status.Mention[] mentions, String senderId, boolean rebloggingEnabled,
+                        @Nullable String inReplyToAccountAcct, @Nullable Status.Mention[] mentions, String senderId, boolean rebloggingEnabled,
                         Status.Application application, List<Emoji> statusEmojis, List<Emoji> accountEmojis, @Nullable Card card,
                         boolean isCollapsible, boolean isCollapsed, @Nullable PollViewData poll, boolean isBot, boolean isMuted, boolean isThreadMuted,
                         boolean isUserMuted, int conversationId, @Nullable List<EmojiReaction> emojiReactions) {
@@ -136,6 +138,7 @@ public abstract class StatusViewData {
             this.reblogsCount = reblogsCount;
             this.favouritesCount = favouritesCount;
             this.inReplyToId = inReplyToId;
+            this.inReplyToAccountAcct = inReplyToAccountAcct;
             this.mentions = mentions;
             this.senderId = senderId;
             this.rebloggingEnabled = rebloggingEnabled;
@@ -238,6 +241,11 @@ public abstract class StatusViewData {
         @Nullable
         public String getInReplyToId() {
             return inReplyToId;
+        }
+
+        @Nullable
+        public String getInReplyToAccountAcct() {
+            return inReplyToAccountAcct;
         }
 
         public String getSenderId() {
@@ -343,6 +351,7 @@ public abstract class StatusViewData {
                     Objects.equals(avatar, concrete.avatar) &&
                     Objects.equals(createdAt, concrete.createdAt) &&
                     Objects.equals(inReplyToId, concrete.inReplyToId) &&
+                    Objects.equals(inReplyToAccountAcct, concrete.inReplyToAccountAcct) &&
                     Arrays.equals(mentions, concrete.mentions) &&
                     Objects.equals(senderId, concrete.senderId) &&
                     Objects.equals(application, concrete.application) &&
@@ -451,6 +460,7 @@ public abstract class StatusViewData {
         private int reblogsCount;
         private int favouritesCount;
         private String inReplyToId;
+        private String inReplyToAccountAcct;
         private Status.Mention[] mentions;
         private String senderId;
         private boolean rebloggingEnabled;
@@ -492,6 +502,7 @@ public abstract class StatusViewData {
             reblogsCount = viewData.reblogsCount;
             favouritesCount = viewData.favouritesCount;
             inReplyToId = viewData.inReplyToId;
+            inReplyToAccountAcct = viewData.inReplyToAccountAcct;
             mentions = viewData.mentions == null ? null : viewData.mentions.clone();
             senderId = viewData.senderId;
             rebloggingEnabled = viewData.rebloggingEnabled;
@@ -614,6 +625,11 @@ public abstract class StatusViewData {
             return this;
         }
 
+        public Builder setInReplyToAccountAcct(String inReplyToAccountAcct) {
+            this.inReplyToAccountAcct = inReplyToAccountAcct;
+            return this;
+        }
+
         public Builder setMentions(Status.Mention[] mentions) {
             this.mentions = mentions;
             return this;
@@ -711,7 +727,7 @@ public abstract class StatusViewData {
             return new StatusViewData.Concrete(id, content, reblogged, favourited, bookmarked, spoilerText,
                     visibility, attachments, rebloggedByUsername, rebloggedAvatar, isSensitive, isExpanded,
                     isShowingContent, userFullName, nickname, avatar, createdAt, reblogsCount,
-                    favouritesCount, inReplyToId, mentions, senderId, rebloggingEnabled, application,
+                    favouritesCount, inReplyToId, inReplyToAccountAcct, mentions, senderId, rebloggingEnabled, application,
                     statusEmojis, accountEmojis, card, isCollapsible, isCollapsed, poll, isBot, isMuted, isThreadMuted,
                     isUserMuted, conversationId, emojiReactions);
         }

@@ -151,6 +151,10 @@ data class Status(
         return pleroma?.emojiReactions;
     }
     
+    fun getInReplyToAccountAcct(): String? {
+        return pleroma?.inReplyToAccountAcct;
+    }
+
     private fun getEditableText(): String {
         val builder = SpannableStringBuilder(content)
         for (span in content.getSpans(0, content.length, URLSpan::class.java)) {
@@ -182,7 +186,8 @@ data class Status(
     data class PleromaStatus(
         @SerializedName("thread_muted") var threadMuted: Boolean?,
         @SerializedName("conversation_id") val conversationId: Int?,
-        @SerializedName("emoji_reactions") val emojiReactions: List<EmojiReaction>?
+        @SerializedName("emoji_reactions") val emojiReactions: List<EmojiReaction>?,
+        @SerializedName("in_reply_to_account_acct") val inReplyToAccountAcct: String?
     )
 
     data class Mention (
