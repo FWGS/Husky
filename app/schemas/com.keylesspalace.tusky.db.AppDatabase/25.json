@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 25,
-    "identityHash": "8c97dfd1b3d04602e25139ec97d2a282",
+    "identityHash": "ee8ddca7a73aef753951c2e2522cbb28",
     "entities": [
       {
         "tableName": "TootEntity",
@@ -296,7 +296,7 @@
       },
       {
         "tableName": "InstanceEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`instance` TEXT NOT NULL, `emojiList` TEXT, `maximumTootCharacters` INTEGER, `maxPollOptions` INTEGER, `maxPollOptionLength` INTEGER, `version` TEXT, PRIMARY KEY(`instance`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`instance` TEXT NOT NULL, `emojiList` TEXT, `maximumTootCharacters` INTEGER, `maxPollOptions` INTEGER, `maxPollOptionLength` INTEGER, `version` TEXT, `chatLimit` INTEGER, PRIMARY KEY(`instance`))",
         "fields": [
           {
             "fieldPath": "instance",
@@ -332,6 +332,12 @@
             "fieldPath": "version",
             "columnName": "version",
             "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "chatLimit",
+            "columnName": "chatLimit",
+            "affinity": "INTEGER",
             "notNull": false
           }
         ],
@@ -867,7 +873,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '8c97dfd1b3d04602e25139ec97d2a282')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'ee8ddca7a73aef753951c2e2522cbb28')"
     ]
   }
 }

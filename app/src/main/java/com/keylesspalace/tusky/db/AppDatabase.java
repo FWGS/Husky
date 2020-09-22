@@ -370,6 +370,7 @@ public abstract class AppDatabase extends RoomDatabase {
                     "`attachment` TEXT," +
                     "`emojis` TEXT NOT NULL," +
                     "PRIMARY KEY (`localId`, `messageId`))");
+            database.execSQL("ALTER TABLE `InstanceEntity` ADD COLUMN `chatLimit` INTEGER");
         }
     };
 }

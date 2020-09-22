@@ -1,18 +1,31 @@
 package com.keylesspalace.tusky.components.chat
 
+import android.Manifest
+import android.app.Activity
+import android.app.ProgressDialog
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.graphics.drawable.Drawable
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
+import android.widget.ImageButton
+import android.widget.PopupMenu
+import android.widget.Toast
+import androidx.activity.viewModels
+import androidx.annotation.StringRes
+import androidx.annotation.VisibleForTesting
 import com.keylesspalace.tusky.BottomSheetActivity
 import com.keylesspalace.tusky.R
+import com.keylesspalace.tusky.BuildConfig
 import com.keylesspalace.tusky.ViewTagActivity
-import com.keylesspalace.tusky.adapter.ChatMessagesAdapter
-import com.keylesspalace.tusky.adapter.ChatMessagesViewHolder
-import com.keylesspalace.tusky.adapter.TimelineAdapter
 import com.keylesspalace.tusky.di.Injectable
+import com.keylesspalace.tusky.di.ViewModelFactory
 import com.keylesspalace.tusky.entity.Chat
 import com.keylesspalace.tusky.entity.Emoji
 import com.keylesspalace.tusky.interfaces.ChatActionListener
@@ -20,30 +33,55 @@ import com.keylesspalace.tusky.network.MastodonApi
 import com.keylesspalace.tusky.repository.ChatMesssageOrPlaceholder
 import com.keylesspalace.tusky.repository.ChatRepository
 import com.keylesspalace.tusky.viewdata.ChatMessageViewData
-import kotlinx.android.synthetic.main.activity_chat.*
-import kotlinx.android.synthetic.main.toolbar_basic.toolbar
 import androidx.arch.core.util.Function
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
+import androidx.core.net.toUri
+import androidx.core.view.inputmethod.InputConnectionCompat
+import androidx.core.view.inputmethod.InputContentInfoCompat
 import androidx.lifecycle.Lifecycle
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.*
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.request.target.CustomTarget
+import com.bumptech.glide.request.transition.Transition
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.snackbar.Snackbar
+import com.keylesspalace.tusky.adapter.*
 import com.keylesspalace.tusky.appstore.*
+import com.keylesspalace.tusky.components.common.*
+import com.keylesspalace.tusky.components.compose.ComposeActivity
+import com.keylesspalace.tusky.components.compose.dialog.makeCaptionDialog
 import com.keylesspalace.tusky.repository.Placeholder
 import com.keylesspalace.tusky.repository.TimelineRequestMode
 import com.keylesspalace.tusky.service.MessageToSend
 import com.keylesspalace.tusky.service.ServiceClient
 import com.keylesspalace.tusky.util.*
+import com.keylesspalace.tusky.view.EmojiKeyboard
+import com.mikepenz.iconics.IconicsDrawable
+import com.mikepenz.iconics.typeface.library.googlematerial.GoogleMaterial
+import com.mikepenz.iconics.utils.colorInt
+import com.mikepenz.iconics.utils.sizeDp
 import com.uber.autodispose.android.lifecycle.autoDispose
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
-import kotlinx.android.synthetic.main.activity_chat.progressBar
-import kotlinx.android.synthetic.main.fragment_timeline.*
+import kotlinx.android.synthetic.main.activity_chat.*
+import kotlinx.android.synthetic.main.toolbar_basic.toolbar
+import java.io.File
 import java.io.IOException
 import java.lang.Exception
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class ChatActivity: BottomSheetActivity(),
-        Injectable, ChatActionListener {
+        Injectable,
+        ChatActionListener,
+        ComposeAutoCompleteAdapter.AutocompletionProvider,
+        EmojiKeyboard.OnEmojiSelectedListener,
+        OnEmojiSelectedListener,
+        InputConnectionCompat.OnCommitContentListener {
     private val TAG = "ChatsActivity" // logging tag
     private val LOAD_AT_ONCE = 30
 
@@ -55,6 +93,13 @@ class ChatActivity: BottomSheetActivity(),
     lateinit var chatsRepo: ChatRepository
     @Inject
     lateinit var serviceClient: ServiceClient
+    @Inject
+    lateinit var viewModelFactory: ViewModelFactory
+
+    @VisibleForTesting
+    val viewModel: ChatViewModel by viewModels { viewModelFactory }
+    @VisibleForTesting
+    var maximumTootCharacters = DEFAULT_CHARACTER_LIMIT
 
     lateinit var adapter: ChatMessagesAdapter
 
@@ -64,10 +109,17 @@ class ChatActivity: BottomSheetActivity(),
     })
 
     private var bottomLoading = false
-    private var eventRegistered = false
     private var isNeedRefresh = false
     private var didLoadEverythingBottom = false
     private var initialUpdateFailed = false
+    private var haveStickers = false
+
+    private lateinit var addMediaBehavior : BottomSheetBehavior<*>
+    private lateinit var emojiBehavior: BottomSheetBehavior<*>
+    private lateinit var stickerBehavior: BottomSheetBehavior<*>
+
+    private var finishingUploadDialog: ProgressDialog? = null
+    private var photoUploadUri: Uri? = null
 
     private enum class FetchEnd {
         TOP, BOTTOM, MIDDLE
@@ -130,46 +182,70 @@ class ChatActivity: BottomSheetActivity(),
     }
 
     private lateinit var chatId : String
+    private lateinit var avatarUrl : String
+    private lateinit var displayName : String
+    private lateinit var username : String
+    private lateinit var emojis : ArrayList<Emoji>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val chatId = intent.getStringExtra(ID)
-        val avatarUrl = intent.getStringExtra(AVATAR_URL)
-        val displayName = intent.getStringExtra(DISPLAY_NAME)
-        val username = intent.getStringExtra(USERNAME)
-        val emojis = intent.getParcelableArrayListExtra<Emoji>(EMOJIS)
-
-        if(chatId == null || avatarUrl == null || displayName == null || username == null || emojis == null) {
-            throw IllegalArgumentException("Can't open ChatActivity without chat id")
-        }
-        this.chatId = chatId
 
         if(accountManager.activeAccount == null) {
             throw Exception("No active account!")
         }
 
+        chatId = intent.getStringExtra(ID) ?: throw IllegalArgumentException("Can't open ChatActivity without chatId")
+        avatarUrl = intent.getStringExtra(AVATAR_URL) ?: throw IllegalArgumentException("Can't open ChatActivity without avatarUrl")
+        displayName = intent.getStringExtra(DISPLAY_NAME) ?: throw IllegalArgumentException("Can't open ChatActivity without displayName")
+        username = intent.getStringExtra(USERNAME) ?: throw IllegalArgumentException("Can't open ChatActivity without username")
+        emojis = intent.getParcelableArrayListExtra<Emoji>(EMOJIS) ?: throw IllegalArgumentException("Can't open ChatActivity without emojis")
+
         setContentView(R.layout.activity_chat)
         setSupportActionBar(toolbar)
 
+        subscribeToUpdates()
+
+        setupHeader()
+        setupChat()
+        setupAttachment()
+        setupComposeField(savedInstanceState?.getString(MESSAGE_KEY))
+        setupButtons()
+
+        photoUploadUri = savedInstanceState?.getParcelable(PHOTO_UPLOAD_URI_KEY)
+
+        eventHub.events
+                .observeOn(AndroidSchedulers.mainThread())
+                .autoDispose(this, Lifecycle.Event.ON_DESTROY)
+                .subscribe { event: Event? ->
+                    when(event) {
+                        is ChatMessageDeliveredEvent -> {
+                            onRefresh()
+                            enableButton(sendButton, true, true)
+                            enableButton(attachmentButton, true, true)
+                            enableButton(stickerButton, haveStickers, haveStickers)
+                            editText.text.clear()
+                            viewModel.media.value = listOf()
+                        }
+                    }
+                }
+
+        tryCache()
+    }
+
+    private fun setupHeader() {
         supportActionBar?.run {
             title = ""
             setDisplayHomeAsUpEnabled(true)
             setDisplayShowHomeEnabled(true)
         }
-
-        loadAvatar(avatarUrl, chatAvatar,
-                resources.getDimensionPixelSize(R.dimen.avatar_radius_24dp),true)
-
+        loadAvatar(avatarUrl, chatAvatar, resources.getDimensionPixelSize(R.dimen.avatar_radius_24dp),true)
         chatTitle.text = displayName.emojify(emojis, chatTitle, true)
         chatUsername.text = username
+    }
 
-        val statusDisplayOptions = StatusDisplayOptions(
-                false,
-                false,
-                true,
-                false,
-                false,
-                CardViewMode.NONE,
+    private fun setupChat() {
+        val statusDisplayOptions = StatusDisplayOptions(false,false,
+                true, false, false, CardViewMode.NONE,
                 false)
 
         adapter = ChatMessagesAdapter(dataSource, this, statusDisplayOptions, accountManager.activeAccount!!.accountId)
@@ -181,34 +257,399 @@ class ChatActivity: BottomSheetActivity(),
         recycler.layoutManager = layoutManager
         // recycler.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL))
         recycler.adapter = adapter
+    }
+
+    private fun setupAttachment() {
+        val onMediaPick = View.OnClickListener { view ->
+            val popup = PopupMenu(view.context, view)
+            val addCaptionId = 1
+            val removeId = 2
+            popup.menu.add(0, addCaptionId, 0, R.string.action_set_caption)
+            popup.menu.add(0, removeId, 0, R.string.action_remove)
+            popup.setOnMenuItemClickListener { menuItem ->
+                viewModel.media.value?.get(0)?.let {
+                    when (menuItem.itemId) {
+                        addCaptionId -> {
+                            makeCaptionDialog(it.description, it.uri) { newDescription ->
+                                viewModel.updateDescription(it.localId, newDescription)
+                            }
+                        }
+                        removeId -> viewModel.removeMediaFromQueue(it)
+                    }
+                }
+                true
+            }
+        }
+
+        imageAttachment.setOnClickListener(onMediaPick)
+        textAttachment.setOnClickListener(onMediaPick)
+    }
+
+    private fun setupComposeField(startingText: String?) {
+        editText.setOnCommitContentListener(this)
+
+        editText.setOnKeyListener { _, keyCode, event -> this.onKeyDown(keyCode, event) }
+
+        editText.setAdapter(
+                ComposeAutoCompleteAdapter(this))
+        editText.setTokenizer(ComposeTokenizer())
+
+        editText.setText(startingText)
+        editText.setSelection(editText.length())
+
+        val mentionColour = editText.linkTextColors.defaultColor
+        highlightSpans(editText.text, mentionColour)
+        editText.afterTextChanged { editable ->
+            highlightSpans(editable, mentionColour)
+        }
+
+        // work around Android platform bug -> https://issuetracker.google.com/issues/67102093
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O
+                || Build.VERSION.SDK_INT == Build.VERSION_CODES.O_MR1) {
+            editText.setLayerType(View.LAYER_TYPE_SOFTWARE, null)
+        }
+    }
+
+    override fun search(token: String): List<ComposeAutoCompleteAdapter.AutocompleteResult> {
+        return viewModel.searchAutocompleteSuggestions(token)
+    }
+
+    /** This is for the fancy keyboards which can insert images and stuff. */
+    override fun onCommitContent(inputContentInfo: InputContentInfoCompat, flags: Int, opts: Bundle?): Boolean {
+        // Verify the returned content's type is of the correct MIME type
+        val supported = inputContentInfo.description.hasMimeType("image/*")
+
+        if(supported) {
+            val lacksPermission = (flags and InputConnectionCompat.INPUT_CONTENT_GRANT_READ_URI_PERMISSION) != 0
+            if(lacksPermission) {
+                try {
+                    inputContentInfo.requestPermission()
+                } catch (e: Exception) {
+                    Log.e(TAG, "InputContentInfoCompat#requestPermission() failed." + e.message)
+                    return false
+                }
+            }
+            pickMedia(inputContentInfo.contentUri, inputContentInfo)
+            return true
+        }
+
+        return false
+    }
+
+    private fun subscribeToUpdates() {
+        withLifecycleContext {
+            viewModel.instanceParams.observe { instanceData ->
+                maximumTootCharacters = instanceData.chatLimit
+            }
+            viewModel.haveStickers.observe { haveStickers ->
+                if (haveStickers) {
+                    stickerButton.visibility = View.VISIBLE
+                }
+            }
+            viewModel.instanceStickers.observe { stickers ->
+                if(stickers.isNotEmpty()) {
+                    haveStickers = true
+                    stickerButton.visibility = View.VISIBLE
+                    enableButton(stickerButton, true, true)
+                    stickerKeyboard.setupStickerKeyboard(this@ChatActivity, stickers)
+                }
+            }
+            viewModel.emoji.observe { emoji -> setEmojiList(emoji) }
+            viewModel.media.observe {
+                if(it.isNotEmpty()) {
+                    val media = it[0]
+
+                    when(media.type) {
+                        ComposeActivity.QueuedMedia.UNKNOWN -> {
+                            textAttachment.visibility = View.VISIBLE
+                            imageAttachment.visibility = View.GONE
+
+                            textAttachment.text = media.originalFileName
+                            textAttachment.setChecked(!media.description.isNullOrEmpty())
+                            textAttachment.setProgress(media.uploadPercent)
+                        }
+                        ComposeActivity.QueuedMedia.AUDIO -> {
+                            imageAttachment.visibility = View.VISIBLE
+                            textAttachment.visibility = View.GONE
+
+                            imageAttachment.setChecked(!media.description.isNullOrEmpty())
+                            imageAttachment.setProgress(media.uploadPercent)
+                            imageAttachment.setImageResource(R.drawable.ic_music_box_preview_24dp)
+                        }
+                        else -> {
+                            imageAttachment.visibility = View.VISIBLE
+                            textAttachment.visibility = View.GONE
+
+                            imageAttachment.setChecked(!media.description.isNullOrEmpty())
+                            imageAttachment.setProgress(media.uploadPercent)
+
+                            Glide.with(imageAttachment.context)
+                                    .load(media.uri)
+                                    .diskCacheStrategy(DiskCacheStrategy.NONE)
+                                    .dontAnimate()
+                                    .into(imageAttachment)
+                        }
+                    }
+                } else {
+                    imageAttachment.visibility = View.GONE
+                    textAttachment.visibility = View.GONE
+                }
+            }
+            viewModel.uploadError.observe {
+                displayTransientError(R.string.error_media_upload_sending)
+            }
+        }
+    }
+
+    private fun setEmojiList(emojiList: List<Emoji>?) {
+        if (emojiList != null) {
+            emojiView.adapter = EmojiAdapter(emojiList, this@ChatActivity)
+            enableButton(emojiButton, true, emojiList.isNotEmpty())
+        }
+    }
+
+    private fun replaceTextAtCaret(text: CharSequence) {
+        // If you select "backward" in an editable, you get SelectionStart > SelectionEnd
+        val start = editText.selectionStart.coerceAtMost(editText.selectionEnd)
+        val end = editText.selectionStart.coerceAtLeast(editText.selectionEnd)
+        val textToInsert = if (start > 0 && !editText.text[start - 1].isWhitespace()) {
+            " $text"
+        } else {
+            text
+        }
+        editText.text.replace(start, end, textToInsert)
+
+        // Set the cursor after the inserted text
+        editText.setSelection(start + text.length)
+    }
+
+    override fun onEmojiSelected(shortcode: String) {
+        replaceTextAtCaret(":$shortcode: ")
+    }
+
+    override fun onEmojiSelected(id: String, shortcode: String) {
+        Glide.with(this).asFile().load(shortcode).into( object : CustomTarget<File>() {
+            override fun onLoadCleared(placeholder: Drawable?) {
+                displayTransientError(R.string.error_sticker_fetch)
+            }
+
+            override fun onResourceReady(resource: File, transition: Transition<in File>?) {
+                val cut = shortcode.lastIndexOf('/')
+                val filename = if(cut != -1) shortcode.substring(cut + 1) else "unknown.png"
+                pickMedia(resource.toUri(), null, filename)
+            }
+        })
+        stickerBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+    }
+
+    private fun setupButtons() {
+        addMediaBehavior = BottomSheetBehavior.from(addMediaBottomSheet)
+        emojiBehavior = BottomSheetBehavior.from(emojiView)
+        stickerBehavior = BottomSheetBehavior.from(stickerKeyboard)
 
         sendButton.setOnClickListener {
+            val media = viewModel.media.value?.get(0)
+
             serviceClient.sendChatMessage( MessageToSend(
                     editText.text.toString(),
-                    null,
-                    null,
+                    media?.id,
+                    media?.uri?.toString(),
                     accountManager.activeAccount!!.id,
                     this.chatId,
                     0
             ))
+
+            enableButton(sendButton, false, false)
+            enableButton(attachmentButton, false, false)
+            enableButton(stickerButton, false, false)
         }
 
-        if (!eventRegistered) {
-            eventHub.events
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .autoDispose(this, Lifecycle.Event.ON_DESTROY)
-                    .subscribe { event: Event? ->
-                        when(event) {
-                            is ChatMessageDeliveredEvent -> {
-                                onRefresh()
-                                editText.text.clear()
-                            }
+        attachmentButton.setOnClickListener { openPickDialog() }
+        emojiButton.setOnClickListener { showEmojis() }
+        stickerButton.setOnClickListener { showStickers() }
+
+        enableButton(stickerButton, false, false)
+
+        val textColor = ThemeUtils.getColor(this, android.R.attr.textColorTertiary)
+
+        val cameraIcon = IconicsDrawable(this, GoogleMaterial.Icon.gmd_camera_alt).apply { colorInt = textColor; sizeDp = 18 }
+        actionPhotoTake.setCompoundDrawablesRelativeWithIntrinsicBounds(cameraIcon, null, null, null)
+
+        val imageIcon = IconicsDrawable(this, GoogleMaterial.Icon.gmd_image).apply { colorInt = textColor; sizeDp = 18 }
+        actionPhotoPick.setCompoundDrawablesRelativeWithIntrinsicBounds(imageIcon, null, null, null)
+
+        actionPhotoTake.setOnClickListener { initiateCameraApp() }
+        actionPhotoPick.setOnClickListener { onMediaPick() }
+    }
+
+    private fun openPickDialog() {
+        if (addMediaBehavior.state == BottomSheetBehavior.STATE_HIDDEN || addMediaBehavior.state == BottomSheetBehavior.STATE_COLLAPSED) {
+            addMediaBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+            emojiBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+            stickerBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+        } else {
+            addMediaBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+        }
+    }
+
+    private fun showEmojis() {
+        emojiView.adapter?.let {
+            if (it.itemCount == 0) {
+                val errorMessage = getString(R.string.error_no_custom_emojis, accountManager.activeAccount!!.domain)
+                Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show()
+            } else {
+                if (emojiBehavior.state == BottomSheetBehavior.STATE_HIDDEN || emojiBehavior.state == BottomSheetBehavior.STATE_COLLAPSED) {
+                    emojiBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+                    stickerBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+                    addMediaBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+                } else {
+                    emojiBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+                }
+            }
+        }
+    }
+
+    private fun showStickers() {
+        if (stickerBehavior.state == BottomSheetBehavior.STATE_HIDDEN || stickerBehavior.state == BottomSheetBehavior.STATE_COLLAPSED) {
+            stickerBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+            addMediaBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+            emojiBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+        } else {
+            stickerBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+        }
+    }
+
+    private fun initiateCameraApp() {
+        addMediaBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+
+        // We don't need to ask for permission in this case, because the used calls require
+        // android.permission.WRITE_EXTERNAL_STORAGE only on SDKs *older* than Kitkat, which was
+        // way before permission dialogues have been introduced.
+        val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        if (intent.resolveActivity(packageManager) != null) {
+            val photoFile: File = try {
+                createNewImageFile(this)
+            } catch (ex: IOException) {
+                displayTransientError(R.string.error_media_upload_opening)
+                return
+            }
+
+            // Continue only if the File was successfully created
+            photoUploadUri = FileProvider.getUriForFile(this,
+                    BuildConfig.APPLICATION_ID + ".fileprovider",
+                    photoFile)
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUploadUri)
+            startActivityForResult(intent, MEDIA_TAKE_PHOTO_RESULT)
+        }
+    }
+
+    private fun onMediaPick() {
+        addMediaBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
+            override fun onStateChanged(bottomSheet: View, newState: Int) {
+                //Wait until bottom sheet is not collapsed and show next screen after
+                if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
+                    addMediaBehavior.removeBottomSheetCallback(this)
+                    if (ContextCompat.checkSelfPermission(this@ChatActivity, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                        ActivityCompat.requestPermissions(this@ChatActivity,
+                                arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
+                                PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE)
+                    } else {
+                        initiateMediaPicking()
+                    }
+                }
+            }
+
+            override fun onSlide(bottomSheet: View, slideOffset: Float) {}
+        })
+        addMediaBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>,
+                                            grantResults: IntArray) {
+        if (requestCode == PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                initiateMediaPicking()
+            } else {
+                val bar = Snackbar.make(activityChat, R.string.error_media_upload_permission,
+                        Snackbar.LENGTH_SHORT).apply {
+
+                }
+                bar.setAction(R.string.action_retry) { onMediaPick()}
+                //necessary so snackbar is shown over everything
+                bar.view.elevation = resources.getDimension(R.dimen.compose_activity_snackbar_elevation)
+                bar.show()
+            }
+        }
+    }
+
+    private fun initiateMediaPicking() {
+        val intent = Intent(Intent.ACTION_GET_CONTENT)
+        intent.addCategory(Intent.CATEGORY_OPENABLE)
+
+        intent.type = "*/*" // Pleroma allows anything
+        startActivityForResult(intent, MEDIA_PICK_RESULT)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, intent: Intent?) {
+        super.onActivityResult(requestCode, resultCode, intent)
+        if (resultCode == Activity.RESULT_OK && requestCode == MEDIA_PICK_RESULT && intent != null) {
+            pickMedia(intent.data!!)
+        } else if (resultCode == Activity.RESULT_OK && requestCode == MEDIA_TAKE_PHOTO_RESULT) {
+            pickMedia(photoUploadUri!!)
+        }
+    }
+
+    private fun enableButton(button: ImageButton, clickable: Boolean, colorActive: Boolean) {
+        button.isEnabled = clickable
+        ThemeUtils.setDrawableTint(this, button.drawable,
+                if (colorActive) android.R.attr.textColorTertiary
+                else R.attr.textColorDisabled)
+    }
+
+    private fun pickMedia(uri: Uri, contentInfoCompat: InputContentInfoCompat? = null, filename: String? = null) {
+        withLifecycleContext {
+            viewModel.pickMedia(uri, filename ?: uri.toFileName(contentResolver)).observe { exceptionOrItem ->
+
+                contentInfoCompat?.releasePermission()
+
+                if(exceptionOrItem.isLeft()) {
+                    val errorId = when (val exception = exceptionOrItem.asLeft()) {
+                        is VideoSizeException -> {
+                            R.string.error_video_upload_size
+                        }
+                        is MediaSizeException -> {
+                            R.string.error_media_upload_size
+                        }
+                        is AudioSizeException -> {
+                            R.string.error_audio_upload_size
+                        }
+                        is VideoOrImageException -> {
+                            R.string.error_media_upload_image_or_video
+                        }
+                        else -> {
+                            Log.d(TAG, "That file could not be opened", exception)
+                            R.string.error_media_upload_opening
                         }
                     }
-            eventRegistered = true
+                    displayTransientError(errorId)
+                } else {
+                    enableButton(attachmentButton, false, false)
+                }
+            }
         }
+    }
 
-        tryCache()
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putParcelable(PHOTO_UPLOAD_URI_KEY, photoUploadUri)
+        outState.putString(MESSAGE_KEY, editText.text.toString())
+        super.onSaveInstanceState(outState)
+    }
+
+    private fun displayTransientError(@StringRes stringId: Int) {
+        val bar = Snackbar.make(activityChat, stringId, Snackbar.LENGTH_LONG)
+        //necessary so snackbar is shown over everything
+        bar.view.elevation = resources.getDimension(R.dimen.compose_activity_snackbar_elevation)
+        bar.show()
     }
 
     private fun clearPlaceholdersForResponse(msgs: MutableList<ChatMesssageOrPlaceholder>) {
@@ -449,7 +890,6 @@ class ChatActivity: BottomSheetActivity(),
     }
 
     private fun onFetchTimelineFailure(exception: Exception, fetchEnd: FetchEnd, position: Int) {
-        topProgressBar.hide()
         if (fetchEnd == FetchEnd.MIDDLE && !msgs[position].isRight()) {
             var placeholder = msgs[position].asLeftOrNull()
             val newViewData: ChatMessageViewData
@@ -509,6 +949,19 @@ class ChatActivity: BottomSheetActivity(),
         }
     }
 
+    override fun onBackPressed() {
+        // Acting like a teen: deliberately ignoring parent.
+        if (addMediaBehavior.state == BottomSheetBehavior.STATE_EXPANDED ||
+                emojiBehavior.state == BottomSheetBehavior.STATE_EXPANDED ||
+                stickerBehavior.state == BottomSheetBehavior.STATE_EXPANDED) {
+            addMediaBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+            emojiBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+            stickerBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+            return
+        }
+
+        super.onBackPressed()
+    }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
@@ -556,6 +1009,12 @@ class ChatActivity: BottomSheetActivity(),
     }
 
     companion object {
+        private const val MEDIA_PICK_RESULT = 1
+        private const val MEDIA_TAKE_PHOTO_RESULT = 2
+        private const val PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 1
+        private const val PHOTO_UPLOAD_URI_KEY = "PHOTO_UPLOAD_URI"
+        private const val MESSAGE_KEY = "MESSAGE"
+
         fun getIntent(context: Context, chat: Chat) : Intent {
             val intent = Intent(context, ChatActivity::class.java)
             intent.putExtra(ID, chat.id)
