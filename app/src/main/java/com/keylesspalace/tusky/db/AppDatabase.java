@@ -372,6 +372,7 @@ public abstract class AppDatabase extends RoomDatabase {
                     "PRIMARY KEY (`localId`, `messageId`))");
             database.execSQL("ALTER TABLE `InstanceEntity` ADD COLUMN `chatLimit` INTEGER");
             database.execSQL("ALTER TABLE `AccountEntity` ADD COLUMN `notificationsChatMessages` INTEGER NOT NULL DEFAULT 1");
+            database.execSQL("ALTER TABLE `TimelineStatusEntity` ADD COLUMN `pleroma` TEXT");
         }
     };
 }

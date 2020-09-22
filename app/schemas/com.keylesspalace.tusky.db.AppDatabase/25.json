@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 25,
-    "identityHash": "7ab8482b8d5dcb97c4c8932f578879f2",
+    "identityHash": "fe234db47e8a1376fe941f10959fccca",
     "entities": [
       {
         "tableName": "TootEntity",
@@ -358,7 +358,7 @@
       },
       {
         "tableName": "TimelineStatusEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`serverId` TEXT NOT NULL, `url` TEXT, `timelineUserId` INTEGER NOT NULL, `authorServerId` TEXT, `inReplyToId` TEXT, `inReplyToAccountId` TEXT, `content` TEXT, `createdAt` INTEGER NOT NULL, `emojis` TEXT, `reblogsCount` INTEGER NOT NULL, `favouritesCount` INTEGER NOT NULL, `reblogged` INTEGER NOT NULL, `bookmarked` INTEGER NOT NULL, `favourited` INTEGER NOT NULL, `sensitive` INTEGER NOT NULL, `spoilerText` TEXT, `visibility` INTEGER, `attachments` TEXT, `mentions` TEXT, `application` TEXT, `reblogServerId` TEXT, `reblogAccountId` TEXT, `poll` TEXT, PRIMARY KEY(`serverId`, `timelineUserId`), FOREIGN KEY(`authorServerId`, `timelineUserId`) REFERENCES `TimelineAccountEntity`(`serverId`, `timelineUserId`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`serverId` TEXT NOT NULL, `url` TEXT, `timelineUserId` INTEGER NOT NULL, `authorServerId` TEXT, `inReplyToId` TEXT, `inReplyToAccountId` TEXT, `content` TEXT, `createdAt` INTEGER NOT NULL, `emojis` TEXT, `reblogsCount` INTEGER NOT NULL, `favouritesCount` INTEGER NOT NULL, `reblogged` INTEGER NOT NULL, `bookmarked` INTEGER NOT NULL, `favourited` INTEGER NOT NULL, `sensitive` INTEGER NOT NULL, `spoilerText` TEXT, `visibility` INTEGER, `attachments` TEXT, `mentions` TEXT, `application` TEXT, `reblogServerId` TEXT, `reblogAccountId` TEXT, `poll` TEXT, `pleroma` TEXT, PRIMARY KEY(`serverId`, `timelineUserId`), FOREIGN KEY(`authorServerId`, `timelineUserId`) REFERENCES `TimelineAccountEntity`(`serverId`, `timelineUserId`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
             "fieldPath": "serverId",
@@ -495,6 +495,12 @@
           {
             "fieldPath": "poll",
             "columnName": "poll",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "pleroma",
+            "columnName": "pleroma",
             "affinity": "TEXT",
             "notNull": false
           }
@@ -879,7 +885,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '7ab8482b8d5dcb97c4c8932f578879f2')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'fe234db47e8a1376fe941f10959fccca')"
     ]
   }
 }
