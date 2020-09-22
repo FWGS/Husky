@@ -155,6 +155,10 @@ data class Status(
         return pleroma?.inReplyToAccountAcct;
     }
 
+    fun getParentVisible(): Boolean {
+        return pleroma?.parentVisible ?: true;
+    }
+
     private fun getEditableText(): String {
         val builder = SpannableStringBuilder(content)
         for (span in content.getSpans(0, content.length, URLSpan::class.java)) {
@@ -187,7 +191,8 @@ data class Status(
         @SerializedName("thread_muted") var threadMuted: Boolean?,
         @SerializedName("conversation_id") val conversationId: Int?,
         @SerializedName("emoji_reactions") val emojiReactions: List<EmojiReaction>?,
-        @SerializedName("in_reply_to_account_acct") val inReplyToAccountAcct: String?
+        @SerializedName("in_reply_to_account_acct") val inReplyToAccountAcct: String?,
+        @SerializedName("parent_visible") val parentVisible: Boolean?
     )
 
     data class Mention (

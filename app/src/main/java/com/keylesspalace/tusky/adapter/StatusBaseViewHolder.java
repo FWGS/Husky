@@ -17,6 +17,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.util.Log;
+import android.graphics.Paint;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
@@ -386,6 +387,10 @@ public abstract class StatusBaseViewHolder extends RecyclerView.ViewHolder {
             Context context = replyInfo.getContext();
             String replyToAccount = status.getInReplyToAccountAcct();
             replyInfo.setText(context.getString(R.string.status_replied_to_format, replyToAccount));
+            if (status.getParentVisible() == false)
+                replyInfo.setPaintFlags(replyInfo.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+            else
+                replyInfo.setPaintFlags(replyInfo.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
             replyInfo.setVisibility(View.VISIBLE);
         } else {
             replyInfo.setVisibility(View.GONE);

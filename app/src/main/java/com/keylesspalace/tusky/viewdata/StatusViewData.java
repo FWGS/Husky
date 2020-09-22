@@ -100,6 +100,7 @@ public abstract class StatusViewData {
         private final int conversationId;
         @Nullable
         private final List<EmojiReaction> emojiReactions;
+        private final boolean parentVisible;
 
         public Concrete(String id, Spanned content, boolean reblogged, boolean favourited, boolean bookmarked,
                         @Nullable String spoilerText, Status.Visibility visibility, List<Attachment> attachments,
@@ -109,7 +110,7 @@ public abstract class StatusViewData {
                         @Nullable String inReplyToAccountAcct, @Nullable Status.Mention[] mentions, String senderId, boolean rebloggingEnabled,
                         Status.Application application, List<Emoji> statusEmojis, List<Emoji> accountEmojis, @Nullable Card card,
                         boolean isCollapsible, boolean isCollapsed, @Nullable PollViewData poll, boolean isBot, boolean isMuted, boolean isThreadMuted,
-                        boolean isUserMuted, int conversationId, @Nullable List<EmojiReaction> emojiReactions) {
+                        boolean isUserMuted, int conversationId, @Nullable List<EmojiReaction> emojiReactions, boolean parentVisible) {
 
             this.id = id;
             if (Build.VERSION.SDK_INT == Build.VERSION_CODES.M) {
@@ -155,6 +156,7 @@ public abstract class StatusViewData {
             this.isUserMuted = isUserMuted;
             this.conversationId = conversationId;
             this.emojiReactions = emojiReactions;
+            this.parentVisible = parentVisible;
         }
 
         public String getId() {
@@ -273,6 +275,10 @@ public abstract class StatusViewData {
             return accountEmojis;
         }
 
+        public boolean getParentVisible() {
+            return parentVisible;
+        }
+
         @Nullable
         public Card getCard() {
             return card;
@@ -364,7 +370,8 @@ public abstract class StatusViewData {
                     isThreadMuted == concrete.isThreadMuted &&
                     isUserMuted == concrete.isUserMuted &&
                     conversationId == concrete.conversationId &&
-                    Objects.equals(emojiReactions, concrete.emojiReactions);
+                    Objects.equals(emojiReactions, concrete.emojiReactions) &&
+                    parentVisible == concrete.parentVisible;
         }
 
         static Spanned replaceCrashingCharacters(Spanned content) {
@@ -477,6 +484,7 @@ public abstract class StatusViewData {
         private boolean isUserMuted;
         private int conversationId;
         private List<EmojiReaction> emojiReactions;
+        private boolean parentVisible;
 
         public Builder() {
         }
@@ -518,6 +526,7 @@ public abstract class StatusViewData {
             isThreadMuted = viewData.isThreadMuted;
             isUserMuted = viewData.isUserMuted;
             emojiReactions = viewData.emojiReactions;
+            parentVisible = viewData.parentVisible;
         }
 
         public Builder setId(String id) {
@@ -660,6 +669,11 @@ public abstract class StatusViewData {
             return this;
         }
 
+        public Builder setParentVisible(boolean parentVisible) {
+            this.parentVisible = parentVisible;
+            return this;
+        }
+
         public Builder setCard(Card card) {
             this.card = card;
             return this;
@@ -729,7 +743,7 @@ public abstract class StatusViewData {
                     isShowingContent, userFullName, nickname, avatar, createdAt, reblogsCount,
                     favouritesCount, inReplyToId, inReplyToAccountAcct, mentions, senderId, rebloggingEnabled, application,
                     statusEmojis, accountEmojis, card, isCollapsible, isCollapsed, poll, isBot, isMuted, isThreadMuted,
-                    isUserMuted, conversationId, emojiReactions);
+                    isUserMuted, conversationId, emojiReactions, parentVisible);
         }
     }
 }
