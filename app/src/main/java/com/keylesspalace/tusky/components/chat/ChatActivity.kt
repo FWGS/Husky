@@ -205,11 +205,16 @@ class ChatActivity: BottomSheetActivity(),
 
         subscribeToUpdates()
 
+        val preferences = PreferenceManager.getDefaultSharedPreferences(this)
+        viewModel.tryFetchStickers = preferences.getBoolean("stickers", false)
+
         setupHeader()
         setupChat()
         setupAttachment()
         setupComposeField(savedInstanceState?.getString(MESSAGE_KEY))
         setupButtons()
+
+        viewModel.setup()
 
         photoUploadUri = savedInstanceState?.getParcelable(PHOTO_UPLOAD_URI_KEY)
 
@@ -228,6 +233,7 @@ class ChatActivity: BottomSheetActivity(),
                         }
                     }
                 }
+
 
         tryCache()
     }
@@ -354,7 +360,7 @@ class ChatActivity: BottomSheetActivity(),
                     stickerKeyboard.setupStickerKeyboard(this@ChatActivity, stickers)
                 }
             }
-            viewModel.emoji.observe { emoji -> setEmojiList(emoji) }
+            viewModel.emoji.observe { setEmojiList(it) }
             viewModel.media.observe {
                 if(it.isNotEmpty()) {
                     val media = it[0]
@@ -467,9 +473,15 @@ class ChatActivity: BottomSheetActivity(),
 
         attachmentButton.setOnClickListener { openPickDialog() }
         emojiButton.setOnClickListener { showEmojis() }
-        stickerButton.setOnClickListener { showStickers() }
+        if(viewModel.tryFetchStickers) {
+            stickerButton.setOnClickListener { showStickers() }
+            stickerButton.visibility = View.VISIBLE
+            enableButton(stickerButton, false, false)
+        } else {
+            stickerButton.visibility = View.GONE
+        }
 
-        enableButton(stickerButton, false, false)
+        emojiView.layoutManager = GridLayoutManager(this, 3, GridLayoutManager.HORIZONTAL, false)
 
         val textColor = ThemeUtils.getColor(this, android.R.attr.textColorTertiary)
 
