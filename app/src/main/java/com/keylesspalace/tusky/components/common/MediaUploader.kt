@@ -13,11 +13,13 @@
  * You should have received a copy of the GNU General Public License along with Tusky; if not,
  * see <http://www.gnu.org/licenses>. */
 
-package com.keylesspalace.tusky.components.compose
+package com.keylesspalace.tusky.components.common
 
+import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
 import android.os.Environment
+import android.provider.OpenableColumns
 import android.util.Log
 import android.webkit.MimeTypeMap
 import androidx.core.content.FileProvider
@@ -132,22 +134,22 @@ class MediaUploaderImpl(
                         if (mediaSize > videoLimit) {
                             throw VideoSizeException()
                         }
-                        PreparedMedia(QueuedMedia.Type.VIDEO, uri, mediaSize)
+                        PreparedMedia(QueuedMedia.VIDEO, uri, mediaSize)
                     }
                     "image" -> {
-                        PreparedMedia(QueuedMedia.Type.IMAGE, uri, mediaSize)
+                        PreparedMedia(QueuedMedia.IMAGE, uri, mediaSize)
                     }
                     "audio" -> {
                         if (mediaSize > videoLimit) { // TODO: CHANGE!!11
                             throw AudioSizeException()
                         }
-                        PreparedMedia(QueuedMedia.Type.AUDIO, uri, mediaSize)
+                        PreparedMedia(QueuedMedia.AUDIO, uri, mediaSize)
                     }
                     else -> {
                         if (mediaSize > videoLimit) {
                             throw MediaSizeException()
                         }
-                        PreparedMedia(QueuedMedia.Type.UNKNOWN, uri, mediaSize)
+                        PreparedMedia(QueuedMedia.UNKNOWN, uri, mediaSize)
                         // throw MediaTypeException()
                     }
                 }
@@ -225,4 +227,28 @@ class MediaUploaderImpl(
         private const val TAG = "MediaUploaderImpl"
         private const val STATUS_IMAGE_PIXEL_SIZE_LIMIT = 16777216 // 4096^2 Pixels
     }
+}
+
+fun Uri.toFileName(contentResolver: ContentResolver? = null): String {
+    var result: String = "unknown"
+
+    if(scheme.equals("content") && contentResolver != null) {
+        val cursor = contentResolver.query(this, null, null, null, null)
+        cursor?.use{
+            if(it.moveToFirst()) {
+                result = it.getString(it.getColumnIndex(OpenableColumns.DISPLAY_NAME))
+            }
+        }
+    }
+
+    if(result.equals("unknown")) {
+        path?.let {
+            result = it
+            val cut = result.lastIndexOf('/')
+            if (cut != -1) {
+                result = result.substring(cut + 1)
+            }
+        }
+    }
+    return result
 }

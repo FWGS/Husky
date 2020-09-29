@@ -23,7 +23,7 @@ import com.keylesspalace.tusky.appstore.*
 import com.keylesspalace.tusky.components.compose.ComposeActivity
 import com.keylesspalace.tusky.components.compose.ComposeViewModel
 import com.keylesspalace.tusky.components.compose.DEFAULT_CHARACTER_LIMIT
-import com.keylesspalace.tusky.components.compose.MediaUploader
+import com.keylesspalace.tusky.components.common.MediaUploader
 import com.keylesspalace.tusky.db.*
 import com.keylesspalace.tusky.di.ViewModelFactory
 import com.keylesspalace.tusky.entity.*
@@ -42,7 +42,6 @@ import org.mockito.Mockito.mock
 import org.robolectric.Robolectric
 import org.robolectric.annotation.Config
 import org.robolectric.fakes.RoboMenuItem
-import java.lang.Math.pow
 
 /**
  * Created by charlag on 3/7/18.

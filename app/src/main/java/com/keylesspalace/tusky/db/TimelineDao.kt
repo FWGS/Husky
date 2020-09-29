@@ -49,7 +49,6 @@ ORDER BY LENGTH(s.serverId) DESC, s.serverId DESC
 LIMIT :limit""")
     abstract fun getStatusesForAccount(account: Long, maxId: String?, sinceId: String?, limit: Int): Single<List<TimelineStatusWithAccount>>
 
-
     @Transaction
     open fun insertInTransaction(status: TimelineStatusEntity, account: TimelineAccountEntity,
                                  reblogAccount: TimelineAccountEntity?) {

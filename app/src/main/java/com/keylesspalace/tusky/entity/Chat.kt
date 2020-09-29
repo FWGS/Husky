@@ -15,28 +15,30 @@
 
 package com.keylesspalace.tusky.entity
 
+import android.text.Spanned
 import com.google.gson.annotations.SerializedName
 import java.util.*
 
 data class ChatMessage(
-    val id: String,
-    val content: String,
-    @SerializedName("chat_id") val chatId: String,
-    @SerializedName("account_id") val accountId: String,
-    @SerializedName("created_at") val createdAt: Date,
-    val attachment: Attachment?,
-    val emojis: List<Emoji>
+        val id: String,
+        val content: Spanned?,
+        @SerializedName("chat_id") val chatId: String,
+        @SerializedName("account_id") val accountId: String,
+        @SerializedName("created_at") val createdAt: Date,
+        val attachment: Attachment?,
+        val emojis: List<Emoji>,
+        val card: Card?
 )
 
 data class Chat(
     val account: Account,
     val id: String,
-    val unread: Int,
+    val unread: Long,
     @SerializedName("last_message") val lastMessage: ChatMessage?,
     @SerializedName("updated_at") val updatedAt: Date
 )
 
 data class NewChatMessage(
     val content: String,
-    val media_id: String
+    val media_id: String?
 )

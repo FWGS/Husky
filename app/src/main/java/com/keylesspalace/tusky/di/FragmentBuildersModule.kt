@@ -50,6 +50,9 @@ abstract class FragmentBuildersModule {
     abstract fun timelineFragment(): TimelineFragment
 
     @ContributesAndroidInjector
+    abstract fun chatsFragment(): ChatsFragment
+
+    @ContributesAndroidInjector
     abstract fun notificationsFragment(): NotificationsFragment
 
     @ContributesAndroidInjector

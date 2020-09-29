@@ -43,7 +43,7 @@
     <string name="add_account_description">添加新的 Pleroma 帐号</string>
   
   
-    <string name="warning_scheduling_interval">Pleroma的最小调度间隔为5分钟。</string>
+    <string name="warning_scheduling_interval">Pleroma的最小预定时间为5分钟。</string>
   
 
 

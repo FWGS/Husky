@@ -656,14 +656,17 @@ interface MastodonApi {
 
     @POST("api/v1/pleroma/chats/{id}/messages")
     fun createChatMessage(
+            @Header("Authorization") auth: String,
+            @Header(DOMAIN_HEADER) domain: String,
             @Path("id") chatId: String,
             @Body chatMessage: NewChatMessage
-    ): Single<ChatMessage>
+    ): Call<ChatMessage>
 
+    @FormUrlEncoded
     @POST("api/v1/pleroma/chats/{id}/read")
     fun markChatAsRead(
             @Path("id") chatId: String,
-            @Field("last_read_id") lastReadId: String
+            @Field("last_read_id") lastReadId: String? = null
     ): Single<Chat>
 
     @POST("api/v1/pleroma/chats/by-account-id/{id}")

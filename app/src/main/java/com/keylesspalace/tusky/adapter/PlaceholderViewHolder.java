@@ -21,6 +21,7 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 
 import com.keylesspalace.tusky.R;
+import com.keylesspalace.tusky.interfaces.ChatActionListener;
 import com.keylesspalace.tusky.interfaces.StatusActionListener;
 
 public final class PlaceholderViewHolder extends RecyclerView.ViewHolder {
@@ -34,16 +35,26 @@ public final class PlaceholderViewHolder extends RecyclerView.ViewHolder {
         progressBar = itemView.findViewById(R.id.progressBar);
     }
 
-    public void setup(final StatusActionListener listener, boolean progress) {
+    private void setup(boolean progress) {
         loadMoreButton.setVisibility(progress ? View.GONE : View.VISIBLE);
         progressBar.setVisibility(progress ? View.VISIBLE : View.GONE);
 
         loadMoreButton.setEnabled(true);
+    }
+
+    public void setup(final StatusActionListener listener, boolean progress) {
+        setup(progress);
         loadMoreButton.setOnClickListener(v -> {
             loadMoreButton.setEnabled(false);
             listener.onLoadMore(getAdapterPosition());
         });
-
     }
 
+    public void setup(final ChatActionListener listener, boolean progress) {
+        setup(progress);
+        loadMoreButton.setOnClickListener( v -> {
+            loadMoreButton.setEnabled(false);
+            listener.onLoadMore(getAdapterPosition());
+        });
+    }
 }

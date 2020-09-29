@@ -23,7 +23,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
-import android.content.ContentResolver
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffColorFilter
 import android.graphics.drawable.Drawable
@@ -53,7 +52,6 @@ import androidx.core.view.inputmethod.InputConnectionCompat
 import androidx.core.view.inputmethod.InputContentInfoCompat
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
-import androidx.lifecycle.Observer
 import androidx.lifecycle.Lifecycle
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.GridLayoutManager
@@ -61,7 +59,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.transition.TransitionManager
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
-import com.bumptech.glide.request.target.SimpleTarget
 import com.bumptech.glide.request.transition.Transition
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.snackbar.Snackbar
@@ -72,6 +69,7 @@ import com.keylesspalace.tusky.adapter.ComposeAutoCompleteAdapter
 import com.keylesspalace.tusky.adapter.EmojiAdapter
 import com.keylesspalace.tusky.adapter.OnEmojiSelectedListener
 import com.keylesspalace.tusky.appstore.*
+import com.keylesspalace.tusky.components.common.*
 import com.keylesspalace.tusky.components.compose.dialog.makeCaptionDialog
 import com.keylesspalace.tusky.components.compose.dialog.showAddPollDialog
 import com.keylesspalace.tusky.components.compose.view.ComposeOptionsListener
@@ -210,35 +208,6 @@ class ComposeActivity : BaseActivity(),
                 }
     }
     
-    private fun uriToFilename(uri: Uri): String {
-        var result: String = "unknown"
-        if(uri.scheme.equals("content")) {
-            val cursor = contentResolver.query(uri, null, null, null, null)
-            cursor?.let {
-                try {
-                    if(cursor.moveToFirst()) {
-                        result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME))
-                    }
-                }
-                finally {
-                    cursor.close()
-                }
-            }
-        }
-        if(result.equals("unknown")) {
-            val path = uri.getPath()
-            path?.let {
-                result = path
-                val cut = result.lastIndexOf('/')
-                if (cut != -1) {
-                    result = result.substring(cut + 1)
-                }
-            }
-        }
-        return result
-    }
-            
-
     private fun applyShareIntent(intent: Intent?, savedInstanceState: Bundle?) {
         if (intent != null && savedInstanceState == null) {
             /* Get incoming images being sent through a share action from another app. Only do this
@@ -1129,7 +1098,7 @@ class ComposeActivity : BaseActivity(),
 
     private fun pickMedia(uri: Uri, contentInfoCompat: InputContentInfoCompat? = null, filename: String? = null) {
         withLifecycleContext {
-            viewModel.pickMedia(uri, filename ?: uriToFilename(uri)).observe { exceptionOrItem ->
+            viewModel.pickMedia(uri, filename ?: uri.toFileName(contentResolver)).observe { exceptionOrItem ->
 
                 contentInfoCompat?.releasePermission()
 

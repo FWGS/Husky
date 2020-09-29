@@ -11,7 +11,6 @@ import android.content.Intent
 import android.os.Build
 import android.os.IBinder
 import android.os.Parcelable
-import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
 import androidx.core.content.ContextCompat
@@ -22,10 +21,9 @@ import com.keylesspalace.tusky.components.notifications.NotificationHelper
 import com.keylesspalace.tusky.db.AccountManager
 import com.keylesspalace.tusky.db.AppDatabase
 import com.keylesspalace.tusky.di.Injectable
-import com.keylesspalace.tusky.entity.NewPoll
-import com.keylesspalace.tusky.entity.NewStatus
-import com.keylesspalace.tusky.entity.Status
+import com.keylesspalace.tusky.entity.*
 import com.keylesspalace.tusky.network.MastodonApi
+import com.keylesspalace.tusky.util.Either
 import com.keylesspalace.tusky.util.SaveTootHelper
 import dagger.android.AndroidInjection
 import kotlinx.android.parcel.Parcelize
@@ -51,8 +49,8 @@ class SendTootService : Service(), Injectable {
     @Inject
     lateinit var saveTootHelper: SaveTootHelper
 
-    private val tootsToSend = ConcurrentHashMap<Int, TootToSend>()
-    private val sendCalls = ConcurrentHashMap<Int, Call<Status>>()
+    private val tootsToSend = ConcurrentHashMap<Int, PostToSend>()
+    private val sendCalls = ConcurrentHashMap<Int, Either<Call<Status>, Call<ChatMessage>>>()
 
     private val timer = Timer()
 
@@ -68,59 +66,49 @@ class SendTootService : Service(), Injectable {
     }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-
-        if (intent.hasExtra(KEY_TOOT)) {
-            val tootToSend = intent.getParcelableExtra<TootToSend>(KEY_TOOT)
-                    ?: throw IllegalStateException("SendTootService started without $KEY_TOOT extra")
-
-            if (NotificationHelper.NOTIFICATION_USE_CHANNELS) {
-                val channel = NotificationChannel(CHANNEL_ID, getString(R.string.send_toot_notification_channel_name), NotificationManager.IMPORTANCE_LOW)
-                notificationManager.createNotificationChannel(channel)
-            }
-
-            var notificationText = tootToSend.warningText
-            if (notificationText.isBlank()) {
-                notificationText = tootToSend.text
-            }
-
-            val builder = NotificationCompat.Builder(this, CHANNEL_ID)
-                    .setSmallIcon(R.drawable.ic_notify)
-                    .setContentTitle(getString(R.string.send_toot_notification_title))
-                    .setContentText(notificationText)
-                    .setProgress(1, 0, true)
-                    .setOngoing(true)
-                    .setColor(ContextCompat.getColor(this, R.color.tusky_blue))
-                    .addAction(0, getString(android.R.string.cancel), cancelSendingIntent(sendingNotificationId))
-
-            if (tootsToSend.size == 0 || Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_DETACH)
-                startForeground(sendingNotificationId, builder.build())
-            } else {
-                notificationManager.notify(sendingNotificationId, builder.build())
-            }
-
-            tootsToSend[sendingNotificationId] = tootToSend
-            sendToot(sendingNotificationId--)
-
-        } else {
-
-            if (intent.hasExtra(KEY_CANCEL)) {
-                cancelSending(intent.getIntExtra(KEY_CANCEL, 0))
-            }
-
+        if (intent.hasExtra(KEY_CANCEL)) {
+            cancelSending(intent.getIntExtra(KEY_CANCEL, 0))
+            return START_NOT_STICKY
         }
 
-        return START_NOT_STICKY
+        val postToSend : PostToSend = (intent.getParcelableExtra<TootToSend>(KEY_TOOT)
+                ?: intent.getParcelableExtra<MessageToSend>(KEY_CHATMSG)) as PostToSend?
+                ?: throw IllegalStateException("SendTootService started without $KEY_CHATMSG or $KEY_TOOT extra")
 
+        if (NotificationHelper.NOTIFICATION_USE_CHANNELS) {
+            val channel = NotificationChannel(CHANNEL_ID, getString(R.string.send_toot_notification_channel_name), NotificationManager.IMPORTANCE_LOW)
+            notificationManager.createNotificationChannel(channel)
+        }
+
+        val builder = NotificationCompat.Builder(this, CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_notify)
+                .setContentTitle(getString(R.string.send_toot_notification_title))
+                .setContentText(postToSend.getNotificationText())
+                .setProgress(1, 0, true)
+                .setOngoing(true)
+                .setColor(ContextCompat.getColor(this, R.color.tusky_blue))
+                .addAction(0, getString(android.R.string.cancel), cancelSendingIntent(sendingNotificationId))
+
+        if (tootsToSend.size == 0 || Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_DETACH)
+            startForeground(sendingNotificationId, builder.build())
+        } else {
+            notificationManager.notify(sendingNotificationId, builder.build())
+        }
+
+        tootsToSend[sendingNotificationId] = postToSend
+        sendToot(sendingNotificationId--)
+
+        return START_NOT_STICKY
     }
 
     private fun sendToot(tootId: Int) {
 
         // when tootToSend == null, sending has been canceled
-        val tootToSend = tootsToSend[tootId] ?: return
+        val postToSend = tootsToSend[tootId] ?: return
 
         // when account == null, user has logged out, cancel sending
-        val account = accountManager.getAccountById(tootToSend.accountId)
+        val account = accountManager.getAccountById(postToSend.getAccountId())
 
         if (account == null) {
             tootsToSend.remove(tootId)
@@ -129,87 +117,135 @@ class SendTootService : Service(), Injectable {
             return
         }
 
-        tootToSend.retries++
+        postToSend.incrementRetries()
 
-        val contentType : String? = if(tootToSend.formattingSyntax.isNotEmpty()) tootToSend.formattingSyntax else null
-        val preview : Boolean? = if(tootToSend.preview) true else null
+        if(postToSend is TootToSend) {
+            val contentType : String? = if(postToSend.formattingSyntax.isNotEmpty()) postToSend.formattingSyntax else null
+            val preview : Boolean? = if(postToSend.preview) true else null
 
-        val newStatus = NewStatus(
-                tootToSend.text,
-                tootToSend.warningText,
-                tootToSend.inReplyToId,
-                tootToSend.visibility,
-                tootToSend.sensitive,
-                tootToSend.mediaIds,
-                tootToSend.scheduledAt,
-                tootToSend.poll,
-                contentType,
-                preview
-        )
+            val newStatus = NewStatus(
+                    postToSend.text,
+                    postToSend.warningText,
+                    postToSend.inReplyToId,
+                    postToSend.visibility,
+                    postToSend.sensitive,
+                    postToSend.mediaIds,
+                    postToSend.scheduledAt,
+                    postToSend.poll,
+                    contentType,
+                    preview
+            )
 
-        val sendCall = mastodonApi.createStatus(
-                "Bearer " + account.accessToken,
-                account.domain,
-                tootToSend.idempotencyKey,
-                newStatus
-        )
+            val sendCall = mastodonApi.createStatus(
+                    "Bearer " + account.accessToken,
+                    account.domain,
+                    postToSend.idempotencyKey,
+                    newStatus
+            )
 
-        sendCalls[tootId] = sendCall
+            val callback = object : Callback<Status> {
+                override fun onResponse(call: Call<Status>, response: Response<Status>) {
 
-        val callback = object : Callback<Status> {
-            override fun onResponse(call: Call<Status>, response: Response<Status>) {
+                    val scheduled = !postToSend.scheduledAt.isNullOrEmpty()
+                    tootsToSend.remove(tootId)
 
-                val scheduled = !tootToSend.scheduledAt.isNullOrEmpty()
-                tootsToSend.remove(tootId)
+                    if (response.isSuccessful) {
+                        // If the status was loaded from a draft, delete the draft and associated media files.
+                        if (postToSend.savedTootUid != 0) {
+                            saveTootHelper.deleteDraft(postToSend.savedTootUid)
+                        }
 
-                if (response.isSuccessful) {
-                    // If the status was loaded from a draft, delete the draft and associated media files.
-                    if (tootToSend.savedTootUid != 0) {
-                        saveTootHelper.deleteDraft(tootToSend.savedTootUid)
+                        when {
+                            postToSend.preview -> response.body()?.let(::StatusPreviewEvent)?.let(eventHub::dispatch)
+                            scheduled -> response.body()?.let(::StatusScheduledEvent)?.let(eventHub::dispatch)
+                            else -> response.body()?.let(::StatusComposedEvent)?.let(eventHub::dispatch)
+                        }
+                        notificationManager.cancel(tootId)
+
+                    } else {
+                        // the server refused to accept the toot, save toot & show error message
+                        saveTootToDrafts(postToSend)
+
+                        val builder = NotificationCompat.Builder(this@SendTootService, CHANNEL_ID)
+                                .setSmallIcon(R.drawable.ic_notify)
+                                .setContentTitle(getString(R.string.send_toot_notification_error_title))
+                                .setContentText(getString(R.string.send_toot_notification_saved_content))
+                                .setColor(ContextCompat.getColor(this@SendTootService, R.color.tusky_blue))
+
+                        notificationManager.cancel(tootId)
+                        notificationManager.notify(errorNotificationId--, builder.build())
+
                     }
 
-                    when {
-                        tootToSend.preview -> response.body()?.let(::StatusPreviewEvent)?.let(eventHub::dispatch)
-                        scheduled -> response.body()?.let(::StatusScheduledEvent)?.let(eventHub::dispatch)
-                        else -> response.body()?.let(::StatusComposedEvent)?.let(eventHub::dispatch)
-                    }
-                    notificationManager.cancel(tootId)
-
-                } else {
-                    // the server refused to accept the toot, save toot & show error message
-                    saveTootToDrafts(tootToSend)
-
-                    val builder = NotificationCompat.Builder(this@SendTootService, CHANNEL_ID)
-                            .setSmallIcon(R.drawable.ic_notify)
-                            .setContentTitle(getString(R.string.send_toot_notification_error_title))
-                            .setContentText(getString(R.string.send_toot_notification_saved_content))
-                            .setColor(ContextCompat.getColor(this@SendTootService, R.color.tusky_blue))
-
-                    notificationManager.cancel(tootId)
-                    notificationManager.notify(errorNotificationId--, builder.build())
+                    stopSelfWhenDone()
 
                 }
 
-                stopSelfWhenDone()
+                override fun onFailure(call: Call<Status>, t: Throwable) {
+                    var backoff = TimeUnit.SECONDS.toMillis(postToSend.retries.toLong())
+                    if (backoff > MAX_RETRY_INTERVAL) {
+                        backoff = MAX_RETRY_INTERVAL
+                    }
 
+                    timer.schedule(object : TimerTask() {
+                        override fun run() {
+                            sendToot(tootId)
+                        }
+                    }, backoff)
+                }
             }
 
-            override fun onFailure(call: Call<Status>, t: Throwable) {
-                var backoff = TimeUnit.SECONDS.toMillis(tootToSend.retries.toLong())
-                if (backoff > MAX_RETRY_INTERVAL) {
-                    backoff = MAX_RETRY_INTERVAL
+            sendCalls[tootId] = Either.Left(sendCall)
+            sendCall.enqueue(callback)
+        } else if(postToSend is MessageToSend) {
+            val newMessage = NewChatMessage(postToSend.text, postToSend.mediaId)
+
+            val sendCall = mastodonApi.createChatMessage(
+                    "Bearer " + account.accessToken,
+                    account.domain,
+                    postToSend.chatId,
+                    newMessage
+            )
+
+            val callback = object : Callback<ChatMessage> {
+                override fun onResponse(call: Call<ChatMessage>, response: Response<ChatMessage>) {
+                    tootsToSend.remove(tootId)
+
+                    if (response.isSuccessful) {
+                        notificationManager.cancel(tootId)
+
+                        eventHub.dispatch(ChatMessageDeliveredEvent(response.body()!!))
+                    } else {
+                        val builder = NotificationCompat.Builder(this@SendTootService, CHANNEL_ID)
+                                .setSmallIcon(R.drawable.ic_notify)
+                                .setContentTitle(getString(R.string.send_toot_notification_error_title))
+                                .setContentText(getString(R.string.send_toot_notification_saved_content))
+                                .setColor(ContextCompat.getColor(this@SendTootService, R.color.tusky_blue))
+
+                        notificationManager.cancel(tootId)
+                        notificationManager.notify(errorNotificationId--, builder.build())
+                    }
+
+                    stopSelfWhenDone()
                 }
 
-                timer.schedule(object : TimerTask() {
-                    override fun run() {
-                        sendToot(tootId)
+                override fun onFailure(call: Call<ChatMessage>, t: Throwable) {
+                    var backoff = TimeUnit.SECONDS.toMillis(postToSend.retries.toLong())
+                    if (backoff > MAX_RETRY_INTERVAL) {
+                        backoff = MAX_RETRY_INTERVAL
                     }
-                }, backoff)
+
+                    timer.schedule(object : TimerTask() {
+                        override fun run() {
+                            sendToot(tootId)
+                        }
+                    }, backoff)
+                }
             }
+
+            sendCalls[tootId] = Either.Right(sendCall)
+            sendCall.enqueue(callback)
         }
-
-        sendCall.enqueue(callback)
-
     }
 
     private fun stopSelfWhenDone() {
@@ -224,9 +260,18 @@ class SendTootService : Service(), Injectable {
         val tootToCancel = tootsToSend.remove(tootId)
         if (tootToCancel != null) {
             val sendCall = sendCalls.remove(tootId)
-            sendCall?.cancel()
 
-            saveTootToDrafts(tootToCancel)
+            sendCall?.let {
+                if(it.isLeft()) {
+                    val sendStatusCall = it.asLeft()
+                    sendStatusCall.cancel()
+
+                    saveTootToDrafts(tootToCancel as TootToSend)
+                } else {
+                    val sendMessageCall = it.asRight()
+                    sendMessageCall.cancel()
+                }
+            }
 
             val builder = NotificationCompat.Builder(this@SendTootService, CHANNEL_ID)
                     .setSmallIcon(R.drawable.ic_notify)
@@ -274,6 +319,7 @@ class SendTootService : Service(), Injectable {
 
     companion object {
 
+        private const val KEY_CHATMSG = "chatmsg"
         private const val KEY_TOOT = "toot"
         private const val KEY_CANCEL = "cancel_id"
         private const val CHANNEL_ID = "send_toots"
@@ -283,33 +329,67 @@ class SendTootService : Service(), Injectable {
         private var sendingNotificationId = -1 // use negative ids to not clash with other notis
         private var errorNotificationId = Int.MIN_VALUE // use even more negative ids to not clash with other notis
 
+        private fun Intent.forwardUriPermissions(mediaUris: List<String>) {
+            if(mediaUris.isEmpty())
+                return
+
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            val uriClip = ClipData(
+                    ClipDescription("Toot Media", arrayOf("image/*", "video/*")),
+                    ClipData.Item(mediaUris[0])
+            )
+            mediaUris.drop(1).forEach { uriClip.addItem(ClipData.Item(it)) }
+
+            clipData = uriClip
+        }
+
         @JvmStatic
-        fun sendTootIntent(context: Context,
-                           tootToSend: TootToSend
-        ): Intent {
+        fun sendMessageIntent(context: Context, msgToSend: MessageToSend): Intent {
             val intent = Intent(context, SendTootService::class.java)
-            intent.putExtra(KEY_TOOT, tootToSend)
-
-            if (tootToSend.mediaUris.isNotEmpty()) {
-                // forward uri permissions
-                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                val uriClip = ClipData(
-                        ClipDescription("Toot Media", arrayOf("image/*", "video/*")),
-                        ClipData.Item(tootToSend.mediaUris[0])
-                )
-                tootToSend.mediaUris
-                        .drop(1)
-                        .forEach { mediaUri ->
-                            uriClip.addItem(ClipData.Item(mediaUri))
-                        }
-
-                intent.clipData = uriClip
-
-            }
+            intent.putExtra(KEY_CHATMSG, msgToSend)
+            if(msgToSend.mediaUri != null)
+                intent.forwardUriPermissions(listOf(msgToSend.mediaUri))
 
             return intent
         }
 
+        @JvmStatic
+        fun sendTootIntent(context: Context, tootToSend: TootToSend): Intent {
+            val intent = Intent(context, SendTootService::class.java)
+            intent.putExtra(KEY_TOOT, tootToSend)
+            intent.forwardUriPermissions(tootToSend.mediaUris)
+
+            return intent
+        }
+
+    }
+}
+
+interface PostToSend {
+    fun getAccountId() : Long
+    fun getNotificationText() : String
+    fun incrementRetries()
+}
+
+@Parcelize
+data class MessageToSend(
+    val text: String,
+    val mediaId: String?,
+    val mediaUri: String?,
+    private val accountId: Long,
+    val chatId: String,
+    var retries: Int
+) : Parcelable, PostToSend {
+    override fun getAccountId(): Long {
+        return accountId
+    }
+
+    override fun getNotificationText() : String {
+        return text
+    }
+
+    override fun incrementRetries() {
+        retries++
     }
 }
 
@@ -330,8 +410,20 @@ data class TootToSend(
         val savedJsonUrls: List<String>?,
         val formattingSyntax: String,
         val preview: Boolean,
-        val accountId: Long,
+        private val accountId: Long,
         val savedTootUid: Int,
         val idempotencyKey: String,
         var retries: Int
-) : Parcelable
+) : Parcelable, PostToSend {
+    override fun getNotificationText() : String {
+        return if(warningText.isBlank()) text else warningText
+    }
+
+    override fun getAccountId() : Long {
+        return accountId
+    }
+
+    override fun incrementRetries() {
+        retries++
+    }
+}

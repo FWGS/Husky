@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="chats">Чаты</string>
+    <string name="action_mark_as_read">Пометить как прочитанное</string>
     <string name="action_reply_to">Ответ на</string>
     <!--<string name="action_mute_conversation">Заглушить разговор</string>
     <string name="action_unmute_conversation">Отменить глушение разговора</string>-->
