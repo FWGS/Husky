@@ -390,9 +390,10 @@ class ChatActivity: BottomSheetActivity(),
                                     .into(imageAttachment)
                         }
                     }
+
+                    attachmentLayout.visibility = View.VISIBLE
                 } else {
-                    imageAttachment.visibility = View.GONE
-                    textAttachment.visibility = View.GONE
+                    attachmentLayout.visibility = View.GONE
                 }
             }
             viewModel.uploadError.observe {
@@ -448,7 +449,7 @@ class ChatActivity: BottomSheetActivity(),
         stickerBehavior = BottomSheetBehavior.from(stickerKeyboard)
 
         sendButton.setOnClickListener {
-            val media = viewModel.media.value?.get(0)
+            val media = viewModel.getSingleMedia()
 
             serviceClient.sendChatMessage( MessageToSend(
                     editText.text.toString(),
@@ -960,13 +961,13 @@ class ChatActivity: BottomSheetActivity(),
             return
         }
 
-        super.onBackPressed()
+        finish()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> {
-                onBackPressed()
+                finish()
                 return true
             }
         }
