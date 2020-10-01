@@ -56,7 +56,7 @@ data class AccountEntity(@field:PrimaryKey(autoGenerate = true) var id: Long,
                          var activeNotifications: String = "[]",
                          var emojis: List<Emoji> = emptyList(),
                          var tabPreferences: List<TabData> = defaultTabs(),
-                         var notificationsFilter: String = "[\"follow_request\"]",
+                         var notificationsFilter: String = "[]",
                          var defaultFormattingSyntax: String = "") {
 
     val identifier: String
