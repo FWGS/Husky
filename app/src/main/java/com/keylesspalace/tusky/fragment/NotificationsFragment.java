@@ -826,6 +826,8 @@ public class NotificationsFragment extends SFragment implements
                 return getString(R.string.notification_follow_request_name);
             case POLL:
                 return getString(R.string.notification_poll_name);
+            case EMOJI_REACTION:
+                return getString(R.string.notification_emoji_name);
             default:
                 return "Unknown";
         }
