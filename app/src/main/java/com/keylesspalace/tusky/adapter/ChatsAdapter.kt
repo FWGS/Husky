@@ -82,6 +82,10 @@ class ChatsViewHolder(view: View) : RecyclerView.ViewHolder(view) {
                     content.setTypeface(null, Typeface.ITALIC)
 
                     content.resources.getString(it.attachment.describeAttachmentType())
+                } else if (it.card != null) {
+                    content.setTypeface(null, Typeface.ITALIC)
+
+                    content.resources.getString(R.string.link)
                 } else ""
 
                 content.text = if(it.accountId == localUserId) {

@@ -19,7 +19,12 @@
     <string name="notification_emoji_format">%s среагировал с %s на ваш пост</string>
     <string name="notification_emoji_name">Эмодзи реакции</string>
     <string name="notification_emoji_description">Уведомления о новых эмодзи реакциях</string>
+    <string name="notification_chat_message_format">%s отправил вам сообщение</string>
+    <string name="notification_chat_message_name">Сообщения</string>
+    <string name="notification_chat_message_description">Уведомления о новых сообщениях</string>
     <string name="pref_title_default_formatting">Синтаксис форматирования по умолчанию(если поддерживается)</string>
     <string name="pref_title_notification_filter_emoji">на мои посты отреагировали</string>
+    <string name="pref_title_notification_filter_chat_messages">получено новое сообщение</string>
     <string name="pref_title_hide_muted_users">Скрывать заглушенных пользователей</string>
+    <string name="link">Ссылка</string>
 </resources>

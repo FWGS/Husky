@@ -52,6 +52,7 @@ import com.keylesspalace.tusky.MainActivity;
 import com.keylesspalace.tusky.R;
 import com.keylesspalace.tusky.db.AccountEntity;
 import com.keylesspalace.tusky.db.AccountManager;
+import com.keylesspalace.tusky.entity.ChatMessage;
 import com.keylesspalace.tusky.entity.Notification;
 import com.keylesspalace.tusky.entity.Poll;
 import com.keylesspalace.tusky.entity.PollOption;
@@ -90,6 +91,8 @@ public class NotificationHelper {
 
     public static final String COMPOSE_ACTION = "COMPOSE_ACTION";
 
+    public static final String CHAT_REPLY_ACTION = "CHAT_REPLY_ACTION";
+
     public static final String KEY_REPLY = "KEY_REPLY";
 
     public static final String KEY_SENDER_ACCOUNT_ID = "KEY_SENDER_ACCOUNT_ID";
@@ -112,6 +115,8 @@ public class NotificationHelper {
 
     public static final String KEY_CITED_AUTHOR_LOCAL = "KEY_CITED_AUTHOR_LOCAL";
 
+    public static final String KEY_CHAT_ID = "KEY_CHAT_ID";
+
     /**
      * notification channels used on Android O+
      **/
@@ -122,6 +127,7 @@ public class NotificationHelper {
     public static final String CHANNEL_FAVOURITE = "CHANNEL_FAVOURITE";
     public static final String CHANNEL_POLL = "CHANNEL_POLL";
     public static final String CHANNEL_EMOJI_REACTION = "CHANNEL_EMOJI_REACTION";
+    public static final String CHANNEL_CHAT_MESSAGES = "CHANNEL_CHAT_MESSAGES";
 
 
     /**
@@ -151,13 +157,13 @@ public class NotificationHelper {
         }
 
         // Pleroma extension: don't notify about seen notifications
-        if (body.getPleroma() != null && body.getPleroma().getSeen() == true) {
+        if (body.getPleroma() != null && body.getPleroma().getSeen()) {
             return;
         }
 
         if (body.getStatus() != null &&
-            (body.getStatus().isUserMuted() == true ||
-             body.getStatus().isThreadMuted() == true)) {
+            (body.getStatus().isUserMuted() ||
+             body.getStatus().isThreadMuted())) {
             return;
         }
 
@@ -218,30 +224,45 @@ public class NotificationHelper {
         builder.setLargeIcon(accountAvatar);
 
         // Reply to mention action; RemoteInput is available from KitKat Watch, but buttons are available from Nougat
-        if (body.getType() == Notification.Type.MENTION
-                && android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            RemoteInput replyRemoteInput = new RemoteInput.Builder(KEY_REPLY)
-                    .setLabel(context.getString(R.string.label_quick_reply))
-                    .build();
+        if(android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            if(body.getType() == Notification.Type.MENTION) {
+                RemoteInput replyRemoteInput = new RemoteInput.Builder(KEY_REPLY)
+                        .setLabel(context.getString(R.string.label_quick_reply))
+                        .build();
 
-            PendingIntent quickReplyPendingIntent = getStatusReplyIntent(REPLY_ACTION, context, body, account);
+                PendingIntent quickReplyPendingIntent = getStatusReplyIntent(REPLY_ACTION, context, body, account);
 
-            NotificationCompat.Action quickReplyAction =
-                    new NotificationCompat.Action.Builder(R.drawable.ic_reply_24dp,
-                            context.getString(R.string.action_quick_reply), quickReplyPendingIntent)
-                            .addRemoteInput(replyRemoteInput)
-                            .build();
+                NotificationCompat.Action quickReplyAction =
+                        new NotificationCompat.Action.Builder(R.drawable.ic_reply_24dp,
+                                context.getString(R.string.action_quick_reply), quickReplyPendingIntent)
+                                .addRemoteInput(replyRemoteInput)
+                                .build();
 
-            builder.addAction(quickReplyAction);
+                builder.addAction(quickReplyAction);
 
-            PendingIntent composePendingIntent = getStatusReplyIntent(COMPOSE_ACTION, context, body, account);
+                PendingIntent composePendingIntent = getStatusReplyIntent(COMPOSE_ACTION, context, body, account);
 
-            NotificationCompat.Action composeAction =
-                    new NotificationCompat.Action.Builder(R.drawable.ic_reply_24dp,
-                            context.getString(R.string.action_compose_shortcut), composePendingIntent)
-                            .build();
+                NotificationCompat.Action composeAction =
+                        new NotificationCompat.Action.Builder(R.drawable.ic_reply_24dp,
+                                context.getString(R.string.action_compose_shortcut), composePendingIntent)
+                                .build();
 
-            builder.addAction(composeAction);
+                builder.addAction(composeAction);
+            } else if(body.getType() == Notification.Type.CHAT_MESSAGE) {
+                RemoteInput replyRemoteInput = new RemoteInput.Builder(KEY_REPLY)
+                        .setLabel(context.getString(R.string.label_quick_reply))
+                        .build();
+
+                PendingIntent quickReplyPendingIntent = getStatusReplyIntent(CHAT_REPLY_ACTION, context, body, account);
+
+                NotificationCompat.Action quickReplyAction =
+                        new NotificationCompat.Action.Builder(R.drawable.ic_reply_24dp,
+                                context.getString(R.string.action_quick_reply), quickReplyPendingIntent)
+                                .addRemoteInput(replyRemoteInput)
+                                .build();
+
+                builder.addAction(quickReplyAction);
+            }
         }
 
         builder.setSubText(account.getFullName());
@@ -326,35 +347,40 @@ public class NotificationHelper {
     }
 
     private static PendingIntent getStatusReplyIntent(String action, Context context, Notification body, AccountEntity account) {
-        Status status = body.getStatus();
-
-        String citedLocalAuthor = status.getAccount().getLocalUsername();
-        String citedText = status.getContent().toString();
-        String inReplyToId = status.getId();
-        Status actionableStatus = status.getActionableStatus();
-        Status.Visibility replyVisibility = actionableStatus.getVisibility();
-        String contentWarning = actionableStatus.getSpoilerText();
-        Status.Mention[] mentions = actionableStatus.getMentions();
-        List<String> mentionedUsernames = new ArrayList<>();
-        mentionedUsernames.add(actionableStatus.getAccount().getUsername());
-        for (Status.Mention mention : mentions) {
-            mentionedUsernames.add(mention.getUsername());
-        }
-        mentionedUsernames.removeAll(Collections.singleton(account.getUsername()));
-        mentionedUsernames = new ArrayList<>(new LinkedHashSet<>(mentionedUsernames));
-
         Intent replyIntent = new Intent(context, SendStatusBroadcastReceiver.class)
-                .setAction(action)
-                .putExtra(KEY_CITED_AUTHOR_LOCAL, citedLocalAuthor)
-                .putExtra(KEY_CITED_TEXT, citedText)
-                .putExtra(KEY_SENDER_ACCOUNT_ID, account.getId())
-                .putExtra(KEY_SENDER_ACCOUNT_IDENTIFIER, account.getIdentifier())
-                .putExtra(KEY_SENDER_ACCOUNT_FULL_NAME, account.getFullName())
-                .putExtra(KEY_NOTIFICATION_ID, notificationId)
-                .putExtra(KEY_CITED_STATUS_ID, inReplyToId)
-                .putExtra(KEY_VISIBILITY, replyVisibility)
-                .putExtra(KEY_SPOILER, contentWarning)
-                .putExtra(KEY_MENTIONS, mentionedUsernames.toArray(new String[0]));
+            .setAction(action)
+            .putExtra(KEY_SENDER_ACCOUNT_ID, account.getId())
+            .putExtra(KEY_SENDER_ACCOUNT_IDENTIFIER, account.getIdentifier())
+            .putExtra(KEY_SENDER_ACCOUNT_FULL_NAME, account.getFullName())
+            .putExtra(KEY_NOTIFICATION_ID, notificationId);
+
+        if(action == CHAT_REPLY_ACTION) {
+            replyIntent.putExtra(KEY_CHAT_ID, body.getChatMessage().getChatId());
+        } else {
+            Status status = body.getStatus();
+
+            String citedLocalAuthor = status.getAccount().getLocalUsername();
+            String citedText = status.getContent().toString();
+            String inReplyToId = status.getId();
+            Status actionableStatus = status.getActionableStatus();
+            Status.Visibility replyVisibility = actionableStatus.getVisibility();
+            String contentWarning = actionableStatus.getSpoilerText();
+            Status.Mention[] mentions = actionableStatus.getMentions();
+            List<String> mentionedUsernames = new ArrayList<>();
+            mentionedUsernames.add(actionableStatus.getAccount().getUsername());
+            for (Status.Mention mention : mentions) {
+                mentionedUsernames.add(mention.getUsername());
+            }
+            mentionedUsernames.removeAll(Collections.singleton(account.getUsername()));
+            mentionedUsernames = new ArrayList<>(new LinkedHashSet<>(mentionedUsernames));
+
+            replyIntent.putExtra(KEY_CITED_AUTHOR_LOCAL, citedLocalAuthor)
+                    .putExtra(KEY_CITED_TEXT, citedText)
+                    .putExtra(KEY_CITED_STATUS_ID, inReplyToId)
+                    .putExtra(KEY_VISIBILITY, replyVisibility)
+                    .putExtra(KEY_SPOILER, contentWarning)
+                    .putExtra(KEY_MENTIONS, mentionedUsernames.toArray(new String[0]));
+        }
 
         return PendingIntent.getBroadcast(context.getApplicationContext(),
                 notificationId,
@@ -374,7 +400,8 @@ public class NotificationHelper {
                     CHANNEL_BOOST + account.getIdentifier(),
                     CHANNEL_FAVOURITE + account.getIdentifier(),
                     CHANNEL_POLL + account.getIdentifier(),
-                    CHANNEL_EMOJI_REACTION + account.getIdentifier()
+                    CHANNEL_EMOJI_REACTION + account.getIdentifier(),
+                    CHANNEL_CHAT_MESSAGES + account.getIdentifier()
             };
             int[] channelNames = {
                     R.string.notification_mention_name,
@@ -384,6 +411,7 @@ public class NotificationHelper {
                     R.string.notification_favourite_name,
                     R.string.notification_poll_name,
                     R.string.notification_emoji_name,
+                    R.string.notification_chat_message_name,
             };
             int[] channelDescriptions = {
                     R.string.notification_mention_descriptions,
@@ -392,7 +420,8 @@ public class NotificationHelper {
                     R.string.notification_boost_description,
                     R.string.notification_favourite_description,
                     R.string.notification_poll_description,
-                    R.string.notification_emoji_description
+                    R.string.notification_emoji_description,
+                    R.string.notification_chat_message_description,
             };
 
             List<NotificationChannel> channels = new ArrayList<>(6);
@@ -489,7 +518,7 @@ public class NotificationHelper {
                 PeriodicWorkRequest.MIN_PERIODIC_FLEX_MILLIS, TimeUnit.MILLISECONDS
         )
                 .addTag(NOTIFICATION_PULL_TAG)
-                .setConstraints(new Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
+                //.setConstraints(new Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
                 .build();
 
         workManager.enqueue(workRequest);
@@ -550,6 +579,8 @@ public class NotificationHelper {
                 return account.getNotificationsPolls();
             case EMOJI_REACTION:
                 return account.getNotificationsEmojiReactions();
+            case CHAT_MESSAGE:
+                return account.getNotificationsChatMessages();
             default:
                 return false;
         }
@@ -572,6 +603,8 @@ public class NotificationHelper {
                 return CHANNEL_POLL + account.getIdentifier();
             case EMOJI_REACTION:
                 return CHANNEL_EMOJI_REACTION + account.getIdentifier();
+            case CHAT_MESSAGE:
+                return CHANNEL_CHAT_MESSAGES + account.getIdentifier();
             default:
                 return null;
         }
@@ -653,6 +686,9 @@ public class NotificationHelper {
                 } else {
                     return context.getString(R.string.poll_ended_voted);
                 }
+            case CHAT_MESSAGE:
+                return String.format(context.getString(R.string.notification_chat_message_format),
+                        accountName);
         }
         return null;
     }
@@ -685,6 +721,16 @@ public class NotificationHelper {
                         builder.append('\n');
                     }
                     return builder.toString();
+                }
+            case CHAT_MESSAGE:
+                if (!TextUtils.isEmpty(notification.getChatMessage().getContent())) {
+                    return notification.getChatMessage().getContent().toString();
+                } else if(notification.getChatMessage().getAttachment() != null) {
+                    return context.getString(notification.getChatMessage().getAttachment().describeAttachmentType());
+                } else if(notification.getChatMessage().getCard() != null) {
+                    return context.getString(R.string.link);
+                } else {
+                    return "";
                 }
         }
         return null;

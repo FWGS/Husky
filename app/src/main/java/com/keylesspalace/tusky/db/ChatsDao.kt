@@ -8,7 +8,6 @@ import io.reactivex.Single
 @Dao
 abstract class ChatsDao {
 
-    // TODO: must be ordering by date but it leads to issues
     @Query("""SELECT c.chatId, c.localId, c.accountId, c.lastMessageId, c.unread, c.updatedAt,
 a.serverId as 'a_serverId', a.timelineUserId as 'a_timelineUserId',
 a.localUsername as 'a_localUsername', a.username as 'a_username',

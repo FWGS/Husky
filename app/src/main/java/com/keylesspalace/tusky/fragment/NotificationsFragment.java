@@ -778,6 +778,10 @@ public class NotificationsFragment extends SFragment implements
         List<Notification.Type> notificationsList = Notification.Type.Companion.getAsList();
         List<String> list = new ArrayList<>();
         for (Notification.Type type : notificationsList) {
+            // ignore chat messages, as we don't work with them in main notification fragment
+            if(type == Notification.Type.CHAT_MESSAGE)
+                continue;
+
             list.add(getNotificationText(type));
         }
 

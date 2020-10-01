@@ -45,7 +45,8 @@ class NotificationWorker(
                     // don't care about withMuted because they are always silently ignored
                     val notificationsResponse = mastodonApi.notificationsWithAuth(
                             String.format("Bearer %s", account.accessToken),
-                            account.domain, true
+                            account.domain, true,
+                            setOf(Notification.Type.CHAT_MESSAGE.presentation)
                     ).execute()
                     val notifications = notificationsResponse.body()
                     if (notificationsResponse.isSuccessful && notifications != null) {

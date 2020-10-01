@@ -18,6 +18,7 @@ package com.keylesspalace.tusky.entity
 import com.google.gson.*
 import com.google.gson.annotations.SerializedName
 import com.google.gson.annotations.JsonAdapter
+import java.util.*
 
 data class PleromaNotification(
     @SerializedName("is_seen") val seen: Boolean
@@ -29,7 +30,9 @@ data class Notification(
         val account: Account,
         val status: Status?,
         val pleroma: PleromaNotification? = null,
-        val emoji: String? = null) {
+        val emoji: String? = null,
+        @SerializedName("chat_message") val chatMessage: ChatMessage? = null,
+        @SerializedName("created_at") val createdAt: Date? = null ) {
 
     @JsonAdapter(NotificationTypeAdapter::class)
     enum class Type(val presentation: String) {
@@ -40,7 +43,8 @@ data class Notification(
         FOLLOW("follow"),
         POLL("poll"),
         EMOJI_REACTION("pleroma:emoji_reaction"),
-        FOLLOW_REQUEST("follow_request");
+        FOLLOW_REQUEST("follow_request"),
+        CHAT_MESSAGE("pleroma:chat_mention");
 
         companion object {
 
@@ -52,7 +56,7 @@ data class Notification(
                 }
                 return UNKNOWN
             }
-            val asList = listOf(MENTION, REBLOG, FAVOURITE, FOLLOW, POLL, EMOJI_REACTION, FOLLOW_REQUEST)
+            val asList = listOf(MENTION, REBLOG, FAVOURITE, FOLLOW, POLL, EMOJI_REACTION, FOLLOW_REQUEST, CHAT_MESSAGE)
         }
 
         override fun toString(): String {

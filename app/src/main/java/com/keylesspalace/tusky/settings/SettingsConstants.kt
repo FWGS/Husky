@@ -51,6 +51,7 @@ object PrefKeys {
     const val NOTIFICATION_ALERT_VIBRATE = "notificationAlertVibrate"
     const val NOTIFICATION_ALERT_SOUND = "notificationAlertSound"
     const val NOTIFICATION_FILTER_POLLS = "notificationFilterPolls"
+    const val NOTIFICATION_FILTER_CHAT_MESSAGES = "notificationFilterChatMessages"
     const val NOTIFICATION_FILTER_FAVS = "notificationFilterFavourites"
     const val NOTIFICATION_FILTER_REBLOGS = "notificationFilterReblogs"
     const val NOTIFICATION_FILTER_FOLLOW_REQUESTS = "notificationFilterFollowRequests"

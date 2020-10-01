@@ -347,7 +347,7 @@ public abstract class AppDatabase extends RoomDatabase {
     public static final Migration MIGRATION_23_24 = new Migration(23, 24) {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase database) {
-            database.execSQL("ALTER TABLE `AccountEntity` ADD COLUMN `notificationsFollowRequested` INTEGER NOT NULL DEFAULT 0");
+            database.execSQL("ALTER TABLE `AccountEntity` ADD COLUMN `notificationsFollowRequested` INTEGER NOT NULL DEFAULT 1");
         }
     };
 
@@ -371,6 +371,7 @@ public abstract class AppDatabase extends RoomDatabase {
                     "`emojis` TEXT NOT NULL," +
                     "PRIMARY KEY (`localId`, `messageId`))");
             database.execSQL("ALTER TABLE `InstanceEntity` ADD COLUMN `chatLimit` INTEGER");
+            database.execSQL("ALTER TABLE `AccountEntity` ADD COLUMN `notificationsChatMessages` INTEGER NOT NULL DEFAULT 1");
         }
     };
 }

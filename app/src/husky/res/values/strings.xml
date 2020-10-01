@@ -26,9 +26,13 @@
     <string name="notification_emoji_format">%s reacted with %s to your post</string>
     <string name="notification_emoji_name">Emoji Reactions</string>
     <string name="notification_emoji_description">Notifications about new emoji reactions</string>
+    <string name="notification_chat_message_format">%s sent you a message</string>
+    <string name="notification_chat_message_name">Chat Messages</string>
+    <string name="notification_chat_message_description">Notifications about new chat messages</string>
 
     <string name="pref_title_default_formatting">Default formatting syntax(if supported by instance)</string>
     <string name="pref_title_notification_filter_emoji">my posts are reacted with emojis</string>
+    <string name="pref_title_notification_filter_chat_messages">received a chat message</string>
     <string name="pref_title_hide_muted_users">Hide muted users</string>
     <string name="pref_title_enable_big_emojis">Enable bigger custom emojis</string>
     <string name="pref_title_enable_experimental_stickers">Enable experimental Pleroma-FE stickers(if available)</string>
@@ -37,6 +41,8 @@
     <string name="attachment_type_video">Video</string>
     <string name="attachment_type_audio">Audio</string>
     <string name="attachment_type_unknown">Attachment</string>
+
+    <string name="link">Link</string> <!-- Web Link -->
     
     <!-- REPLACEMENT FOR TUSKY STRINGS -->
     <string name="action_toggle_visibility">Post visibility</string>

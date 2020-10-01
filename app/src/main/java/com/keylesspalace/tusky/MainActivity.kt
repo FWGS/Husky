@@ -54,6 +54,7 @@ import com.keylesspalace.tusky.components.scheduled.ScheduledTootActivity
 import com.keylesspalace.tusky.components.search.SearchActivity
 import com.keylesspalace.tusky.db.AccountEntity
 import com.keylesspalace.tusky.entity.Account
+import com.keylesspalace.tusky.entity.Notification
 import com.keylesspalace.tusky.fragment.SFragment
 import com.keylesspalace.tusky.interfaces.AccountSelectionListener
 import com.keylesspalace.tusky.interfaces.ActionButtonActivity
@@ -74,6 +75,10 @@ import dagger.android.DispatchingAndroidInjector
 import dagger.android.HasAndroidInjector
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.activity_main.*
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import java.io.IOException
 import javax.inject.Inject
 
 class MainActivity : BottomSheetActivity(), ActionButtonActivity, HasAndroidInjector {
@@ -187,6 +192,51 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, HasAndroidInje
         // Setup push notifications
         if (NotificationHelper.areNotificationsEnabled(this, accountManager)) {
             NotificationHelper.enablePullNotifications(this)
+
+            // Use when WorkManager doesn't want to work
+/*
+            val accountList = accountManager.getAllAccountsOrderedByActive()
+            for (account in accountList) {
+            if (account.notificationsEnabled) {
+                try {
+                    Log.d(TAG, "getting Notifications for " + account.fullName)
+                    // don't care about withMuted because they are always silently ignored
+                    val notificationsResponse = mastodonApi.notificationsWithAuth(
+                            String.format("Bearer %s", account.accessToken),
+                            account.domain, true,
+                            setOf(Notification.Type.CHAT_MESSAGE.presentation)
+                    ).enqueue(object: Callback<List<Notification>> {
+                        override fun onFailure(call: Call<List<Notification>>, t: Throwable) {
+
+                        }
+
+                        override fun onResponse(call: Call<List<Notification>>, response: Response<List<Notification>>) {
+                            val notifications = response.body()
+                            val newId = account.lastNotificationId
+                            var newestId = ""
+                            var isFirstOfBatch = true
+                            notifications?.reversed()?.forEach { notification ->
+                                val currentId = notification.id
+                                if (newestId.isLessThan(currentId)) {
+                                    newestId = currentId
+                                }
+                                if (newId.isLessThan(currentId)) {
+                                    NotificationHelper.make(this@MainActivity, notification, account, isFirstOfBatch)
+                                    isFirstOfBatch = false
+                                }
+                            }
+                            account.lastNotificationId = newestId
+                            accountManager.saveAccount(account)
+                        }
+                    })
+                } catch (e: IOException) {
+                    Log.w(TAG, "error receiving notifications", e)
+                }
+            }
+
+ */
+        }
+
         } else {
             NotificationHelper.disablePullNotifications(this)
         }

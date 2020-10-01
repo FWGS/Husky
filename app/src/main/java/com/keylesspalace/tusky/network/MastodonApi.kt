@@ -109,7 +109,8 @@ interface MastodonApi {
     fun notificationsWithAuth(
             @Header("Authorization") auth: String,
             @Header(DOMAIN_HEADER) domain: String,
-            @Query("with_muted") withMuted: Boolean?
+            @Query("with_muted") withMuted: Boolean?,
+            @Query("include_types[]") includeTypes: Set<String>?
     ): Call<List<Notification>>
 
     @POST("api/v1/notifications/clear")

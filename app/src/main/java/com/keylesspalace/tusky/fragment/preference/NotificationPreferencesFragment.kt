@@ -122,6 +122,17 @@ class NotificationPreferencesFragment : PreferenceFragmentCompat(), Injectable {
                         true
                     }
                 }
+
+                switchPreference {
+                    setTitle(R.string.pref_title_notification_filter_chat_messages)
+                    key = PrefKeys.NOTIFICATION_FILTER_CHAT_MESSAGES
+                    isIconSpaceReserved = false
+                    isChecked = activeAccount.notificationsChatMessages
+                    setOnPreferenceChangeListener { _, newValue ->
+                        updateAccount { it.notificationsChatMessages = newValue as Boolean }
+                        true
+                    }
+                }
             }
 
             preferenceCategory(R.string.pref_title_notification_alerts) { category ->
