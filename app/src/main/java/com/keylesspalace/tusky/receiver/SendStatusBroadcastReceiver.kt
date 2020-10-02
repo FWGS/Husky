@@ -52,7 +52,7 @@ class SendStatusBroadcastReceiver : BroadcastReceiver() {
         val senderIdentifier = intent.getStringExtra(NotificationHelper.KEY_SENDER_ACCOUNT_IDENTIFIER)
         val senderFullName = intent.getStringExtra(NotificationHelper.KEY_SENDER_ACCOUNT_FULL_NAME)
         val citedStatusId = intent.getStringExtra(NotificationHelper.KEY_CITED_STATUS_ID)
-        val visibility = intent.getSerializableExtra(NotificationHelper.KEY_VISIBILITY) as Status.Visibility
+        val visibility = intent.getSerializableExtra(NotificationHelper.KEY_VISIBILITY)
         val spoiler = intent.getStringExtra(NotificationHelper.KEY_SPOILER)
         val mentions = intent.getStringArrayExtra(NotificationHelper.KEY_MENTIONS)
         val citedText = intent.getStringExtra(NotificationHelper.KEY_CITED_TEXT)
@@ -93,7 +93,7 @@ class SendStatusBroadcastReceiver : BroadcastReceiver() {
 
             val composeIntent = ComposeActivity.startIntent(context, ComposeOptions(
                     inReplyToId = citedStatusId,
-                    replyVisibility = visibility,
+                    replyVisibility = visibility as Status.Visibility,
                     contentWarning = spoiler,
                     mentionedUsernames = mentions.toSet(),
                     replyingStatusAuthor = localAuthorId,
@@ -114,7 +114,7 @@ class SendStatusBroadcastReceiver : BroadcastReceiver() {
                         TootToSend(
                                 text,
                                 spoiler,
-                                visibility.serverString(),
+                                (visibility as Status.Visibility).serverString(),
                                 false,
                                 emptyList(),
                                 emptyList(),

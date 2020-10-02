@@ -46,8 +46,7 @@ class NotificationWorker(
                     val notificationsResponse = mastodonApi.notificationsWithAuth(
                             String.format("Bearer %s", account.accessToken),
                             account.domain, true,
-                            setOf(Notification.Type.CHAT_MESSAGE.presentation)
-                    ).execute()
+                            Notification.Type.asStringList).execute()
                     val notifications = notificationsResponse.body()
                     if (notificationsResponse.isSuccessful && notifications != null) {
                         onNotificationsReceived(account, notifications)

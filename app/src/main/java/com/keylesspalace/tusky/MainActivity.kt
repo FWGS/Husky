@@ -60,6 +60,7 @@ import com.keylesspalace.tusky.interfaces.AccountSelectionListener
 import com.keylesspalace.tusky.interfaces.ActionButtonActivity
 import com.keylesspalace.tusky.interfaces.ReselectableFragment
 import com.keylesspalace.tusky.pager.MainPagerAdapter
+import com.keylesspalace.tusky.service.StreamingService
 import com.keylesspalace.tusky.util.*
 import com.mikepenz.iconics.IconicsDrawable
 import com.mikepenz.iconics.typeface.library.googlematerial.GoogleMaterial
@@ -191,53 +192,15 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, HasAndroidInje
 
         // Setup push notifications
         if (NotificationHelper.areNotificationsEnabled(this, accountManager)) {
-            NotificationHelper.enablePullNotifications(this)
-
-            // Use when WorkManager doesn't want to work
-/*
-            val accountList = accountManager.getAllAccountsOrderedByActive()
-            for (account in accountList) {
-            if (account.notificationsEnabled) {
-                try {
-                    Log.d(TAG, "getting Notifications for " + account.fullName)
-                    // don't care about withMuted because they are always silently ignored
-                    val notificationsResponse = mastodonApi.notificationsWithAuth(
-                            String.format("Bearer %s", account.accessToken),
-                            account.domain, true,
-                            setOf(Notification.Type.CHAT_MESSAGE.presentation)
-                    ).enqueue(object: Callback<List<Notification>> {
-                        override fun onFailure(call: Call<List<Notification>>, t: Throwable) {
-
-                        }
-
-                        override fun onResponse(call: Call<List<Notification>>, response: Response<List<Notification>>) {
-                            val notifications = response.body()
-                            val newId = account.lastNotificationId
-                            var newestId = ""
-                            var isFirstOfBatch = true
-                            notifications?.reversed()?.forEach { notification ->
-                                val currentId = notification.id
-                                if (newestId.isLessThan(currentId)) {
-                                    newestId = currentId
-                                }
-                                if (newId.isLessThan(currentId)) {
-                                    NotificationHelper.make(this@MainActivity, notification, account, isFirstOfBatch)
-                                    isFirstOfBatch = false
-                                }
-                            }
-                            account.lastNotificationId = newestId
-                            accountManager.saveAccount(account)
-                        }
-                    })
-                } catch (e: IOException) {
-                    Log.w(TAG, "error receiving notifications", e)
-                }
+            if(accountManager.areNotificationsStreamingEnabled()) {
+                NotificationHelper.disablePullNotifications(this)
+                StreamingService.startStreaming(this)
+            } else {
+                StreamingService.stopStreaming(this)
+                NotificationHelper.enablePullNotifications(this)
             }
-
- */
-        }
-
         } else {
+            StreamingService.stopStreaming(this)
             NotificationHelper.disablePullNotifications(this)
         }
         eventHub.events

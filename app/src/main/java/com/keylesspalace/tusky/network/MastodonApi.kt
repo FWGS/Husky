@@ -110,7 +110,7 @@ interface MastodonApi {
             @Header("Authorization") auth: String,
             @Header(DOMAIN_HEADER) domain: String,
             @Query("with_muted") withMuted: Boolean?,
-            @Query("include_types[]") includeTypes: Set<String>?
+            @Query("include_types[]") includeTypes: List<String>?
     ): Call<List<Notification>>
 
     @POST("api/v1/notifications/clear")

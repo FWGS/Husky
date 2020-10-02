@@ -57,6 +57,8 @@ data class Notification(
                 return UNKNOWN
             }
             val asList = listOf(MENTION, REBLOG, FAVOURITE, FOLLOW, POLL, EMOJI_REACTION, FOLLOW_REQUEST, CHAT_MESSAGE)
+
+            val asStringList = asList.map { it.presentation }
         }
 
         override fun toString(): String {

@@ -43,6 +43,9 @@
     <string name="attachment_type_unknown">Attachment</string>
 
     <string name="link">Link</string> <!-- Web Link -->
+
+    <string name="streaming_notification_name">Live notifications</string>
+    <string name="streaming_notification_description">Running live notifications for: </string>
     
     <!-- REPLACEMENT FOR TUSKY STRINGS -->
     <string name="action_toggle_visibility">Post visibility</string>

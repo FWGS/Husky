@@ -138,7 +138,7 @@ public class NotificationHelper {
     /**
      * by setting this as false, it's possible to test legacy notification channels on newer devices
      */
-    //public static final boolean NOTIFICATION_USE_CHANNELS = false;
+    // public static final boolean NOTIFICATION_USE_CHANNELS = false;
     public static final boolean NOTIFICATION_USE_CHANNELS = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O;
 
     /**
@@ -518,7 +518,7 @@ public class NotificationHelper {
                 PeriodicWorkRequest.MIN_PERIODIC_FLEX_MILLIS, TimeUnit.MILLISECONDS
         )
                 .addTag(NOTIFICATION_PULL_TAG)
-                //.setConstraints(new Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
+                .setConstraints(new Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
                 .build();
 
         workManager.enqueue(workRequest);
