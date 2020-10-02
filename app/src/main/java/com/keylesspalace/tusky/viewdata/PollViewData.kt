@@ -31,6 +31,7 @@ data class PollViewData(
         val expired: Boolean,
         val multiple: Boolean,
         val votesCount: Int,
+        val votersCount: Int?,
         val options: List<PollOptionViewData>,
         var voted: Boolean
 )
@@ -41,10 +42,11 @@ data class PollOptionViewData(
         var selected: Boolean
 )
 
-fun calculatePercent(fraction: Int, total: Int): Int {
+fun calculatePercent(fraction: Int, totalVoters: Int?, totalVotes: Int): Int {
     return if (fraction == 0) {
         0
     } else {
+        val total = totalVoters ?: totalVotes
         (fraction / total.toDouble() * 100).roundToInt()
     }
 }
@@ -63,6 +65,7 @@ fun Poll?.toViewData(): PollViewData? {
             expired,
             multiple,
             votesCount,
+            votersCount,
             options.map { it.toViewData() },
             voted
     )

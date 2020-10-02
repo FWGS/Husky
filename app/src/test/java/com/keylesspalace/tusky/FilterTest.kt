@@ -224,6 +224,7 @@ class FilterTest {
                             expired = false,
                             multiple = false,
                             votesCount = 0,
+                            votersCount = 0,
                             options = pollOptions.map {
                                 PollOption(it, 0)
                             },
