@@ -1317,7 +1317,8 @@ class ComposeActivity : BaseActivity(),
             var scheduledAt: String? = null,
             var sensitive: Boolean? = null,
             var poll: NewPoll? = null,
-            var formattingSyntax: String? = null
+            var formattingSyntax: String? = null,
+            var modifiedInitialState: Boolean? = null
     ) : Parcelable
 
     companion object {
