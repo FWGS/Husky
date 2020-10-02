@@ -849,6 +849,16 @@ public class TimelineFragment extends SFragment implements
     }
 
     @Override
+    public void onViewReplyTo(int position) {
+        Status status = statuses.get(position).asRightOrNull();
+        if (status == null) return;
+
+        String replyToId = status.getReblog() == null ? status.getInReplyToId() : status.getReblog().getInReplyToId();
+        if (replyToId == null) return;
+        super.onShowReplyTo(replyToId);
+    }
+
+    @Override
     public void onViewTag(String tag) {
         if (kind == Kind.TAG && tags.size() == 1 && tags.contains(tag)) {
             // If already viewing a tag page, then ignore any request to view that tag again.

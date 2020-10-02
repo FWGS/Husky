@@ -382,7 +382,7 @@ public abstract class StatusBaseViewHolder extends RecyclerView.ViewHolder {
 
     }
 
-    protected void setReplyInfo(StatusViewData.Concrete status) {
+    protected void setReplyInfo(StatusViewData.Concrete status, StatusActionListener listener) {
         if (status.getInReplyToId() != null) {
             Context context = replyInfo.getContext();
             String replyToAccount = status.getInReplyToAccountAcct();
@@ -391,6 +391,9 @@ public abstract class StatusBaseViewHolder extends RecyclerView.ViewHolder {
                 replyInfo.setPaintFlags(replyInfo.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
             else
                 replyInfo.setPaintFlags(replyInfo.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
+
+            replyInfo.setOnClickListener(v -> listener.onViewReplyTo(getAdapterPosition()));
+
             replyInfo.setVisibility(View.VISIBLE);
         } else {
             replyInfo.setVisibility(View.GONE);
@@ -775,7 +778,7 @@ public abstract class StatusBaseViewHolder extends RecyclerView.ViewHolder {
             setUsername(status.getNickname());
             setCreatedAt(status.getCreatedAt(), statusDisplayOptions);
             setIsReply(status.getInReplyToId() != null);
-            setReplyInfo(status);
+            setReplyInfo(status, listener);
             setAvatar(status.getAvatar(), status.getRebloggedAvatar(), status.isBot(), statusDisplayOptions);
             setReblogged(status.isReblogged());
             setFavourited(status.isFavourited());
