@@ -592,6 +592,13 @@ public class NotificationsFragment extends SFragment implements
     }
 
     @Override
+    public void onViewReplyTo(int position) {
+        Notification notification = notifications.get(position).asRightOrNull();
+        if (notification == null) return;
+        super.onShowReplyTo(notification.getStatus().getInReplyToId());
+    }
+
+    @Override
     public void onOpenReblog(int position) {
         Notification notification = notifications.get(position).asRight();
         onViewAccount(notification.getAccount().getId());

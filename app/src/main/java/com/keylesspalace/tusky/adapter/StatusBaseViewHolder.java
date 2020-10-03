@@ -17,6 +17,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.util.Log;
+import android.graphics.Paint;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
@@ -69,6 +70,7 @@ public abstract class StatusBaseViewHolder extends RecyclerView.ViewHolder {
 
     private TextView displayName;
     private TextView username;
+    private TextView replyInfo;
     private ImageButton replyButton;
     private SparkButton reblogButton;
     private SparkButton favouriteButton;
@@ -121,6 +123,7 @@ public abstract class StatusBaseViewHolder extends RecyclerView.ViewHolder {
         timestampInfo = itemView.findViewById(R.id.status_timestamp_info);
         content = itemView.findViewById(R.id.status_content);
         avatar = itemView.findViewById(R.id.status_avatar);
+        replyInfo = itemView.findViewById(R.id.reply_info);
         replyButton = itemView.findViewById(R.id.status_reply);
         reblogButton = itemView.findViewById(R.id.status_inset);
         favouriteButton = itemView.findViewById(R.id.status_favourite);
@@ -377,6 +380,24 @@ public abstract class StatusBaseViewHolder extends RecyclerView.ViewHolder {
             replyButton.setImageResource(R.drawable.ic_reply_24dp);
         }
 
+    }
+
+    protected void setReplyInfo(StatusViewData.Concrete status, StatusActionListener listener) {
+        if (status.getInReplyToId() != null) {
+            Context context = replyInfo.getContext();
+            String replyToAccount = status.getInReplyToAccountAcct();
+            replyInfo.setText(context.getString(R.string.status_replied_to_format, replyToAccount));
+            if (status.getParentVisible() == false)
+                replyInfo.setPaintFlags(replyInfo.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+            else
+                replyInfo.setPaintFlags(replyInfo.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
+
+            replyInfo.setOnClickListener(v -> listener.onViewReplyTo(getAdapterPosition()));
+
+            replyInfo.setVisibility(View.VISIBLE);
+        } else {
+            replyInfo.setVisibility(View.GONE);
+        }
     }
 
     private void setReblogged(boolean reblogged) {
@@ -757,6 +778,7 @@ public abstract class StatusBaseViewHolder extends RecyclerView.ViewHolder {
             setUsername(status.getNickname());
             setCreatedAt(status.getCreatedAt(), statusDisplayOptions);
             setIsReply(status.getInReplyToId() != null);
+            setReplyInfo(status, listener);
             setAvatar(status.getAvatar(), status.getRebloggedAvatar(), status.isBot(), statusDisplayOptions);
             setReblogged(status.isReblogged());
             setFavourited(status.isFavourited());

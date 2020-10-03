@@ -208,6 +208,7 @@ class TimelineRepositoryImpl(
         val emojis: List<Emoji> = gson.fromJson(status.emojis,
                 object : TypeToken<List<Emoji>>() {}.type) ?: listOf()
         val poll: Poll? = gson.fromJson(status.poll, Poll::class.java)
+        val pleroma = gson.fromJson(status.pleroma, Status.PleromaStatus::class.java)
 
         val reblog = status.reblogServerId?.let { id ->
             Status(
@@ -233,7 +234,8 @@ class TimelineRepositoryImpl(
                     application = application,
                     pinned = false,
                     poll = poll,
-                    card = null
+                    card = null,
+                    pleroma = pleroma
             )
         }
         val status = if (reblog != null) {
@@ -260,7 +262,8 @@ class TimelineRepositoryImpl(
                     application = null,
                     pinned = false,
                     poll = null,
-                    card = null
+                    card = null,
+                    pleroma = null
             )
         } else {
             Status(
@@ -286,7 +289,8 @@ class TimelineRepositoryImpl(
                     application = application,
                     pinned = false,
                     poll = poll,
-                    card = null
+                    card = null,
+                    pleroma = pleroma
             )
         }
         return Either.Right(status)
@@ -356,7 +360,8 @@ fun Placeholder.toEntity(timelineUserId: Long): TimelineStatusEntity {
             application = null,
             reblogServerId = null,
             reblogAccountId = null,
-            poll = null
+            poll = null,
+            pleroma = null
     )
 }
 
@@ -386,7 +391,8 @@ fun Status.toEntity(timelineUserId: Long,
             application = actionable.application.let(gson::toJson),
             reblogServerId = reblog?.id,
             reblogAccountId = reblog?.let { this.account.id },
-            poll = actionable.poll.let(gson::toJson)
+            poll = actionable.poll.let(gson::toJson),
+            pleroma = actionable.pleroma.let(gson::toJson)
     )
 }
 

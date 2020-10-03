@@ -138,6 +138,10 @@ class ConversationsFragment : SFragment(), StatusActionListener, Injectable, Res
         }
     }
 
+    override fun onViewReplyTo(position: Int) {
+        // there are no Reply to labels in conversations
+    }
+
     override fun onOpenReblog(position: Int) {
         // there are no reblogs in search results
     }
