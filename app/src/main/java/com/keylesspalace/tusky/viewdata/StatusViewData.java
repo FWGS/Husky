@@ -245,9 +245,11 @@ public abstract class StatusViewData {
             return inReplyToId;
         }
 
-        @Nullable
         public String getInReplyToAccountAcct() {
-            return inReplyToAccountAcct;
+            if(inReplyToAccountAcct != null) {
+                return inReplyToAccountAcct;
+            }
+            return "";
         }
 
         public String getSenderId() {
