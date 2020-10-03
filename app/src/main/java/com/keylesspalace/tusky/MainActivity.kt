@@ -61,6 +61,7 @@ import com.keylesspalace.tusky.interfaces.ActionButtonActivity
 import com.keylesspalace.tusky.interfaces.ReselectableFragment
 import com.keylesspalace.tusky.pager.MainPagerAdapter
 import com.keylesspalace.tusky.service.StreamingService
+import com.keylesspalace.tusky.settings.PrefKeys
 import com.keylesspalace.tusky.util.*
 import com.mikepenz.iconics.IconicsDrawable
 import com.mikepenz.iconics.typeface.library.googlematerial.GoogleMaterial
@@ -190,7 +191,30 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, HasAndroidInje
 
         setupTabs(showNotificationTab)
 
-        // Setup push notifications
+        initPullNotifications()
+
+        eventHub.events
+                .observeOn(AndroidSchedulers.mainThread())
+                .autoDispose(this, Lifecycle.Event.ON_DESTROY)
+                .subscribe { event: Event? ->
+                    when (event) {
+                        is ProfileEditedEvent -> onFetchUserInfoSuccess(event.newProfileData)
+                        is MainTabsChangedEvent -> setupTabs(false)
+                        is PreferenceChangedEvent -> {
+                            when(event.preferenceKey) {
+                                PrefKeys.LIVE_NOTIFICATIONS -> {
+                                    initPullNotifications()
+                                }
+                            }
+                        }
+                    }
+                }
+
+        // Flush old media that was cached for sharing
+        deleteStaleCachedMedia(applicationContext.getExternalFilesDir("Husky"))
+    }
+
+    private fun initPullNotifications() {
         if (NotificationHelper.areNotificationsEnabled(this, accountManager)) {
             if(accountManager.areNotificationsStreamingEnabled()) {
                 NotificationHelper.disablePullNotifications(this)
@@ -203,18 +227,6 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, HasAndroidInje
             StreamingService.stopStreaming(this)
             NotificationHelper.disablePullNotifications(this)
         }
-        eventHub.events
-                .observeOn(AndroidSchedulers.mainThread())
-                .autoDispose(this, Lifecycle.Event.ON_DESTROY)
-                .subscribe { event: Event? ->
-                    when (event) {
-                        is ProfileEditedEvent -> onFetchUserInfoSuccess(event.newProfileData)
-                        is MainTabsChangedEvent -> setupTabs(false)
-                    }
-                }
-
-        // Flush old media that was cached for sharing
-        deleteStaleCachedMedia(applicationContext.getExternalFilesDir("Husky"))
     }
 
     override fun onResume() {

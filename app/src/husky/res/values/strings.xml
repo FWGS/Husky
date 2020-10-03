@@ -12,7 +12,8 @@
     <string name="action_disable_formatting_syntax">Disable %s</string>
     <string name="action_sticker">Stickers</string>
     <string name="action_open_in_external_app">Open in external app</string>
-    
+    <string name="action_chat">Open a chat</string>
+
     <string name="title_emoji_reacted_by">%s reacted by</string>
     
     <string name="hint_appname">Application name</string>
@@ -31,6 +32,9 @@
     <string name="notification_chat_message_name">Chat Messages</string>
     <string name="notification_chat_message_description">Notifications about new chat messages</string>
 
+    <string name="pref_title_other">Other</string>
+    <string name="pref_title_live_notifications">Live notifications</string>
+    <string name="pref_summary_live_notifications">May slightly increase power consumption</string>
     <string name="pref_title_default_formatting">Default formatting syntax(if supported by instance)</string>
     <string name="pref_title_notification_filter_emoji">my posts are reacted with emojis</string>
     <string name="pref_title_notification_filter_chat_messages">received a chat message</string>
