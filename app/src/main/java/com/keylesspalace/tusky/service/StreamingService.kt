@@ -13,6 +13,7 @@ import androidx.core.app.ServiceCompat
 import androidx.core.content.ContextCompat
 import com.google.gson.Gson
 import com.keylesspalace.tusky.R
+import com.keylesspalace.tusky.appstore.ChatMessageReceivedEvent
 import com.keylesspalace.tusky.appstore.EventHub
 import com.keylesspalace.tusky.components.notifications.NotificationHelper
 import com.keylesspalace.tusky.db.AccountEntity
@@ -105,11 +106,8 @@ class StreamingService: Service(), Injectable {
 
             sockets[account.id] = client.newWebSocket(
                     request,
-                    StreamingListener(
+                    makeStreamingListener(
                             "${account.fullName}/user:notification",
-                            this,
-                            gson,
-                            accountManager,
                             account
                     )
             )
@@ -181,39 +179,39 @@ class StreamingService: Service(), Injectable {
         }
     }
 
-    class StreamingListener(
-            val tag: String,
-            val context: Context,
-            val gson: Gson,
-            val accountManager: AccountManager,
-            val account: AccountEntity
-    ) : WebSocketListener() {
-        override fun onOpen(webSocket: WebSocket, response: Response) {
-            Log.d(TAG, "Stream connected to: $tag")
-        }
+    private fun makeStreamingListener(tag: String, account: AccountEntity) : WebSocketListener {
+        return object : WebSocketListener() {
+            override fun onOpen(webSocket: WebSocket, response: Response) {
+                Log.d(TAG, "Stream connected to: $tag")
+            }
 
-        override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
-            Log.d(TAG, "Stream closed for: $tag")
-        }
+            override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
+                Log.d(TAG, "Stream closed for: $tag")
+            }
 
-        override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
-            Log.d(TAG, "Stream failed for $tag", t)
-        }
+            override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
+                Log.d(TAG, "Stream failed for $tag", t)
+            }
 
-        override fun onMessage(webSocket: WebSocket, text: String) {
-            val event = gson.fromJson(text, StreamEvent::class.java)
-            when(event.event) {
-                StreamEvent.EventType.NOTIFICATION -> {
-                    val notification = gson.fromJson(event.payload, Notification::class.java)
-                    NotificationHelper.make(context, notification, account, true)
+            override fun onMessage(webSocket: WebSocket, text: String) {
+                val event = gson.fromJson(text, StreamEvent::class.java)
+                when(event.event) {
+                    StreamEvent.EventType.NOTIFICATION -> {
+                        val notification = gson.fromJson(event.payload, Notification::class.java)
+                        NotificationHelper.make(this@StreamingService, notification, account, true)
 
-                    if(account.lastNotificationId.isLessThan(notification.id)) {
-                        account.lastNotificationId = notification.id
-                        accountManager.saveAccount(account)
+                        if(notification.type == Notification.Type.CHAT_MESSAGE) {
+                            eventHub.dispatch(ChatMessageReceivedEvent(notification.chatMessage!!))
+                        }
+
+                        if(account.lastNotificationId.isLessThan(notification.id)) {
+                            account.lastNotificationId = notification.id
+                            accountManager.saveAccount(account)
+                        }
                     }
-                }
-                else -> {
-                    Log.d(TAG, "Unknown event type: ${event.event}")
+                    else -> {
+                        Log.d(TAG, "Unknown event type: ${event.event}")
+                    }
                 }
             }
         }
