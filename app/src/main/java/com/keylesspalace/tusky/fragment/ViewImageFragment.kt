@@ -200,6 +200,7 @@ class ViewImageFragment : ViewMediaFragment() {
                 // forget about fancy transition
                 showingPreview = false
                 photoView.showImage(uri)
+                photoActionsListener.onBringUp()
             } else {
                 // let's start downloading full image that we supposedly don't have
                 BigImageViewer.prefetch(uri)
@@ -221,6 +222,7 @@ class ViewImageFragment : ViewMediaFragment() {
             } else {
                 photoView.showImage(uri)
             }
+            photoActionsListener.onBringUp()
         }
     }
 
@@ -238,6 +240,7 @@ class ViewImageFragment : ViewMediaFragment() {
             // no need in cache lookup, just load full image
             showingPreview = false
             photoView.showImage(uri)
+            photoActionsListener.onBringUp()
         }
     }
 
@@ -263,13 +266,9 @@ class ViewImageFragment : ViewMediaFragment() {
         }
 
         override fun onCacheHit(imageType: Int, image: File?) {
-            // image is here, bring up the activity!
-            photoActionsListener.onBringUp()
         }
 
         override fun onStart() {
-            // cache miss but image is downloading, bring up the activity
-            photoActionsListener.onBringUp()
         }
 
         override fun onCacheMiss(imageType: Int, image: File?) {
