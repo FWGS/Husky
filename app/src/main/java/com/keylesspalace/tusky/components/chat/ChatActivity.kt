@@ -65,6 +65,7 @@ import com.mikepenz.iconics.IconicsDrawable
 import com.mikepenz.iconics.typeface.library.googlematerial.GoogleMaterial
 import com.mikepenz.iconics.utils.colorInt
 import com.mikepenz.iconics.utils.sizeDp
+import com.uber.autodispose.android.lifecycle.AndroidLifecycleScopeProvider.from
 import com.uber.autodispose.android.lifecycle.autoDispose
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -232,6 +233,10 @@ class ChatActivity: BottomSheetActivity(),
                             enableButton(stickerButton, haveStickers, haveStickers)
                             editText.text.clear()
                             viewModel.media.value = listOf()
+                        }
+
+                        is ChatMessageReceivedEvent -> {
+                            onRefresh()
                         }
                     }
                 }
@@ -856,6 +861,17 @@ class ChatActivity: BottomSheetActivity(),
         when (fetchEnd) {
             FetchEnd.TOP -> {
                 updateMessages(msgs, fullFetch)
+
+                val pos = msgs.indexOfFirst { it.isRight() }
+
+                mastodonApi.markChatAsRead(chatId, msgs[pos].asRight().id)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .autoDispose(this, Lifecycle.Event.ON_DESTROY)
+                        .subscribe({
+                            Log.d(TAG, "Marked new messages as read up to ${msgs[pos].asRight().id}")
+                        }, {
+                            Log.d(TAG, "Failed to mark messages as read", it)
+                        })
             }
             FetchEnd.MIDDLE -> {
                 replacePlaceholderWithMessages(msgs, fullFetch, pos)

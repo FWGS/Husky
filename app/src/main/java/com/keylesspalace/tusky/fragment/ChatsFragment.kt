@@ -24,6 +24,7 @@ import com.keylesspalace.tusky.components.chat.ChatActivity
 import com.keylesspalace.tusky.db.AccountManager
 import com.keylesspalace.tusky.di.Injectable
 import com.keylesspalace.tusky.entity.Chat
+import com.keylesspalace.tusky.entity.ChatMessage
 import com.keylesspalace.tusky.entity.NewChatMessage
 import com.keylesspalace.tusky.interfaces.ActionButtonActivity
 import com.keylesspalace.tusky.interfaces.ChatActionListener
@@ -31,10 +32,7 @@ import com.keylesspalace.tusky.interfaces.RefreshableFragment
 import com.keylesspalace.tusky.interfaces.ReselectableFragment
 import com.keylesspalace.tusky.network.MastodonApi
 import com.keylesspalace.tusky.network.TimelineCases
-import com.keylesspalace.tusky.repository.ChatRepository
-import com.keylesspalace.tusky.repository.ChatStatus
-import com.keylesspalace.tusky.repository.Placeholder
-import com.keylesspalace.tusky.repository.TimelineRequestMode
+import com.keylesspalace.tusky.repository.*
 import com.keylesspalace.tusky.util.*
 import com.keylesspalace.tusky.util.Either.Left
 import com.keylesspalace.tusky.view.EndlessOnScrollListener
@@ -46,6 +44,7 @@ import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.fragment_timeline.*
 import java.io.IOException
+import java.util.*
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -352,11 +351,35 @@ class ChatsFragment : BaseFragment(), Injectable, RefreshableFragment, Reselecta
                             is DomainMuteEvent -> removeAllByInstance(event.instance)
                             is StatusDeletedEvent -> deleteChatById(event.statusId)
                             is PreferenceChangedEvent -> onPreferenceChanged(event.preferenceKey)
+                            is ChatMessageReceivedEvent -> onRefresh() // TODO: proper update
                         }
                     }
             eventRegistered = true
         }
     }
+
+    /*
+    private fun onChatMessageReceived(msg: ChatMessage) {
+        val pos = findChatPosition(msg.chatId)
+        if(pos == -1) {
+
+            return
+        }
+
+        val oldChat = chats[pos].asRight()
+        val newChat = Chat(oldChat.account, oldChat.id, oldChat.unread + 1, msg, msg.createdAt)
+        val newViewData = ViewDataUtils.chatToViewData(newChat)
+
+        chats.removeAt(pos)
+        chats.add(pos, newChat.lift())
+        chats.sortByDescending {
+            if(it.isLeft()) Date(Long.MIN_VALUE)
+            else it.asRight().updatedAt
+        }
+
+        updateAdapter()
+    }
+    */
 
     private fun onPreferenceChanged(key: String) {
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
