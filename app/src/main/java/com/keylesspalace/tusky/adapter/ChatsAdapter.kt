@@ -2,6 +2,7 @@ package com.keylesspalace.tusky.adapter
 
 import android.graphics.Typeface
 import android.opengl.Visibility
+import android.text.SpannableStringBuilder
 import android.text.TextUtils
 import android.text.format.DateUtils
 import android.view.LayoutInflater
@@ -9,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.text.toSpanned
 import androidx.recyclerview.widget.RecyclerView
 import at.connyduck.sparkbutton.helpers.Utils
 import com.bumptech.glide.Glide
@@ -73,24 +75,28 @@ class ChatsViewHolder(view: View) : RecyclerView.ViewHolder(view) {
             content.setOnClickListener(onClickListener)
             itemView.setOnClickListener(onClickListener)
 
-            chat.lastMessage?.let {
-                var text = if (it.content != null) {
+            if(chat.lastMessage != null) {
+                var text = if (chat.lastMessage.content != null) {
                     content.setTypeface(null, Typeface.NORMAL)
 
-                    it.content.emojify(it.emojis, content, true)
-                } else if (it.attachment != null) {
+                    chat.lastMessage.content.emojify(chat.lastMessage.emojis, content, true)
+                } else if (chat.lastMessage.attachment != null) {
                     content.setTypeface(null, Typeface.ITALIC)
 
-                    content.resources.getString(it.attachment.describeAttachmentType())
-                } else if (it.card != null) {
+                    content.resources.getString(chat.lastMessage.attachment.describeAttachmentType())
+                } else if (chat.lastMessage.card != null) {
                     content.setTypeface(null, Typeface.ITALIC)
 
                     content.resources.getString(R.string.link)
                 } else ""
 
-                content.text = if(it.accountId == localUserId) {
-                    content.resources.getString(R.string.chat_our_last_message).format(text)
+                content.text = if(chat.lastMessage.accountId == localUserId) {
+                    SpannableStringBuilder.valueOf(content.resources.getText(R.string.chat_our_last_message))
+                            .append(": $text")
                 } else text
+
+            } else {
+                content.text = ""
             }
         } else {
             if(payload is List<*>) {
