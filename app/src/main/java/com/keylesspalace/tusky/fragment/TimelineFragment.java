@@ -474,6 +474,7 @@ public class TimelineFragment extends SFragment implements
                         if (hideFab) {
                             if (dy > 0 && composeButton.isShown()) {
                                 composeButton.hide(); // hides the button if we're scrolling down
+                                activity.onActionButtonHidden();
                             } else if (dy < 0 && !composeButton.isShown()) {
                                 composeButton.show(); // shows it if we are scrolling up
                             }

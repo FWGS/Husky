@@ -1,9 +1,11 @@
 <resources>
     <!-- HUSKY SPECIFIC STRINGS -->
     <string name="chats">Chats</string>
-    <string name="chat_our_last_message">You: %s</string>
-    <string name="action_mark_as_read">Mark as read</string>
+    <string name="chat_our_last_message"><b>You</b></string>
 
+    <string name="error_chat_recipient_unavailable">Recipient does not support Chats</string>
+
+    <string name="action_mark_as_read">Mark as read</string>
     <string name="action_reply_to">Reply to</string>
     <string name="action_emoji_react">React</string>
     <string name="action_emoji_unreact">Remove reaction</string>
@@ -12,7 +14,8 @@
     <string name="action_disable_formatting_syntax">Disable %s</string>
     <string name="action_sticker">Stickers</string>
     <string name="action_open_in_external_app">Open in external app</string>
-    <string name="action_chat">Open a chat</string>
+    <string name="action_chat">Open chat</string>
+    <string name="action_expand_menu">Expand menu</string>
 
     <string name="title_emoji_reacted_by">%s reacted by</string>
     
