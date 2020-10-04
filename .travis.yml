@@ -10,7 +10,7 @@ before_script:
   - yes | sdkmanager "ndk-bundle"
   - export ANDROID_NDK_ROOT=$ANDROID_HOME/ndk-bundle
   - export ANDROID_NDK_HOME=$ANDROID_NDK_ROOT
-  - sed -i "s/blue {}//" app/build.gradle
+  - sed -i "s/blue/\/\/blue/" app/build.gradle
   - sed -i "s/\/\/abortOnError/abortOnError/" app/build.gradle
 #  - sed -i "s/debug {}//" app/build.gradle
 before_cache:
