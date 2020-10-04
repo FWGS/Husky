@@ -22,7 +22,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.keylesspalace.tusky.appstore.*
 import com.keylesspalace.tusky.components.compose.ComposeActivity
 import com.keylesspalace.tusky.components.compose.ComposeViewModel
-import com.keylesspalace.tusky.components.compose.DEFAULT_CHARACTER_LIMIT
+import com.keylesspalace.tusky.components.common.DEFAULT_CHARACTER_LIMIT
 import com.keylesspalace.tusky.components.common.MediaUploader
 import com.keylesspalace.tusky.db.*
 import com.keylesspalace.tusky.di.ViewModelFactory
@@ -122,7 +122,15 @@ class ComposeActivityTest {
 
         val instanceDaoMock = mock(InstanceDao::class.java)
         `when`(instanceDaoMock.loadMetadataForInstance(any())).thenReturn(
-                Single.just(InstanceEntity(instanceDomain, emptyList(),null, null, null, null))
+                Single.just(InstanceEntity(
+                        instanceDomain,
+                        emptyList(),
+                        null,
+                        null,
+                        null,
+                        null,
+                        null
+                ))
         )
 
         val dbMock = mock(AppDatabase::class.java)
@@ -504,6 +512,11 @@ class ComposeActivityTest {
                         emptyList()
                 ),
                 maximumTootCharacters,
+                null,
+                null,
+                null,
+                null,
+                null,
                 null,
                 null,
                 null
