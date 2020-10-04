@@ -36,6 +36,9 @@
     <string name="notification_chat_message_description">Notifications about new chat messages</string>
 
     <string name="pref_title_other">Other</string>
+    <string name="pref_title_privacy">Privacy</string>
+
+    <string name="pref_title_anonymize_upload_filenames">Anonymize uploaded file names</string>
     <string name="pref_title_live_notifications">Live notifications</string>
     <string name="pref_summary_live_notifications">May slightly increase power consumption</string>
     <string name="pref_title_default_formatting">Default formatting syntax(if supported by instance)</string>

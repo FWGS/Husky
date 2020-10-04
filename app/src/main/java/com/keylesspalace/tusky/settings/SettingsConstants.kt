@@ -32,6 +32,7 @@ object PrefKeys {
     const val ENABLE_SWIPE_FOR_TABS = "enableSwipeForTabs"
     const val BIG_EMOJIS = "bigEmojis"
     const val STICKERS = "stickers"
+    const val ANONYMIZE_FILENAMES = "anonymizeFilenames"
 
     const val CUSTOM_TABS = "customTabs"
 

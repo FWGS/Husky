@@ -58,6 +58,7 @@ import com.keylesspalace.tusky.repository.Placeholder
 import com.keylesspalace.tusky.repository.TimelineRequestMode
 import com.keylesspalace.tusky.service.MessageToSend
 import com.keylesspalace.tusky.service.ServiceClient
+import com.keylesspalace.tusky.settings.PrefKeys
 import com.keylesspalace.tusky.util.*
 import com.keylesspalace.tusky.view.EmojiKeyboard
 import com.mikepenz.iconics.IconicsDrawable
@@ -207,6 +208,7 @@ class ChatActivity: BottomSheetActivity(),
 
         val preferences = PreferenceManager.getDefaultSharedPreferences(this)
         viewModel.tryFetchStickers = preferences.getBoolean("stickers", false)
+        viewModel.anonymizeNames = preferences.getBoolean(PrefKeys.ANONYMIZE_FILENAMES, false)
 
         setupHeader()
         setupChat()

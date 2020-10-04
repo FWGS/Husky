@@ -176,6 +176,15 @@ class PreferencesFragment : PreferenceFragmentCompat() {
                 }
             }
 
+            preferenceCategory(R.string.pref_title_privacy) {
+                switchPreference {
+                    setDefaultValue(false)
+                    key = PrefKeys.ANONYMIZE_FILENAMES
+                    setTitle(R.string.pref_title_anonymize_upload_filenames)
+                    isSingleLineTitle = false
+                }
+            }
+
             preferenceCategory(R.string.pref_title_browser_settings) {
                 switchPreference {
                     setDefaultValue(false)

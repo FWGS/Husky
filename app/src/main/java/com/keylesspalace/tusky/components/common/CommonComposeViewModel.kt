@@ -52,6 +52,7 @@ open class CommonComposeViewModel(
     protected val stickers: MutableLiveData<Array<StickerPack>> = MutableLiveData(emptyArray())
     val haveStickers: MutableLiveData<Boolean> = MutableLiveData(false)
     var tryFetchStickers = false
+    var anonymizeNames = true
     var hasNoAttachmentLimits = false
 
     val instanceParams: LiveData<ComposeInstanceParams> = instance.map { instance ->
@@ -162,7 +163,7 @@ open class CommonComposeViewModel(
                             && mediaItems[0].type == QueuedMedia.Type.IMAGE) {
                         throw VideoOrImageException()
                     } else {
-                        addMediaToQueue(type, uri, size, filename ?: "unknown")
+                        addMediaToQueue(type, uri, size, filename ?: "unknown", anonymizeNames)
                     }
                 }
                 .subscribe({ queuedMedia ->
@@ -174,9 +175,9 @@ open class CommonComposeViewModel(
         return liveData
     }
 
-    private fun addMediaToQueue(type: Int, uri: Uri, mediaSize: Long, filename: String): QueuedMedia {
+    private fun addMediaToQueue(type: Int, uri: Uri, mediaSize: Long, filename: String, anonymizeNames: Boolean): QueuedMedia {
         val mediaItem = QueuedMedia(System.currentTimeMillis(), uri, type, mediaSize, filename,
-                hasNoAttachmentLimits)
+                hasNoAttachmentLimits, anonymizeNames)
         val imageLimit = instanceMetadata.value?.videoLimit ?: STATUS_VIDEO_SIZE_LIMIT
         val videoLimit = instanceMetadata.value?.imageLimit ?: STATUS_IMAGE_SIZE_LIMIT
 
@@ -210,7 +211,7 @@ open class CommonComposeViewModel(
 
     protected fun addUploadedMedia(id: String, type: Int, uri: Uri, description: String?) {
         val mediaItem = QueuedMedia(System.currentTimeMillis(), uri, type, 0, "unknown",
-                hasNoAttachmentLimits, -1, id, description)
+                hasNoAttachmentLimits, anonymizeNames, -1, id, description)
         media.value = media.value!! + mediaItem
     }
 

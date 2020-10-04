@@ -46,10 +46,10 @@ sealed class UploadEvent {
     data class FinishedEvent(val attachment: Attachment) : UploadEvent()
 }
 
-fun createNewImageFile(context: Context): File {
+fun createNewImageFile(context: Context, name: String = "Photo"): File {
     // Create an image file name
-    val randomId = randomAlphanumericString(12)
-    val imageFileName = "Tusky_${randomId}_"
+    val randomId = randomAlphanumericString(4)
+    val imageFileName = "${name}_${randomId}"
     val storageDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
     return File.createTempFile(
             imageFileName, /* prefix */
@@ -164,7 +164,8 @@ class MediaUploaderImpl(
     private fun upload(media: QueuedMedia): Observable<UploadEvent> {
         return Observable.create { emitter ->
             var (mimeType, fileExtension) = getMimeTypeAndSuffixFromFilenameOrUri(media.uri, media.originalFileName)
-            val filename = String.format("%s_%s_%s%s",
+            val filename = if(!media.anonymizeFileName) media.originalFileName else
+                String.format("%s_%s_%s%s",
                         context.getString(R.string.app_name),
                         Date().time.toString(),
                         randomAlphanumericString(10),
@@ -199,7 +200,7 @@ class MediaUploaderImpl(
     }
 
     private fun downsize(media: QueuedMedia, imageLimit: Long): QueuedMedia {
-        val file = createNewImageFile(context)
+        val file = createNewImageFile(context, media.originalFileName)
         DownsizeImageTask.resize(arrayOf(media.uri), imageLimit, context.contentResolver, file)
         return media.copy(uri = file.toUri(), mediaSize = file.length())
     }

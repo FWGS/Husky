@@ -80,6 +80,7 @@ import com.keylesspalace.tusky.entity.Attachment
 import com.keylesspalace.tusky.entity.Emoji
 import com.keylesspalace.tusky.entity.NewPoll
 import com.keylesspalace.tusky.entity.Status
+import com.keylesspalace.tusky.settings.PrefKeys
 import com.keylesspalace.tusky.util.*
 import com.keylesspalace.tusky.view.EmojiKeyboard
 import com.mikepenz.iconics.IconicsDrawable
@@ -148,6 +149,7 @@ class ComposeActivity : BaseActivity(),
         val activeAccount = accountManager.activeAccount ?: return
 
         viewModel.tryFetchStickers = preferences.getBoolean("stickers", false)
+        viewModel.anonymizeNames = preferences.getBoolean(PrefKeys.ANONYMIZE_FILENAMES, false)
         setupAvatar(preferences, activeAccount)
         val mediaAdapter = MediaPreviewAdapter(
                 this,
@@ -1269,6 +1271,7 @@ class ComposeActivity : BaseActivity(),
             val mediaSize: Long,
             val originalFileName: String,
             val noChanges: Boolean = false,
+            val anonymizeFileName: Boolean = false,
             val uploadPercent: Int = 0,
             val id: String? = null,
             val description: String? = null
