@@ -278,7 +278,7 @@ class StatusViewHelper(private val itemView: View) {
             val votes = NumberFormat.getNumberInstance().format(poll.votersCount.toLong())
             context.resources.getQuantityString(R.plurals.poll_info_people, poll.votersCount, votes)
         }
-        pollDurationInfo = if (poll.expired) {
+        val pollDurationInfo = if (poll.expired) {
             context.getString(R.string.poll_info_closed)
         } else {
             if (useAbsoluteTime) {

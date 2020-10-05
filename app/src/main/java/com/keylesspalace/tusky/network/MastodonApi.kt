@@ -119,7 +119,7 @@ interface MastodonApi {
             @Query("since_id") sinceId: String?,
             @Query("with_muted") withMuted: Boolean?,
             @Query("include_types[]") includeTypes: List<String>?
-    ): Call<List<Notification>>
+    ): Single<List<Notification>>
 
     @POST("api/v1/notifications/clear")
     fun clearNotifications(): Call<ResponseBody>
