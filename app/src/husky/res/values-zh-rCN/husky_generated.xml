@@ -43,15 +43,18 @@
     <string name="add_account_description">添加新的 Pleroma 帐号</string>
   
   
-    <string name="warning_scheduling_interval">Pleroma的最小预定时间为5分钟。</string>
+    <string name="warning_scheduling_interval">Pleroma的最小预订时间为5分钟。</string>
   
 
 
   
-    <string name="dialog_whats_an_instance">请输入你帐号所在的 Mastodon 站点的域名，比如 pawoo.net，acg.mn，wxw.moe，<a href="https://fediverse.network/pleroma?count=peers">等等</a> 。
-        \n\n还没有 Mastodon 帐号？你也可以输入想注册的 Mastodon 站点的域名，然后在该服务器创建新的帐号并授权 Tusky 登入。
-        \n\n在 Mastodon 里，跨站互动和站内互动一样简单。可以前往 <a href="https://joinmastodon.org">https://joinmastodon.org</a> 了解更多信息。
-    </string>
+    <string name="dialog_whats_an_instance">请输入你帐号所在的 Mastodon 站点的域名，比如 shitposter.club，blob.cat，expired.mentality.rip，<a href="https://fediverse.network/pleroma?count=peers">等等</a> 。 
+\n
+\n还没有 Mastodon 帐号？你也可以输入想注册的 Mastodon 站点的域名，然后在该服务器创建新的帐号并授权 Tusky 登入。 
+\n
+\n在 Mastodon 里，你的账号信息储存在某一特定实例当中，但 Mastodon 可使跨站互动和站内互动一样简单。 
+\n
+\n可以前往 <a href="https://joinmastodon.org">https://joinmastodon.org</a> 了解更多信息。 </string>
   
 
 </resources>

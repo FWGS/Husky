@@ -15,7 +15,7 @@
     <string name="about_tusky_license">Husky ingyenes és nyílt forráskódú szoftver. A GNU General Public License Version 3 érvényes rá, amit itt tekinthetsz meg: https://www.gnu.org/licenses/gpl-3.0.en.html</string>
   
   
-    <string name="about_powered_by_tusky">Husky által hatjva</string>
+    <string name="about_powered_by_tusky">Husky által hajtva</string>
   
 
 
@@ -34,7 +34,7 @@
 
 
   
-    <string name="action_login">Bejelentkezés Pleroma-al</string>
+    <string name="action_login">Bejelentkezés Pleroma-nal</string>
   
   
     <string name="add_account_description">Új Pleroma fiók hozzáadása</string>
@@ -46,11 +46,11 @@
 
   
     <string name="dialog_whats_an_instance">Bármely szerver címét beírhatod ide, mint shitposter.club, blob.cat, expired.mentality.rip, és <a href="https://fediverse.network/pleroma?count=peers">mások!</a> 
-\n
-\nHa még nincs fiókod, beírhatod a címét ide annak a szervernek amelyhez csatlakoznál, majd azon létrehozhatsz egy fiókot.
-\n
+\n 
+\nHa még nincs fiókod, beírhatod a címét ide annak a szervernek amelyhez csatlakoznál, majd azon létrehozhatsz egy fiókot. 
+\n 
 \nA szerver az a hely ahol a fiókadataidat tárolják, de ettől még ugyanúgy kommunikálhatsz más szervereken lévő emberekkel, mintha ugyanazon az oldalon lennétek. 
-\n
+\n 
 \nTöbb információt találhatsz itt: <a href="https://joinmastodon.org">joinmastodon.org</a>. </string>
   
 
