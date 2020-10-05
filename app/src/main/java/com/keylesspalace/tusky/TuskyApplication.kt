@@ -18,10 +18,12 @@ package com.keylesspalace.tusky
 import android.app.Application
 import android.content.Context
 import android.content.res.Configuration
+import android.graphics.Bitmap
 import android.util.Log
 import androidx.emoji.text.EmojiCompat
 import androidx.preference.PreferenceManager
 import androidx.work.WorkManager
+import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import com.github.piasy.biv.BigImageViewer
 import com.github.piasy.biv.loader.glide.GlideCustomImageLoader
 import com.keylesspalace.tusky.components.notifications.NotificationWorkerFactory
@@ -77,6 +79,7 @@ class TuskyApplication : Application(), HasAndroidInjector {
             Log.w("RxJava", "undeliverable exception", it)
         }
 
+        SubsamplingScaleImageView.setPreferredBitmapConfig(Bitmap.Config.ARGB_8888)
         BigImageViewer.initialize(GlideCustomImageLoader.with(this))
     }
 
