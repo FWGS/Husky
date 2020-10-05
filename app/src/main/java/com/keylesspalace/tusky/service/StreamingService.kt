@@ -63,7 +63,7 @@ class StreamingService: Service(), Injectable {
         }
     }
 
-    private fun stopStreaming() : Int {
+    private fun stopStreaming() {
         for(sock in sockets) {
             sock.value.close(1000, null)
         }
@@ -74,7 +74,10 @@ class StreamingService: Service(), Injectable {
         }
 
         notificationManager.cancel(1337)
-        return START_NOT_STICKY
+
+        synchronized(serviceRunning) {
+            serviceRunning = false
+        }
     }
 
     override fun onDestroy() {
@@ -83,7 +86,7 @@ class StreamingService: Service(), Injectable {
     }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-        if(intent.hasExtra(KEY_STOP_STREAMING)) {
+        if(intent.getBooleanExtra(KEY_STOP_STREAMING, false)) {
             Log.d(TAG, "Stream goes suya..")
             stopStreaming()
             stopSelfResult(startId)
@@ -118,7 +121,9 @@ class StreamingService: Service(), Injectable {
 
         if(count <= 0) {
             Log.d(TAG, "No accounts. Stopping stream")
-            return stopStreaming()
+            stopStreaming()
+            stopSelfResult(startId)
+            return START_NOT_STICKY
         }
 
         if (NotificationHelper.NOTIFICATION_USE_CHANNELS) {
@@ -142,6 +147,10 @@ class StreamingService: Service(), Injectable {
             notificationManager.notify(1337, builder.build())
         }
 
+        synchronized(serviceRunning) {
+            serviceRunning = true
+        }
+
         return START_NOT_STICKY
     }
 
@@ -149,6 +158,9 @@ class StreamingService: Service(), Injectable {
         val CHANNEL_ID = "streaming"
         val KEY_STOP_STREAMING = "stop_streaming"
         val TAG = "StreamingService"
+
+        @JvmStatic
+        var serviceRunning = false
 
         @JvmStatic
         private fun startForegroundService(ctx: Context, intent: Intent) {
@@ -162,6 +174,7 @@ class StreamingService: Service(), Injectable {
         @JvmStatic
         fun startStreaming(context: Context) {
             val intent = Intent(context, StreamingService::class.java)
+            intent.putExtra(KEY_STOP_STREAMING, false)
 
             Log.d(TAG, "Starting notifications streaming service...")
 
@@ -170,12 +183,19 @@ class StreamingService: Service(), Injectable {
 
         @JvmStatic
         fun stopStreaming(context: Context) {
-            val intent = Intent(context, StreamingService::class.java)
-            intent.putExtra(KEY_STOP_STREAMING, 0)
+            synchronized(serviceRunning) {
+                if(!serviceRunning)
+                    return
 
-            Log.d(TAG, "Stopping notifications streaming service...")
+                val intent = Intent(context, StreamingService::class.java)
+                intent.putExtra(KEY_STOP_STREAMING, true)
 
-            startForegroundService(context, intent)
+                Log.d(TAG, "Stopping notifications streaming service...")
+
+                serviceRunning = false
+
+                startForegroundService(context, intent)
+            }
         }
     }
 
