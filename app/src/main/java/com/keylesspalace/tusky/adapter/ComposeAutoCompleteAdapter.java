@@ -267,7 +267,7 @@ public class ComposeAutoCompleteAdapter extends BaseAdapter
     }
 
     public final static class AccountResult extends AutocompleteResult {
-        private final Account account;
+        public final Account account;
 
         public AccountResult(Account account) {
             this.account = account;

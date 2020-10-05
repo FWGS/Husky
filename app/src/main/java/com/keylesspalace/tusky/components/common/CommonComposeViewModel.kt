@@ -252,9 +252,13 @@ open class CommonComposeViewModel(
         when (token[0]) {
             '@' -> {
                 return try {
-                    api.searchAccounts(query = token.substring(1), limit = 10)
+                    val acct = token.substring(1)
+                    api.searchAccounts(query = acct, resolve = true, limit = 10)
                             .blockingGet()
                             .map { ComposeAutoCompleteAdapter.AccountResult(it) }
+                            .filter {
+                                it.account.username.startsWith(acct, ignoreCase = true)
+                            }
                 } catch (e: Throwable) {
                     Log.e(TAG, String.format("Autocomplete search for %s failed.", token), e)
                     emptyList()
