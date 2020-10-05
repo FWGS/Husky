@@ -20,10 +20,6 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.annotation.StringRes
 import androidx.annotation.VisibleForTesting
-import com.keylesspalace.tusky.BottomSheetActivity
-import com.keylesspalace.tusky.R
-import com.keylesspalace.tusky.BuildConfig
-import com.keylesspalace.tusky.ViewTagActivity
 import com.keylesspalace.tusky.di.Injectable
 import com.keylesspalace.tusky.di.ViewModelFactory
 import com.keylesspalace.tusky.entity.Chat
@@ -35,9 +31,11 @@ import com.keylesspalace.tusky.repository.ChatRepository
 import com.keylesspalace.tusky.viewdata.ChatMessageViewData
 import androidx.arch.core.util.Function
 import androidx.core.app.ActivityCompat
+import androidx.core.app.ActivityOptionsCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
+import androidx.core.view.ViewCompat
 import androidx.core.view.inputmethod.InputConnectionCompat
 import androidx.core.view.inputmethod.InputContentInfoCompat
 import androidx.lifecycle.Lifecycle
@@ -49,11 +47,13 @@ import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.snackbar.Snackbar
+import com.keylesspalace.tusky.*
 import com.keylesspalace.tusky.adapter.*
 import com.keylesspalace.tusky.appstore.*
 import com.keylesspalace.tusky.components.common.*
 import com.keylesspalace.tusky.components.compose.ComposeActivity
 import com.keylesspalace.tusky.components.compose.dialog.makeCaptionDialog
+import com.keylesspalace.tusky.entity.Attachment
 import com.keylesspalace.tusky.repository.Placeholder
 import com.keylesspalace.tusky.repository.TimelineRequestMode
 import com.keylesspalace.tusky.service.MessageToSend
@@ -862,13 +862,13 @@ class ChatActivity: BottomSheetActivity(),
             FetchEnd.TOP -> {
                 updateMessages(msgs, fullFetch)
 
-                val pos = msgs.indexOfFirst { it.isRight() }
+                val last = msgs.indexOfFirst { it.isRight() }
 
-                mastodonApi.markChatAsRead(chatId, msgs[pos].asRight().id)
+                mastodonApi.markChatAsRead(chatId, msgs[last].asRight().id)
                         .observeOn(AndroidSchedulers.mainThread())
                         .autoDispose(this, Lifecycle.Event.ON_DESTROY)
                         .subscribe({
-                            Log.d(TAG, "Marked new messages as read up to ${msgs[pos].asRight().id}")
+                            Log.d(TAG, "Marked new messages as read up to ${msgs[last].asRight().id}")
                         }, {
                             Log.d(TAG, "Failed to mark messages as read", it)
                         })
@@ -1037,6 +1037,28 @@ class ChatActivity: BottomSheetActivity(),
         val intent = Intent(this, ViewTagActivity::class.java)
         intent.putExtra("hashtag", tag)
         startActivity(intent)
+    }
+
+    override fun onViewMedia(position: Int, view: View?) {
+        val attachment = msgs[position].asRight().attachment!!
+
+        when(attachment.type) {
+            Attachment.Type.GIFV, Attachment.Type.VIDEO, Attachment.Type.AUDIO, Attachment.Type.IMAGE -> {
+                val intent = ViewMediaActivity.newIntent(this, attachment)
+                if(view != null) {
+                    val url = attachment.url
+                    ViewCompat.setTransitionName(view, url)
+                    val options = ActivityOptionsCompat.makeSceneTransitionAnimation(this, view, url)
+
+                    startActivity(intent, options.toBundle())
+                } else {
+                    startActivity(intent)
+                }
+            }
+            Attachment.Type.UNKNOWN -> {
+                viewUrl(attachment.url)
+            }
+        }
     }
 
     companion object {

@@ -79,7 +79,16 @@ class ViewMediaActivity : BaseActivity(), ViewImageFragment.PhotoActionsListener
             return intent
         }
 
-        fun newAvatarIntent(context: Context, url: String): Intent {
+        @JvmStatic
+        fun newIntent(context: Context?, attachment: Attachment): Intent {
+            val intent = Intent(context, ViewMediaActivity::class.java)
+            intent.putParcelableArrayListExtra(EXTRA_ATTACHMENTS,
+                    arrayListOf(AttachmentViewData(attachment, null, null)))
+            intent.putExtra(EXTRA_ATTACHMENT_INDEX, 0)
+            return intent
+        }
+
+        fun newAvatarIntent(context: Context?, url: String): Intent {
             val intent = Intent(context, ViewMediaActivity::class.java)
             intent.putExtra(EXTRA_AVATAR_URL, url)
             return intent
@@ -171,6 +180,11 @@ class ViewMediaActivity : BaseActivity(), ViewImageFragment.PhotoActionsListener
 
     override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
         menu?.findItem(R.id.action_share_media)?.isEnabled = !isCreating
+
+        if(attachments != null) {
+            val isStatus = attachments!!.any { it.statusId != null && it.statusUrl != null }
+            menu?.findItem(R.id.action_open_status)?.isVisible = isStatus
+        }
         return true
     }
 
