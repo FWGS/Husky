@@ -13,6 +13,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.*
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
+import at.connyduck.sparkbutton.helpers.Utils
 import com.keylesspalace.tusky.BottomSheetActivity
 import com.keylesspalace.tusky.PostLookupFallbackBehavior
 import com.keylesspalace.tusky.R
@@ -95,8 +96,13 @@ class ChatsFragment : BaseFragment(), Injectable, RefreshableFragment, Reselecta
             if (isAdded) {
                 Log.d(TAG, "onInserted");
                 adapter.notifyItemRangeInserted(position, count)
-                if (position == 0 && context != null) {
-                    recyclerView.scrollToPosition(0)
+                // scroll up when new items at the top are loaded while being in the first position
+                // https://github.com/tuskyapp/Tusky/pull/1905#issuecomment-677819724
+                if (position == 0 && context != null && adapter.itemCount != count) {
+                    if (isSwipeToRefreshEnabled)
+                        recyclerView.scrollBy(0, Utils.dpToPx(context!!, -30));
+                    else
+                        recyclerView.scrollToPosition(0);
                 }
             }
         }
