@@ -148,7 +148,7 @@ class ComposeActivity : BaseActivity(),
         // do not do anything when not logged in, activity will be finished in super.onCreate() anyway
         val activeAccount = accountManager.activeAccount ?: return
 
-        viewModel.tryFetchStickers = preferences.getBoolean("stickers", false)
+        viewModel.tryFetchStickers = preferences.getBoolean(PrefKeys.STICKERS, false)
         viewModel.anonymizeNames = preferences.getBoolean(PrefKeys.ANONYMIZE_FILENAMES, false)
         setupAvatar(preferences, activeAccount)
         val mediaAdapter = MediaPreviewAdapter(
@@ -1161,7 +1161,8 @@ class ComposeActivity : BaseActivity(),
                 addMediaBehavior.state == BottomSheetBehavior.STATE_EXPANDED ||
                 emojiBehavior.state == BottomSheetBehavior.STATE_EXPANDED ||
                 scheduleBehavior.state == BottomSheetBehavior.STATE_EXPANDED ||
-                stickerBehavior.state == BottomSheetBehavior.STATE_EXPANDED) {
+                stickerBehavior.state == BottomSheetBehavior.STATE_EXPANDED ||
+                previewBehavior.state == BottomSheetBehavior.STATE_HIDDEN) {
             composeOptionsBehavior.state = BottomSheetBehavior.STATE_HIDDEN
             addMediaBehavior.state = BottomSheetBehavior.STATE_HIDDEN
             emojiBehavior.state = BottomSheetBehavior.STATE_HIDDEN
