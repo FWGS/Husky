@@ -2,7 +2,7 @@
 <resources>
     <string name="action_login">हिंदी</string>
     <string name="title_favourites">पसंदीदा</string>
-    <string name="title_saved_toot">ड्राफ्ट</string>
+    <string name="title_saved_toot">प्रारूप</string>
     <string name="action_logout">लॉग आउट</string>
     <string name="action_view_preferences">पसंद</string>
     <string name="action_view_account_preferences">खाता प्राथमिकताएं</string>
@@ -10,7 +10,7 @@
     <string name="action_search">खोज</string>
     <string name="about_title_activity">के बारे में</string>
     <string name="title_statuses_with_replies">उत्तरों के साथ</string>
-    <string name="title_followers">फॉलोअर्स</string>
+    <string name="title_followers">अनुगामी</string>
     <string name="action_reply">उत्तर दें</string>
     <string name="action_follow">फ़ॉलो</string>
     <string name="action_unfollow">अनफ़ॉलो</string>
@@ -27,7 +27,7 @@
     <string name="action_retry">पुनः प्रयास करें</string>
     <string name="action_close">बंद करें</string>
     <string name="action_view_profile">प्रोफाइल</string>
-    <string name="description_visiblity_private">फॉलोअर्स</string>
+    <string name="description_visiblity_private">अनुगामी</string>
     <string name="error_image_upload_size">फ़ाइल 8 एमबी से कम होनी चाहिए।</string>
     <string name="error_media_upload_sending">अपलोड विफल रहा।</string>
     <string name="error_media_download_permission">मीडिया को स्टोर करने की अनुमति आवश्यक है।</string>
@@ -37,7 +37,7 @@
     <string name="error_audio_upload_size">ऑडियो फाइलें 40 एमबी से कम होनी चाहिए।</string>
     <string name="error_generic">एक त्रुटि हुई।</string>
     <string name="action_reset_schedule">रीसेट</string>
-    <string name="error_video_upload_size">वीडियो फ़ाइलें 40 एमबी से कम होनी चाहिए।</string>
+    <string name="error_video_upload_size">वीडियो फ़ाइलें 40MB से कम होनी चाहिए।</string>
     <string name="error_retrieving_oauth_token">लॉगिन टोकन प्राप्त करने में विफल।</string>
     <string name="error_authorization_denied">प्राधिकरण करने के से इनकार कर दिया।</string>
     <string name="error_authorization_unknown">एक अज्ञात प्राधिकरण त्रुटि हुई।</string>
@@ -52,8 +52,8 @@
     <string name="edit_poll">संपादित करें</string>
     <string name="pref_title_notification_filter_poll">जनमत खत्म हो गया हैं</string>
     <string name="action_add_poll">जनमत शुरू करें</string>
-    <string name="create_poll_title">जनमत</string>
-    <string name="title_accounts">खाते</string>
+    <string name="create_poll_title">पोल</string>
+    <string name="title_accounts">खाता</string>
     <string name="button_done">पूर्ण</string>
     <string name="button_back">पीछे</string>
     <string name="button_continue">जारी रखें</string>
@@ -96,14 +96,14 @@
     <string name="pref_title_show_replies">जवाब दिखाएँ</string>
     <string name="pref_title_status_tabs">टैब्स</string>
     <string name="pref_title_gradient_for_media">छिपे हुए मीडिया के लिए रंगीन ग्रेडिएंट दिखाएं</string>
-    <string name="pref_title_bot_overlay">बॉट के लिए संकेतक दिखाएं</string>
+    <string name="pref_title_bot_overlay">बॉट्स के लिए संकेतक दिखाएं</string>
     <string name="pref_title_language">भाषा</string>
     <string name="pref_title_hide_follow_button">स्क्रॉल करते समय कंपोज बटन को छिपाएं</string>
     <string name="pref_title_custom_tabs">क्रोम कस्टम टैब का उपयोग करें</string>
     <string name="pref_title_browser_settings">ब्राउज़र</string>
     <string name="app_theme_system">सिस्टम डिज़ाइन का उपयोग करें</string>
     <string name="app_theme_auto">सूर्यास्त के समय स्वचालित</string>
-    <string name="app_theme_black">काला</string>
+    <string name="app_theme_black">Black</string>
     <string name="app_them_dark">अंधकार</string>
     <string name="pref_title_timeline_filters">फिल्टर</string>
     <string name="pref_title_appearance_settings">दिखावट</string>
@@ -127,7 +127,7 @@
     <string name="label_avatar">अवतार</string>
     <string name="label_quick_reply">जवाब दें…</string>
     <string name="search_no_results">कोई परिणाम नहीं</string>
-    <string name="hint_search">खोज…</string>
+    <string name="hint_search">खोज</string>
     <string name="hint_note">जीवनी</string>
     <string name="hint_display_name">प्रदर्शित होने वाला नाम</string>
     <string name="hint_content_warning">विषय वस्तु चेतावनी</string>
@@ -152,7 +152,7 @@
     <string name="action_toggle_visibility">टूट दृश्यता</string>
     <string name="action_access_scheduled_toot">अनुसूचित टूट</string>
     <string name="action_accept">स्वीकार करें</string>
-    <string name="action_access_saved_toot">प्रारूप</string>
+    <string name="action_access_saved_toot">ड्राफ्ट</string>
     <string name="action_reject">अस्वीकार करें</string>
     <string name="action_undo">पूर्ववत करें</string>
     <string name="action_edit_own_profile">संपादित करें</string>
@@ -170,7 +170,7 @@
     <string name="action_add_media">ऐड मीडिया</string>
     <string name="action_open_in_web">ब्राउज़र में खोलें</string>
     <string name="action_view_media">मीडिया</string>
-    <string name="error_sender_account_gone">टूट भेजने में त्रुटि।</string>
+    <string name="error_sender_account_gone">टोट भेजने में त्रुटि।</string>
     <string name="action_bookmark">बुकमार्क</string>
     <string name="action_reblog">बढ़ावा दें</string>
     <string name="action_quick_reply">तुरंत जवाब</string>
@@ -207,26 +207,17 @@
     <string name="poll_duration_1_hour">1 घंटा</string>
     <string name="poll_duration_30_min">30 मिनिट</string>
     <string name="poll_duration_5_min">5 मिनट</string>
-    <plurals name="poll_timespan_seconds">
-        <item quantity="one">%d सेकेंड</item>
-        <item quantity="other">%d सेकेंड</item>
-    </plurals>
-    <plurals name="poll_timespan_minutes">
-        <item quantity="one">%d मिनट</item>
-        <item quantity="other">%d मिनट</item>
-    </plurals>
     <plurals name="poll_timespan_hours">
-        <item quantity="one">%d घंटा</item>
-        <item quantity="other">%d घंटे</item>
+        <item quantity="one">%d घंटा शेष</item>
+        <item quantity="other">%d घंटे शेष</item>
     </plurals>
     <plurals name="poll_timespan_days">
-        <item quantity="one">%d दिन</item>
-        <item quantity="other">%d दिन</item>
+        <item quantity="one">%d दिन शेष</item>
+        <item quantity="other">%d दिन शेष</item>
     </plurals>
     <string name="poll_ended_created">आपके द्वारा बनाया गया एक जनमत समाप्त हो गया है</string>
     <string name="poll_ended_voted">आपके द्वारा मतदान किया गया जनमत समाप्त हो गया है</string>
     <string name="poll_info_time_absolute">%s समाप्त होगा</string>
-    <string name="poll_info_time_relative">%s शेष</string>
     <plurals name="poll_info_people">
         <item quantity="one">%s व्यक्ति</item>
         <item quantity="other">%s लोग</item>
@@ -297,10 +288,6 @@
         <item quantity="one"><b>%s</b> ने बढ़ावा दिया</item>
         <item quantity="other"><b>%s</b> ने बढ़ावा दिया</item>
     </plurals>
-    <plurals name="favs">
-        <item quantity="one"><b>%1$s</b> ने पसंद किया</item>
-        <item quantity="other"><b>%1$s</b> ने पसंद किया</item>
-    </plurals>
     <string name="pin_action">पिन</string>
     <string name="unpin_action">अनपिन</string>
     <string name="label_remote_account">नीचे दी गई जानकारी उपयोगकर्ता की प्रोफ़ाइल को अपूर्ण रूप से दर्शा सकती है। ब्राउज़र में पूर्ण प्रोफ़ाइल खोलने के लिए यहां दबाएं।</string>
@@ -322,7 +309,7 @@
     <string name="send_toot_notification_saved_content">टूट की एक प्रति आपके ड्राफ्ट में सहेज ली गई है</string>
     <string name="send_toot_notification_error_title">टूट भेजने में त्रुटि</string>
     <string name="filter_dialog_remove_button">हटाएँ</string>
-    <string name="action_remove">हटाएँ</string>
+    <string name="action_remove">हटा दें</string>
     <string name="hint_describe_for_visually_impaired">दृष्टिहीन लोगों के लिए वर्णन करें
 \n(%d वर्ण सीमा)</string>
     <string name="error_failed_set_caption">कैप्शन सेट करने में विफल</string>
@@ -344,7 +331,7 @@
     <string name="pref_title_thread_filter_keywords">संवाद</string>
     <string name="replying_to">\@%s को जवाब दे रहे है</string>
     <string name="title_media">मीडिया</string>
-    <string name="pref_title_alway_show_sensitive_media">संवेदनशील विषय वस्तु हमेशा दिखाए</string>
+    <string name="pref_title_alway_show_sensitive_media">संवेदनशील विषय वस्तु</string>
     <string name="follows_you">आपको फॉलो करते है</string>
     <string name="pref_title_notification_filter_follow_requests">फ़ॉलो करने का अनुरोध किया</string>
     <string name="state_follow_requested">फ़ॉलो करने का अनुरोध किया हुआ</string>
@@ -406,4 +393,14 @@
     <string name="action_view_follow_requests">फ़ॉलो अनुरोध</string>
     <string name="notification_follow_request_format">%s ने आपको फ़ॉलो करने का अनुरोध किया</string>
     <string name="notification_follow_format">%s ने आपको फ़ॉलो किया</string>
+    <string name="pref_title_show_boosts">बूस्ट दिखाएं</string>
+    <string name="action_open_reblogged_by">बूस्ट दिखाएं</string>
+    <plurals name="favs">
+        <item quantity="one"><b>%1$s</b> ने पसंद किया</item>
+        <item quantity="other"><b>%1$s</b> ने पसंद किया</item>
+    </plurals>
+    <plurals name="poll_timespan_seconds">
+        <item quantity="one">%d सेकेंड शेष</item>
+        <item quantity="other">%d सेकेंड शेष</item>
+    </plurals>
 </resources>
