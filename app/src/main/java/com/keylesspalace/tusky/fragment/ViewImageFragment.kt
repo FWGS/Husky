@@ -40,6 +40,7 @@ import java.io.File
 import java.lang.Exception
 import kotlin.math.abs
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
+import com.github.piasy.biv.view.BigImageView
 
 
 class ViewImageFragment : ViewMediaFragment() {
@@ -248,7 +249,7 @@ class ViewImageFragment : ViewMediaFragment() {
         // if we had preview, load full image, as transition has ended
         if (showingPreview) {
             showingPreview = false
-            photoView.loadMainImageNow()
+            photoView.showImage(uri)
         }
     }
 
@@ -256,6 +257,8 @@ class ViewImageFragment : ViewMediaFragment() {
         override fun onSuccess(image: File?) {
             if(!showingPreview) {
                 progressBar?.hide()
+
+                photoView.setInitScaleType(BigImageView.INIT_SCALE_TYPE_CENTER_INSIDE)
                 photoView.ssiv?.orientation = SubsamplingScaleImageView.ORIENTATION_USE_EXIF
                 photoView.mainView?.setOnTouchListener(imageOnTouchListener)
             }
