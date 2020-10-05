@@ -105,12 +105,21 @@ interface MastodonApi {
             @Query("with_muted") withMuted: Boolean?
     ): Call<List<Notification>>
 
+    @GET("api/v1/markers")
+    fun markersWithAuth(
+            @Header("Authorization") auth: String,
+            @Header(DOMAIN_HEADER) domain: String,
+            @Query("timeline[]") timelines: List<String>
+    ): Single<Map<String, Marker>>
+
     @GET("api/v1/notifications")
     fun notificationsWithAuth(
             @Header("Authorization") auth: String,
             @Header(DOMAIN_HEADER) domain: String,
-            @Query("with_muted") withMuted: Boolean?
-    ): Call<List<Notification>>
+            @Query("since_id") sinceId: String?,
+            @Query("with_muted") withMuted: Boolean?,
+            @Query("include_types[]") includeTypes: List<String>?
+    ): Single<List<Notification>>
 
     @POST("api/v1/notifications/clear")
     fun clearNotifications(): Call<ResponseBody>
@@ -622,4 +631,60 @@ interface MastodonApi {
         @Url path: String
     ): Single<Response<StickerPack>>
     // NOT AN API CALLS NOT AN API CALLS NOT AN API CALLS NOT AN API CALLS
+
+    @POST("api/v1/pleroma/chats/{id}/messages/{message_id}/read")
+    fun markChatMessageAsRead(
+            @Path("id") chatId: String,
+            @Path("message_id") messageId: String
+    ): Single<ChatMessage>
+
+    @DELETE("api/v1/pleroma/chats/{id}/messages/{message_id}")
+    fun deleteChatMessage(
+            @Path("id") chatId: String,
+            @Path("message_id") messageId: String
+    ): Single<ChatMessage>
+
+    @GET("api/v1/pleroma/chats")
+    fun getChats(
+            @Query("max_id") maxId: String?,
+            @Query("min_id") minId: String?,
+            @Query("since_id") sinceId: String?,
+            @Query("offset") offset: Int?,
+            @Query("limit") limit: Int?
+    ): Single<List<Chat>>
+
+    @GET("api/v1/pleroma/chats/{id}/messages")
+    fun getChatMessages(
+            @Path("id") chatId: String,
+            @Query("max_id") maxId: String?,
+            @Query("min_id") minId: String?,
+            @Query("since_id") sinceId: String?,
+            @Query("offset") offset: Int?,
+            @Query("limit") limit: Int?
+    ): Single<List<ChatMessage>>
+
+    @POST("api/v1/pleroma/chats/{id}/messages")
+    fun createChatMessage(
+            @Header("Authorization") auth: String,
+            @Header(DOMAIN_HEADER) domain: String,
+            @Path("id") chatId: String,
+            @Body chatMessage: NewChatMessage
+    ): Call<ChatMessage>
+
+    @FormUrlEncoded
+    @POST("api/v1/pleroma/chats/{id}/read")
+    fun markChatAsRead(
+            @Path("id") chatId: String,
+            @Field("last_read_id") lastReadId: String? = null
+    ): Single<Chat>
+
+    @POST("api/v1/pleroma/chats/by-account-id/{id}")
+    fun createChat(
+            @Path("id") accountId: String
+    ): Single<Chat>
+
+    @GET("api/v1/pleroma/chats/{id}")
+    fun getChat(
+            @Path("id") chatId: String
+    ): Single<Chat>
 }

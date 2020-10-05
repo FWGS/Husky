@@ -22,16 +22,9 @@ import android.content.Context
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.*
-import android.widget.TextView
-import androidx.exifinterface.media.ExifInterface
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.DataSource
-import com.bumptech.glide.load.engine.GlideException
-import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.CustomTarget
-import com.bumptech.glide.request.target.Target
 import com.bumptech.glide.request.transition.Transition
 import com.github.piasy.biv.BigImageViewer
 import com.github.piasy.biv.loader.ImageLoader
@@ -47,6 +40,7 @@ import java.io.File
 import java.lang.Exception
 import kotlin.math.abs
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
+import com.github.piasy.biv.view.BigImageView
 
 
 class ViewImageFragment : ViewMediaFragment() {
@@ -69,15 +63,19 @@ class ViewImageFragment : ViewMediaFragment() {
     private var previewUri = Uri.EMPTY
     private var showingPreview = false
 
-    override lateinit var descriptionView: TextView
     override fun onAttach(context: Context) {
         super.onAttach(context)
         photoActionsListener = context as PhotoActionsListener
     }
 
-    override fun setupMediaView(url: String, previewUrl: String?) {
-        descriptionView = mediaDescription
+    override fun setupMediaView(url: String,
+                                previewUrl: String?,
+                                description: String?,
+                                showingDescription: Boolean) {
         photoView.transitionName = url
+        mediaDescription.text = description
+        captionSheet.visible(showingDescription)
+
         startedTransition = false
         uri = Uri.parse(url)
         if(previewUrl != null && !previewUrl.equals(url)) {
@@ -91,8 +89,6 @@ class ViewImageFragment : ViewMediaFragment() {
         return inflater.inflate(R.layout.fragment_view_image, container, false)
     }
 
-    private lateinit var gestureDetector : GestureDetector
-
     private val imageOnTouchListener = object : View.OnTouchListener {
         private var lastY = 0.0f
         private var swipeStartedWithOneFinger = false
@@ -100,9 +96,9 @@ class ViewImageFragment : ViewMediaFragment() {
         override fun onTouch(v: View, event: MotionEvent): Boolean {
             // This part is for scaling/translating on vertical move.
             // We use raw coordinates to get the correct ones during scaling
-            gestureDetector.onTouchEvent(event)
 
             if(event.pointerCount != 1) {
+                onGestureEnd()
                 swipeStartedWithOneFinger = false
                 return false
             }
@@ -117,7 +113,8 @@ class ViewImageFragment : ViewMediaFragment() {
                     swipeStartedWithOneFinger = false
                 }
                 MotionEvent.ACTION_MOVE -> {
-                    if(swipeStartedWithOneFinger && photoView.ssiv.scale <= photoView.ssiv.minScale) {
+                    if(swipeStartedWithOneFinger &&
+                            (photoView.ssiv == null || photoView.ssiv.scale <= photoView.ssiv.minScale)) {
                         val diff = event.rawY - lastY
                         // This code is to prevent transformations during page scrolling
                         // If we are already translating or we reached the threshold, then transform.
@@ -141,14 +138,6 @@ class ViewImageFragment : ViewMediaFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        gestureDetector = GestureDetector(requireContext(), object : GestureDetector.SimpleOnGestureListener() {
-            override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
-                onMediaTap()
-                return true
-            }
-        })
-
-        // photoView.setOnTouchListener(this)
         photoView.setImageLoaderCallback(imageLoaderCallback)
         photoView.setImageViewFactory(GlideImageViewFactory())
 
@@ -184,15 +173,15 @@ class ViewImageFragment : ViewMediaFragment() {
     }
 
     override fun onToolbarVisibilityChange(visible: Boolean) {
-        if (photoView == null || !userVisibleHint) {
+        if (photoView == null || !userVisibleHint || captionSheet == null) {
             return
         }
         isDescriptionVisible = showingDescription && visible
         val alpha = if (isDescriptionVisible) 1.0f else 0.0f
-        descriptionView.animate().alpha(alpha)
+        captionSheet.animate().alpha(alpha)
                 .setListener(object : AnimatorListenerAdapter() {
                     override fun onAnimationEnd(animation: Animator) {
-                        descriptionView.visible(isDescriptionVisible)
+                        captionSheet?.visible(isDescriptionVisible)
                         animation.removeListener(this)
                     }
                 })
@@ -212,6 +201,7 @@ class ViewImageFragment : ViewMediaFragment() {
                 // forget about fancy transition
                 showingPreview = false
                 photoView.showImage(uri)
+                photoActionsListener.onBringUp()
             } else {
                 // let's start downloading full image that we supposedly don't have
                 BigImageViewer.prefetch(uri)
@@ -233,22 +223,33 @@ class ViewImageFragment : ViewMediaFragment() {
             } else {
                 photoView.showImage(uri)
             }
+            photoActionsListener.onBringUp()
         }
     }
 
     private fun loadImageFromNetwork() {
-        Glide.with(this).asFile()
-            .load(uri)
-            .onlyRetrieveFromCache(true)
-            .dontAnimate()
-            .into(DummyCacheTarget(context!!, false))
+        if(previewUri != Uri.EMPTY) {
+            // check if we have full image in the cache, if yes, use it
+            // if not, look for preview in cache and use it if available
+            // if not, load full image anyway
+            Glide.with(this).asFile()
+                    .load(uri)
+                    .onlyRetrieveFromCache(true)
+                    .dontAnimate()
+                    .into(DummyCacheTarget(context!!, false))
+        } else {
+            // no need in cache lookup, just load full image
+            showingPreview = false
+            photoView.showImage(uri)
+            photoActionsListener.onBringUp()
+        }
     }
 
     override fun onTransitionEnd() {
         // if we had preview, load full image, as transition has ended
         if (showingPreview) {
             showingPreview = false
-            photoView.loadMainImageNow()
+            photoView.showImage(uri)
         }
     }
 
@@ -256,10 +257,10 @@ class ViewImageFragment : ViewMediaFragment() {
         override fun onSuccess(image: File?) {
             if(!showingPreview) {
                 progressBar?.hide()
-                photoView.ssiv?.let {
-                    it.orientation = SubsamplingScaleImageView.ORIENTATION_USE_EXIF
-                    it.setOnTouchListener(imageOnTouchListener)
-                }
+
+                photoView.setInitScaleType(BigImageView.INIT_SCALE_TYPE_CENTER_INSIDE)
+                photoView.ssiv?.orientation = SubsamplingScaleImageView.ORIENTATION_USE_EXIF
+                photoView.mainView?.setOnTouchListener(imageOnTouchListener)
             }
         }
 
@@ -268,13 +269,9 @@ class ViewImageFragment : ViewMediaFragment() {
         }
 
         override fun onCacheHit(imageType: Int, image: File?) {
-            // image is here, bring up the activity!
-            photoActionsListener.onBringUp()
         }
 
         override fun onStart() {
-            // cache miss but image is downloading, bring up the activity
-            photoActionsListener.onBringUp()
         }
 
         override fun onCacheMiss(imageType: Int, image: File?) {

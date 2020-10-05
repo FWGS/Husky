@@ -15,12 +15,17 @@
 
 package com.keylesspalace.tusky.util;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.keylesspalace.tusky.entity.Notification;
 import com.keylesspalace.tusky.entity.Status;
+import com.keylesspalace.tusky.entity.Chat;
+import com.keylesspalace.tusky.entity.ChatMessage;
 import com.keylesspalace.tusky.viewdata.NotificationViewData;
 import com.keylesspalace.tusky.viewdata.StatusViewData;
+import com.keylesspalace.tusky.viewdata.ChatViewData;
+import com.keylesspalace.tusky.viewdata.ChatMessageViewData;
 
 /**
  * Created by charlag on 12/07/2017.
@@ -41,6 +46,7 @@ public final class ViewDataUtils {
                 .setReblogsCount(visibleStatus.getReblogsCount())
                 .setFavouritesCount(visibleStatus.getFavouritesCount())
                 .setInReplyToId(visibleStatus.getInReplyToId())
+                .setInReplyToAccountAcct(visibleStatus.getInReplyToAccountAcct())
                 .setFavourited(visibleStatus.getFavourited())
                 .setBookmarked(visibleStatus.getBookmarked())
                 .setReblogged(visibleStatus.getReblogged())
@@ -70,6 +76,7 @@ public final class ViewDataUtils {
                 .setThreadMuted(visibleStatus.isThreadMuted())
                 .setConversationId(visibleStatus.getConversationId())
                 .setEmojiReactions(visibleStatus.getEmojiReactions())
+                .setParentVisible(visibleStatus.getParentVisible())
                 .createStatusViewData();
     }
 
@@ -86,6 +93,34 @@ public final class ViewDataUtils {
                         alwaysOpenSpoiler
                 ),
                 notification.getEmoji()
+        );
+    }
+
+    public static ChatMessageViewData.Concrete chatMessageToViewData(@Nullable ChatMessage msg) {
+        if(msg == null) return null;
+
+        return new ChatMessageViewData.Concrete(
+                msg.getId(),
+                msg.getContent(),
+                msg.getChatId(),
+                msg.getAccountId(),
+                msg.getCreatedAt(),
+                msg.getAttachment(),
+                msg.getEmojis(),
+                msg.getCard()
+        );
+    }
+
+    @NonNull
+    public static ChatViewData.Concrete chatToViewData(Chat chat) {
+        return new ChatViewData.Concrete(
+                chat.getAccount(),
+                chat.getId(),
+                chat.getUnread(),
+                chatMessageToViewData(
+                        chat.getLastMessage()
+                ),
+                chat.getUpdatedAt()
         );
     }
 }

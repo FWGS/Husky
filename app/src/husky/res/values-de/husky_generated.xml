@@ -1,6 +1,6 @@
 <resources>
   
-    <string name="about_tusky_license">Husky ist freie eine quelloffene Software. Es ist lizenziert unter der GNU General Public License Version 3. Du kannst dir die Lizenz hier anschauen: https://www.gnu.org/licenses/gpl-3.0.de.html</string>
+    <string name="about_tusky_license">Husky ist freie und quelloffene Software. Es ist lizenziert unter der GNU General Public License Version 3. Du kannst dir die Lizenz hier anschauen: https://www.gnu.org/licenses/gpl-3.0.de.html</string>
   
   
     <string name="about_tusky_account">Huskys Profil</string>
@@ -12,7 +12,7 @@
     <string name="license_description">Husky enthält Code und Inhalte von den folgenden Open-Source-Projekten:</string>
   
   
-    <string name="about_tusky_version">Husky %s</string>
+    <string name="about_tusky_version">test %s</string>
   
   
     <string name="about_powered_by_tusky">Angetrieben durch Husky</string>
@@ -21,8 +21,8 @@
 
 
   
-    <string name="about_project_site">Website des Projekts:
-\n https://husky.fwgs.ru</string>
+    <string name="about_project_site">Website des Projekts: 
+\n https://huskyapp.dev</string>
   
 
 

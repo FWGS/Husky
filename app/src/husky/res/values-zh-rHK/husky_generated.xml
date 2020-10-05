@@ -17,7 +17,7 @@
   
     <string name="about_project_site">
         專案網站：\n
-        https://husky.fwgs.ru
+        https://huskyapp.dev
     </string>
   
 
@@ -39,7 +39,7 @@
 
 
   
-    <string name="dialog_whats_an_instance">"請輸入你帳號所在的 Mastodon 站點的域名或地址 "</string>
+    <string name="dialog_whats_an_instance">請輸入你帳號所在的 Mastodon 站點的域名或地址</string>
   
 
 </resources>

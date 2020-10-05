@@ -4,6 +4,7 @@ package com.keylesspalace.tusky.di
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.keylesspalace.tusky.components.chat.ChatViewModel
 import com.keylesspalace.tusky.components.compose.ComposeViewModel
 import com.keylesspalace.tusky.components.conversation.ConversationsViewModel
 import com.keylesspalace.tusky.components.report.ReportViewModel
@@ -84,6 +85,11 @@ abstract class ViewModelModule {
     @IntoMap
     @ViewModelKey(ScheduledTootViewModel::class)
     internal abstract fun scheduledTootViewModel(viewModel: ScheduledTootViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(ChatViewModel::class)
+    internal abstract fun chatViewModel(viewModel: ChatViewModel) : ViewModel
 
     //Add more ViewModels here
 }

@@ -38,7 +38,7 @@ do
 
     # add <resources>, some strings
     $SOURCE_ROOT/scripts/xq.py "$FIXUP_TUSKY" $i | prologue | sed -E 's|Tusky|Husky|g' > ../../husky/res/$DIRECTORY/husky_generated.xml
-    $SOURCE_ROOT/scripts/xq.py "$FIXUP_WEBSITE" $i | logue | sed -E 's|https://tusky.app|https://husky.fwgs.ru|g' >> ../../husky/res/$DIRECTORY/husky_generated.xml
+    $SOURCE_ROOT/scripts/xq.py "$FIXUP_WEBSITE" $i | logue | sed -E 's|https://tusky.app|https://huskyapp.dev|g' >> ../../husky/res/$DIRECTORY/husky_generated.xml
     $SOURCE_ROOT/scripts/xq.py "$FIXUP_BUGTRACKER" $i | logue | sed -E 's|https://github.com/tuskyapp/Tusky/issues|https://git.mentality.rip/FWGS/Husky/issues|g' >> ../../husky/res/$DIRECTORY/husky_generated.xml
     $SOURCE_ROOT/scripts/xq.py "$FIXUP_MASTODON" $i | logue | sed -E 's|Mastodon|Pleroma|g' >> ../../husky/res/$DIRECTORY/husky_generated.xml
     $SOURCE_ROOT/scripts/xq.py "$FIXUP_INSTANCES" $i | epilogue | sed -E 's|mastodon.social|shitposter.club|g' | sed -E 's|icosahedron.website|blob.cat|g' | sed -E 's|social.tchncs.de|expired.mentality.rip|g' | sed -E 's|https://instances.social|https://fediverse.network/pleroma?count=peers|g' >> ../../husky/res/$DIRECTORY/husky_generated.xml

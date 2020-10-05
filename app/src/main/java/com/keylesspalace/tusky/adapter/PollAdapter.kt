@@ -34,14 +34,24 @@ class PollAdapter: RecyclerView.Adapter<PollViewHolder>() {
 
     private var pollOptions: List<PollOptionViewData> = emptyList()
     private var voteCount: Int = 0
+    private var votersCount: Int? = null
     private var mode = RESULT
     private var emojis: List<Emoji> = emptyList()
+    private var resultClickListener: View.OnClickListener? = null
 
-    fun setup(options: List<PollOptionViewData>, voteCount: Int, emojis: List<Emoji>, mode: Int) {
+    fun setup(
+            options: List<PollOptionViewData>,
+            voteCount: Int,
+            votersCount: Int?,
+            emojis: List<Emoji>,
+            mode: Int,
+            resultClickListener: View.OnClickListener?) {
         this.pollOptions = options
         this.voteCount = voteCount
+        this.votersCount = votersCount
         this.emojis = emojis
         this.mode = mode
+        this.resultClickListener = resultClickListener
         notifyDataSetChanged()
     }
 
@@ -69,7 +79,7 @@ class PollAdapter: RecyclerView.Adapter<PollViewHolder>() {
 
         when(mode) {
             RESULT -> {
-                val percent = calculatePercent(option.votesCount, voteCount)
+                val percent = calculatePercent(option.votesCount, votersCount, voteCount)
                 val emojifiedPollOptionText = buildDescription(option.title, percent, holder.resultTextView.context)
                         .emojify(emojis, holder.resultTextView)
                 holder.resultTextView.text =  EmojiCompat.get().process(emojifiedPollOptionText)
@@ -77,7 +87,7 @@ class PollAdapter: RecyclerView.Adapter<PollViewHolder>() {
                 val level = percent * 100
 
                 holder.resultTextView.background.level = level
-
+                holder.resultTextView.setOnClickListener(resultClickListener)
             }
             SINGLE -> {
                 val emojifiedPollOptionText = option.title.emojify(emojis, holder.radioButton)

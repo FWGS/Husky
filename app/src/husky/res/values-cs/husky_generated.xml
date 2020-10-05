@@ -16,12 +16,15 @@
   
     <string name="license_description">Husky obsahuje kód a zdroje z následujících otevřených projektů:</string>
   
+  
+    <string name="about_powered_by_tusky">Powered by Husky</string>
+  
 
 
 
   
     <string name="about_project_site">        Webová stránka projektu:\n
-        https://husky.fwgs.ru
+        https://huskyapp.dev
     </string>
   
 
@@ -38,6 +41,9 @@
   
   
     <string name="add_account_description">Přidat nový účet Pleroma</string>
+  
+  
+    <string name="warning_scheduling_interval">Pleroma neumožňuje pracovat s intervalem menším než 5 minut.</string>
   
 
 

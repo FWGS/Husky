@@ -91,8 +91,8 @@ public final class ProgressImageView extends AppCompatImageView {
         super.onDraw(canvas);
 
         float angle = (progress / 100f) * 360 - 90;
-        float halfWidth = getWidth() / 2;
-        float halfHeight = getHeight() / 2;
+        float halfWidth = getWidth() / 2.0f;
+        float halfHeight = getHeight() / 2.0f;
         progressRect.set(halfWidth * 0.75f, halfHeight * 0.75f, halfWidth * 1.25f, halfHeight * 1.25f);
         biggerRect.set(progressRect);
         int margin = 8;

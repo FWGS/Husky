@@ -15,6 +15,8 @@
 
 package com.keylesspalace.tusky
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
 import android.animation.ArgbEvaluator
 import android.content.Context
 import android.content.Intent
@@ -27,6 +29,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.annotation.ColorInt
 import androidx.annotation.Px
@@ -34,6 +37,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.content.ContextCompat
 import androidx.emoji.text.EmojiCompat
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Observer
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -48,6 +52,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.keylesspalace.tusky.adapter.AccountFieldAdapter
+import com.keylesspalace.tusky.components.chat.ChatActivity
 import com.keylesspalace.tusky.components.compose.ComposeActivity
 import com.keylesspalace.tusky.components.report.ReportActivity
 import com.keylesspalace.tusky.di.ViewModelFactory
@@ -61,8 +66,11 @@ import com.keylesspalace.tusky.interfaces.ReselectableFragment
 import com.keylesspalace.tusky.pager.AccountPagerAdapter
 import com.keylesspalace.tusky.util.*
 import com.keylesspalace.tusky.viewmodel.AccountViewModel
+import com.uber.autodispose.android.lifecycle.AndroidLifecycleScopeProvider.from
+import com.uber.autodispose.autoDispose
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.HasAndroidInjector
+import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.activity_account.*
 import kotlinx.android.synthetic.main.view_account_moved.*
 import java.text.NumberFormat
@@ -159,7 +167,6 @@ class AccountActivity : BottomSheetActivity(), ActionButtonActivity, HasAndroidI
         accountFollowButton.hide()
         accountMuteButton.hide()
         accountFollowsYouTextView.hide()
-
 
         // setup the RecyclerView for the account fields
         accountFieldList.isNestedScrollingEnabled = false
@@ -279,6 +286,7 @@ class AccountActivity : BottomSheetActivity(), ActionButtonActivity, HasAndroidI
                         accountFloatingActionButton.show()
                     }
                     if (verticalOffset < oldOffset) {
+                        hideFabMenu()
                         accountFloatingActionButton.hide()
                     }
                 }
@@ -356,8 +364,6 @@ class AccountActivity : BottomSheetActivity(), ActionButtonActivity, HasAndroidI
             swipeToRefreshLayout.isRefreshing = isRefreshing == true
         })
         swipeToRefreshLayout.setColorSchemeResources(R.color.tusky_blue)
-        swipeToRefreshLayout.setProgressBackgroundColorSchemeColor(ThemeUtils.getColor(this,
-                android.R.attr.colorBackground))
     }
 
     private fun onAccountChanged(account: Account?) {
@@ -496,6 +502,57 @@ class AccountActivity : BottomSheetActivity(), ActionButtonActivity, HasAndroidI
         }
     }
 
+    private fun FloatingActionButton.menuAnimate(show: Boolean) {
+        val height = this.height.toFloat()
+
+        if(show) {
+            visibility = View.VISIBLE
+            alpha = 0.0f
+            translationY = height
+
+            animate().setDuration(200)
+                    .translationY(0.0f)
+                    .alpha(1.0f)
+                    .setListener(object : AnimatorListenerAdapter() {}) // seems listener is saved, so reset it here
+                    .start()
+        } else {
+            animate().setDuration(200)
+                    .translationY(height)
+                    .alpha(0.0f)
+                    .setListener(object : AnimatorListenerAdapter() {
+                        override fun onAnimationEnd(animation: Animator?) {
+                            visibility = View.GONE
+                            super.onAnimationEnd(animation)
+                        }
+                    })
+                    .start()
+        }
+    }
+
+    private fun hideFabMenu() {
+        openedFabMenu = false
+
+        accountFloatingActionButton.animate().setDuration(200)
+                .rotation(0.0f).start()
+        accountFloatingActionButtonChat.menuAnimate(openedFabMenu)
+        accountFloatingActionButtonMention.menuAnimate(openedFabMenu)
+
+    }
+
+    var openedFabMenu = false
+    private fun animateFabMenu() {
+        if(openedFabMenu) {
+            hideFabMenu()
+        } else {
+            openedFabMenu = true
+
+            accountFloatingActionButton.animate().setDuration(200)
+                    .rotation(135.0f).start()
+            accountFloatingActionButtonChat.menuAnimate(openedFabMenu)
+            accountFloatingActionButtonMention.menuAnimate(openedFabMenu)
+        }
+    }
+
     /**
      * Update account stat info
      */
@@ -506,7 +563,28 @@ class AccountActivity : BottomSheetActivity(), ActionButtonActivity, HasAndroidI
             accountFollowingTextView.text = numberFormat.format(account.followingCount)
             accountStatusesTextView.text = numberFormat.format(account.statusesCount)
 
-            accountFloatingActionButton.setOnClickListener { mention() }
+            accountFloatingActionButtonMention.setOnClickListener { mention() }
+
+            if(account.pleroma?.acceptsChatMessages == true) {
+                accountFloatingActionButtonChat.setOnClickListener {
+                    mastodonApi.createChat(account.id)
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .autoDispose(from(this, Lifecycle.Event.ON_DESTROY))
+                            .subscribe({
+                                val intent = ChatActivity.getIntent(this@AccountActivity, it)
+                                startActivityWithSlideInAnimation(intent)
+                            }, {
+                                Toast.makeText(this@AccountActivity, getString(R.string.error_generic), Toast.LENGTH_SHORT).show()
+                            })
+                }
+            } else {
+                accountFloatingActionButtonChat.backgroundTintList = ColorStateList.valueOf(Color.GRAY)
+                accountFloatingActionButtonChat.setOnClickListener {
+                    Toast.makeText(this@AccountActivity, getString(R.string.error_chat_recipient_unavailable), Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            accountFloatingActionButton.setOnClickListener { animateFabMenu() }
 
             accountFollowButton.setOnClickListener {
                 if (viewModel.isSelf) {
@@ -613,6 +691,7 @@ class AccountActivity : BottomSheetActivity(), ActionButtonActivity, HasAndroidI
             updateFollowButton()
 
             if (blocking || viewModel.isSelf) {
+                hideFabMenu()
                 accountFloatingActionButton.hide()
                 accountMuteButton.hide()
                 accountSubscribeButton.hide()
@@ -626,6 +705,7 @@ class AccountActivity : BottomSheetActivity(), ActionButtonActivity, HasAndroidI
             }
 
         } else {
+            hideFabMenu()
             accountFloatingActionButton.hide()
             accountFollowButton.hide()
             accountMuteButton.hide()
@@ -827,6 +907,10 @@ class AccountActivity : BottomSheetActivity(), ActionButtonActivity, HasAndroidI
         return if (!viewModel.isSelf && !blocking) {
             accountFloatingActionButton
         } else null
+    }
+
+    override fun onActionButtonHidden() {
+        hideFabMenu()
     }
 
     override fun androidInjector() = dispatchingAndroidInjector

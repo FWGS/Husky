@@ -26,7 +26,7 @@ SELECT s.serverId, s.url, s.timelineUserId,
 s.authorServerId, s.inReplyToId, s.inReplyToAccountId, s.createdAt,
 s.emojis, s.reblogsCount, s.favouritesCount, s.reblogged, s.favourited, s.bookmarked, s.sensitive,
 s.spoilerText, s.visibility, s.mentions, s.application, s.reblogServerId,s.reblogAccountId,
-s.content, s.attachments, s.poll,
+s.content, s.attachments, s.poll, s.pleroma,
 a.serverId as 'a_serverId', a.timelineUserId as 'a_timelineUserId',
 a.localUsername as 'a_localUsername', a.username as 'a_username',
 a.displayName as 'a_displayName', a.url as 'a_url', a.avatar as 'a_avatar',
@@ -48,7 +48,6 @@ ELSE 1 END)
 ORDER BY LENGTH(s.serverId) DESC, s.serverId DESC
 LIMIT :limit""")
     abstract fun getStatusesForAccount(account: Long, maxId: String?, sinceId: String?, limit: Int): Single<List<TimelineStatusWithAccount>>
-
 
     @Transaction
     open fun insertInTransaction(status: TimelineStatusEntity, account: TimelineAccountEntity,
@@ -99,9 +98,8 @@ WHERE timelineUserId = :accountId AND (serverId = :statusId OR reblogServerId = 
 AND serverId = :statusId""")
     abstract fun delete(accountId: Long, statusId: String)
 
-    @Query("""DELETE FROM TimelineStatusEntity WHERE timelineUserId = :accountId
-AND authorServerId != :accountServerId AND createdAt < :olderThan""")
-    abstract fun cleanup(accountId: Long, accountServerId: String, olderThan: Long)
+    @Query("""DELETE FROM TimelineStatusEntity WHERE createdAt < :olderThan""")
+    abstract fun cleanup(olderThan: Long)
 
     @Query("""UPDATE TimelineStatusEntity SET poll = :poll
 WHERE timelineUserId = :accountId AND (serverId = :statusId OR reblogServerId = :statusId)""")

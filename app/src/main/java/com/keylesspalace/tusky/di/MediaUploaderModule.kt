@@ -16,8 +16,8 @@
 package com.keylesspalace.tusky.di
 
 import android.content.Context
-import com.keylesspalace.tusky.components.compose.MediaUploader
-import com.keylesspalace.tusky.components.compose.MediaUploaderImpl
+import com.keylesspalace.tusky.components.common.MediaUploader
+import com.keylesspalace.tusky.components.common.MediaUploaderImpl
 import com.keylesspalace.tusky.network.MastodonApi
 import dagger.Module
 import dagger.Provides

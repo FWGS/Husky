@@ -22,7 +22,7 @@
 
   
     <string name="about_project_site">Projectwebsite:\n
-                    https://husky.fwgs.ru</string>
+                    https://huskyapp.dev</string>
   
 
 
@@ -50,7 +50,7 @@
 \n 
 \nEen Mastodonserver (Engels: instance) is een computerserver waar jouw account zich bevindt (vergelijk het met een e-mailserver). Je kan eenvoudig mensen van andere servers volgen en met ze communiceren, alsof jullie met elkaar op dezelfde website zitten. 
 \n 
-\n Meer informatie kun je vinden op <a href="https://joinmastodon.org">joinmastodon.org</a>.</string>
+\n Meer informatie kun je vinden op <a href="https://joinmastodon.org">joinmastodon.org</a>. </string>
   
 
 </resources>

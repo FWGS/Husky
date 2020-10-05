@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="chats">Чаты</string>
+    <string name="action_mark_as_read">Пометить как прочитанное</string>
     <string name="action_reply_to">Ответ на</string>
     <!--<string name="action_mute_conversation">Заглушить разговор</string>
     <string name="action_unmute_conversation">Отменить глушение разговора</string>-->
@@ -17,8 +19,12 @@
     <string name="notification_emoji_format">%s среагировал с %s на ваш пост</string>
     <string name="notification_emoji_name">Эмодзи реакции</string>
     <string name="notification_emoji_description">Уведомления о новых эмодзи реакциях</string>
+    <string name="notification_chat_message_format">%s отправил вам сообщение</string>
+    <string name="notification_chat_message_name">Сообщения</string>
+    <string name="notification_chat_message_description">Уведомления о новых сообщениях</string>
     <string name="pref_title_default_formatting">Синтаксис форматирования по умолчанию(если поддерживается)</string>
     <string name="pref_title_notification_filter_emoji">на мои посты отреагировали</string>
+    <string name="pref_title_notification_filter_chat_messages">получено новое сообщение</string>
     <string name="pref_title_hide_muted_users">Скрывать заглушенных пользователей</string>
     <string name="error_sticker_fetch">Произошла ошибка при загрузке стикера</string>
     <string name="action_send_public">ОТПРАВИТЬ!</string>
@@ -39,4 +45,5 @@
     <string name="action_access_scheduled_toot">Записи по расписанию</string>
     <string name="unreblog_private">Удалить повторение</string>
     <string name="compose_shortcut_long_label">Сделать запись</string>
+    <string name="link">Ссылка</string>
 </resources>

@@ -141,8 +141,6 @@ public final class ViewThreadFragment extends SFragment implements
         swipeRefreshLayout = rootView.findViewById(R.id.swipeRefreshLayout);
         swipeRefreshLayout.setOnRefreshListener(this);
         swipeRefreshLayout.setColorSchemeResources(R.color.tusky_blue);
-        swipeRefreshLayout.setProgressBackgroundColorSchemeColor(
-                ThemeUtils.getColor(context, android.R.attr.colorBackground));
 
         recyclerView = rootView.findViewById(R.id.recyclerView);
         recyclerView.setHasFixedSize(true);
@@ -315,6 +313,13 @@ public final class ViewThreadFragment extends SFragment implements
             return;
         }
         super.viewThread(status);
+    }
+
+    @Override
+    public void onViewReplyTo(int position) {
+        Status status = statuses.get(position);
+        if (thisThreadsStatusId.equals(status.getInReplyToId())) return;
+        super.onShowReplyTo(status.getInReplyToId());
     }
 
     @Override

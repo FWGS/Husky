@@ -16,8 +16,10 @@
 package com.keylesspalace.tusky.di
 
 import com.keylesspalace.tusky.*
+import com.keylesspalace.tusky.components.chat.ChatActivity
 import com.keylesspalace.tusky.components.compose.ComposeActivity
 import com.keylesspalace.tusky.components.instancemute.InstanceListActivity
+import com.keylesspalace.tusky.components.preference.PreferencesActivity
 import com.keylesspalace.tusky.components.report.ReportActivity
 import com.keylesspalace.tusky.components.scheduled.ScheduledTootActivity
 import com.keylesspalace.tusky.components.search.SearchActivity
@@ -45,6 +47,9 @@ abstract class ActivitiesModule {
 
     @ContributesAndroidInjector
     abstract fun contributesComposeActivity(): ComposeActivity
+
+    @ContributesAndroidInjector
+    abstract fun contributesChatActivity(): ChatActivity
 
     @ContributesAndroidInjector
     abstract fun contributesEditProfileActivity(): EditProfileActivity

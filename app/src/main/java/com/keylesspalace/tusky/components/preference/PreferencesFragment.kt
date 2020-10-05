@@ -13,13 +13,13 @@
  * You should have received a copy of the GNU General Public License along with Tusky; if not,
  * see <http://www.gnu.org/licenses>. */
 
-package com.keylesspalace.tusky.fragment.preference
+package com.keylesspalace.tusky.components.preference
 
 import android.os.Bundle
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
-import com.keylesspalace.tusky.PreferencesActivity
 import com.keylesspalace.tusky.R
+import com.keylesspalace.tusky.di.Injectable
 import com.keylesspalace.tusky.settings.*
 import com.keylesspalace.tusky.util.ThemeUtils
 import com.keylesspalace.tusky.util.getNonNullString
@@ -27,8 +27,13 @@ import com.mikepenz.iconics.IconicsDrawable
 import com.mikepenz.iconics.typeface.library.googlematerial.GoogleMaterial
 import com.mikepenz.iconics.utils.colorInt
 import com.mikepenz.iconics.utils.sizePx
+import okhttp3.OkHttpClient
+import javax.inject.Inject
 
-class PreferencesFragment : PreferenceFragmentCompat() {
+class PreferencesFragment : PreferenceFragmentCompat(), Injectable {
+
+    @Inject
+    lateinit var okhttpclient: OkHttpClient
 
     private val iconSize by lazy { resources.getDimensionPixelSize(R.dimen.preference_icon_size) }
     private var httpProxyPref: Preference? = null
@@ -47,7 +52,7 @@ class PreferencesFragment : PreferenceFragmentCompat() {
                     icon = makeIcon(GoogleMaterial.Icon.gmd_palette)
                 }
 
-                emojiPreference {
+                emojiPreference(okhttpclient) {
                     setDefaultValue("system_default")
                     setIcon(R.drawable.ic_emoji_24dp)
                     key = PrefKeys.EMOJI
@@ -83,6 +88,12 @@ class PreferencesFragment : PreferenceFragmentCompat() {
                     key = PrefKeys.MAIN_NAV_POSITION
                     setSummaryProvider { entry }
                     setTitle(R.string.pref_main_nav_position)
+                }
+
+                switchPreference {
+                    setDefaultValue(false)
+                    key = PrefKeys.HIDE_TOP_TOOLBAR
+                    setTitle(R.string.pref_title_hide_top_toolbar)
                 }
 
                 switchPreference {
@@ -126,6 +137,13 @@ class PreferencesFragment : PreferenceFragmentCompat() {
                 }
 
                 switchPreference {
+                    setDefaultValue(false)
+                    key = PrefKeys.SHOW_CARDS_IN_TIMELINES
+                    setTitle(R.string.pref_title_show_cards_in_timelines)
+                    isSingleLineTitle = false
+                }
+
+                switchPreference {
                     setDefaultValue(true)
                     key = PrefKeys.SHOW_NOTIFICATIONS_FILTER
                     setTitle(R.string.pref_title_show_notifications_filter)
@@ -141,8 +159,8 @@ class PreferencesFragment : PreferenceFragmentCompat() {
                 }
 
                 switchPreference {
-                    setDefaultValue(false)
-                    key = PrefKeys.SHOW_CARDS_IN_TIMELINES
+                    setDefaultValue(true)
+                    key = PrefKeys.CONFIRM_REBLOGS
                     setTitle(R.string.pref_title_confirm_reblogs)
                     isSingleLineTitle = false
                 }
@@ -165,6 +183,15 @@ class PreferencesFragment : PreferenceFragmentCompat() {
                     setDefaultValue(false)
                     key = PrefKeys.STICKERS
                     setTitle(R.string.pref_title_enable_experimental_stickers)
+                    isSingleLineTitle = false
+                }
+            }
+
+            preferenceCategory(R.string.pref_title_privacy) {
+                switchPreference {
+                    setDefaultValue(false)
+                    key = PrefKeys.ANONYMIZE_FILENAMES
+                    setTitle(R.string.pref_title_anonymize_upload_filenames)
                     isSingleLineTitle = false
                 }
             }

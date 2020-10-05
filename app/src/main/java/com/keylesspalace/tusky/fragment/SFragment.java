@@ -267,12 +267,6 @@ public abstract class SFragment extends BaseFragment implements Injectable {
         }
         openAsItem.setTitle(openAsTitle);
         
-        if(status.getInReplyToId() == null) {
-            MenuItem replyToItem = menu.findItem(R.id.status_reply_to);
-            
-            replyToItem.setVisible(false);
-        }
-        
         // maybe not a best check
         if(status.getPleroma() != null) {
             boolean showMute = true; // predict state
@@ -323,10 +317,6 @@ public abstract class SFragment extends BaseFragment implements Injectable {
                 }
                 case R.id.status_open_in_web: {
                     LinkHelper.openLinkInBrowser(Uri.parse(statusUrl), getContext());
-                    return true;
-                }
-                case R.id.status_reply_to: {
-                    onShowReplyTo(status.getInReplyToId());
                     return true;
                 }
                 case R.id.status_open_as: {
@@ -497,6 +487,7 @@ public abstract class SFragment extends BaseFragment implements Injectable {
                                         composeOptions.setContentWarning(deletedStatus.getSpoilerText());
                                         composeOptions.setMediaAttachments(deletedStatus.getAttachments());
                                         composeOptions.setSensitive(deletedStatus.getSensitive());
+                                        composeOptions.setModifiedInitialState(true);
                                         if (deletedStatus.getPoll() != null) {
                                             composeOptions.setPoll(deletedStatus.getPoll().toNewPoll(deletedStatus.getCreatedAt()));
                                         }

@@ -13,11 +13,13 @@
  * You should have received a copy of the GNU General Public License along with Tusky; if not,
  * see <http://www.gnu.org/licenses>. */
 
-package com.keylesspalace.tusky.components.compose
+package com.keylesspalace.tusky.components.common
 
+import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
 import android.os.Environment
+import android.provider.OpenableColumns
 import android.util.Log
 import android.webkit.MimeTypeMap
 import androidx.core.content.FileProvider
@@ -44,10 +46,10 @@ sealed class UploadEvent {
     data class FinishedEvent(val attachment: Attachment) : UploadEvent()
 }
 
-fun createNewImageFile(context: Context): File {
+fun createNewImageFile(context: Context, name: String = "Photo"): File {
     // Create an image file name
-    val randomId = randomAlphanumericString(12)
-    val imageFileName = "Husky_${randomId}_"
+    val randomId = randomAlphanumericString(4)
+    val imageFileName = "${name}_${randomId}"
     val storageDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
     return File.createTempFile(
             imageFileName, /* prefix */
@@ -132,22 +134,22 @@ class MediaUploaderImpl(
                         if (mediaSize > videoLimit) {
                             throw VideoSizeException()
                         }
-                        PreparedMedia(QueuedMedia.Type.VIDEO, uri, mediaSize)
+                        PreparedMedia(QueuedMedia.VIDEO, uri, mediaSize)
                     }
                     "image" -> {
-                        PreparedMedia(QueuedMedia.Type.IMAGE, uri, mediaSize)
+                        PreparedMedia(QueuedMedia.IMAGE, uri, mediaSize)
                     }
                     "audio" -> {
                         if (mediaSize > videoLimit) { // TODO: CHANGE!!11
                             throw AudioSizeException()
                         }
-                        PreparedMedia(QueuedMedia.Type.AUDIO, uri, mediaSize)
+                        PreparedMedia(QueuedMedia.AUDIO, uri, mediaSize)
                     }
                     else -> {
                         if (mediaSize > videoLimit) {
                             throw MediaSizeException()
                         }
-                        PreparedMedia(QueuedMedia.Type.UNKNOWN, uri, mediaSize)
+                        PreparedMedia(QueuedMedia.UNKNOWN, uri, mediaSize)
                         // throw MediaTypeException()
                     }
                 }
@@ -162,7 +164,8 @@ class MediaUploaderImpl(
     private fun upload(media: QueuedMedia): Observable<UploadEvent> {
         return Observable.create { emitter ->
             var (mimeType, fileExtension) = getMimeTypeAndSuffixFromFilenameOrUri(media.uri, media.originalFileName)
-            val filename = String.format("%s_%s_%s%s",
+            val filename = if(!media.anonymizeFileName) media.originalFileName else
+                String.format("%s_%s_%s%s",
                         context.getString(R.string.app_name),
                         Date().time.toString(),
                         randomAlphanumericString(10),
@@ -197,7 +200,7 @@ class MediaUploaderImpl(
     }
 
     private fun downsize(media: QueuedMedia, imageLimit: Long): QueuedMedia {
-        val file = createNewImageFile(context)
+        val file = createNewImageFile(context, media.originalFileName)
         DownsizeImageTask.resize(arrayOf(media.uri), imageLimit, context.contentResolver, file)
         return media.copy(uri = file.toUri(), mediaSize = file.length())
     }
@@ -225,4 +228,28 @@ class MediaUploaderImpl(
         private const val TAG = "MediaUploaderImpl"
         private const val STATUS_IMAGE_PIXEL_SIZE_LIMIT = 16777216 // 4096^2 Pixels
     }
+}
+
+fun Uri.toFileName(contentResolver: ContentResolver? = null): String {
+    var result: String = "unknown"
+
+    if(scheme.equals("content") && contentResolver != null) {
+        val cursor = contentResolver.query(this, null, null, null, null)
+        cursor?.use{
+            if(it.moveToFirst()) {
+                result = it.getString(it.getColumnIndex(OpenableColumns.DISPLAY_NAME))
+            }
+        }
+    }
+
+    if(result.equals("unknown")) {
+        path?.let {
+            result = it
+            val cut = result.lastIndexOf('/')
+            if (cut != -1) {
+                result = result.substring(cut + 1)
+            }
+        }
+    }
+    return result
 }

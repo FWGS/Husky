@@ -19,4 +19,9 @@
     <attr name="status_text_medium" format="dimension" />
     <attr name="status_text_large" format="dimension" />
 
+    <attr name="chat_me_color" format="reference|color" />
+    <attr name="chat_other_color" format="reference|color" />
+    <attr name="chat_me_text_color" format="reference|color" />
+    <attr name="chat_other_text_color" format="reference|color" />
+    <attr name="chat_date_text_color" format="reference|color" />
 </resources>

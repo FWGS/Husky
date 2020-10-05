@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along with Tusky; if not,
  * see <http://www.gnu.org/licenses>. */
 
-package com.keylesspalace.tusky.fragment.preference
+package com.keylesspalace.tusky.components.preference
 
 import android.content.Intent
 import android.graphics.drawable.Drawable
@@ -72,6 +72,7 @@ class AccountPreferencesFragment : PreferenceFragmentCompat(), Injectable {
 
             preference {
                 setTitle(R.string.title_tab_preferences)
+                icon = getTintedIcon(R.drawable.ic_tabs)
                 setOnPreferenceClickListener {
                     val intent = Intent(context, TabPreferenceActivity::class.java)
                     activity?.startActivity(intent)
@@ -229,12 +230,27 @@ class AccountPreferencesFragment : PreferenceFragmentCompat(), Injectable {
                 }
             }
 
+            preferenceCategory(R.string.pref_title_other) {
+                switchPreference {
+                    key = PrefKeys.LIVE_NOTIFICATIONS
+                    setTitle(R.string.pref_title_live_notifications)
+                    setSummary(R.string.pref_summary_live_notifications)
+                    isSingleLineTitle = false
+                    isChecked = accountManager.activeAccount?.notificationsStreamingEnabled ?: false
+                    setOnPreferenceChangeListener { _, newValue ->
+                        updateAccount { it.notificationsStreamingEnabled = newValue as Boolean }
+                        eventHub.dispatch(PreferenceChangedEvent(key))
+                        true
+                    }
+                }
+            }
+
             preferenceCategory(R.string.pref_title_timeline_filters) {
                 preference {
                     setTitle(R.string.pref_title_public_filter_keywords)
                     setOnPreferenceClickListener {
-                        launchFilterActivity(Filter.THREAD,
-                                R.string.pref_title_thread_filter_keywords)
+                        launchFilterActivity(Filter.PUBLIC,
+                                R.string.pref_title_public_filter_keywords)
                         true
                     }
                 }

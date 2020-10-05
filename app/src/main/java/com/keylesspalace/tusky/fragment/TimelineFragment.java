@@ -409,11 +409,8 @@ public class TimelineFragment extends SFragment implements
     private void setupSwipeRefreshLayout() {
         swipeRefreshLayout.setEnabled(isSwipeToRefreshEnabled);
         if (isSwipeToRefreshEnabled) {
-            Context context = swipeRefreshLayout.getContext();
             swipeRefreshLayout.setOnRefreshListener(this);
             swipeRefreshLayout.setColorSchemeResources(R.color.tusky_blue);
-            swipeRefreshLayout.setProgressBackgroundColorSchemeColor(ThemeUtils.getColor(context,
-                    android.R.attr.colorBackground));
         }
     }
 
@@ -477,6 +474,7 @@ public class TimelineFragment extends SFragment implements
                         if (hideFab) {
                             if (dy > 0 && composeButton.isShown()) {
                                 composeButton.hide(); // hides the button if we're scrolling down
+                                activity.onActionButtonHidden();
                             } else if (dy < 0 && !composeButton.isShown()) {
                                 composeButton.show(); // shows it if we are scrolling up
                             }
@@ -849,6 +847,16 @@ public class TimelineFragment extends SFragment implements
     @Override
     public void onViewThread(int position) {
         super.viewThread(statuses.get(position).asRight());
+    }
+
+    @Override
+    public void onViewReplyTo(int position) {
+        Status status = statuses.get(position).asRightOrNull();
+        if (status == null) return;
+
+        String replyToId = status.getReblog() == null ? status.getInReplyToId() : status.getReblog().getInReplyToId();
+        if (replyToId == null) return;
+        super.onShowReplyTo(replyToId);
     }
 
     @Override
@@ -1440,7 +1448,9 @@ public class TimelineFragment extends SFragment implements
             if (isAdded()) {
                 adapter.notifyItemRangeInserted(position, count);
                 Context context = getContext();
-                if (position == 0 && context != null) {
+                // scroll up when new items at the top are loaded while being in the first position
+                // https://github.com/tuskyapp/Tusky/pull/1905#issuecomment-677819724
+                if (position == 0 && context != null && adapter.getItemCount() != count) {
                     if (isSwipeToRefreshEnabled)
                         recyclerView.scrollBy(0, Utils.dpToPx(context, -30));
                     else

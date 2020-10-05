@@ -31,6 +31,11 @@ data class Instance (
         @SerializedName("max_toot_chars") val maxTootChars: Int?,
         @SerializedName("max_bio_chars") val maxBioChars: Int?,
         @SerializedName("poll_limits") val pollLimits: PollLimits?,
+        @SerializedName("chat_limit") val chatLimit: Int?,
+        @SerializedName("avatar_upload_limit") val avatarUploadLimit: Long?,
+        @SerializedName("banner_upload_limit") val bannerUploadLimit: Long?,
+        @SerializedName("description_limit") val descriptionLimit: Int?,
+        @SerializedName("upload_limit") val uploadLimit: Long?,
         val pleroma: InstancePleroma?
 ) {
     override fun hashCode(): Int {

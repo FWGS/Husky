@@ -21,7 +21,7 @@
 
   
     <string name="about_project_site">        プロジェクトのWebサイト（英語）：\n
-        https://husky.fwgs.ru
+        https://huskyapp.dev
     </string>
   
 
@@ -39,15 +39,18 @@
   
     <string name="add_account_description">新しいPleromaアカウントを追加</string>
   
+  
+    <string name="warning_scheduling_interval">Pleromaにおける予約までの最小間隔は5分です。</string>
+  
 
 
   
-    <string name="dialog_whats_an_instance">shitposter.club, mstdn.jp, pawoo.netや<!-- --><a href="https://fediverse.network/pleroma?count=peers">その他</a><!-- -->のような、あらゆるインスタンスのアドレスやドメインを入力できます。 
-\n
-\nまだアカウントをお持ちでない場合は、参加したいインスタンスの名前を入力することで<!-- -->そのインスタンスにアカウントを作成できます。 
-\n
-\nインスタンスはあなたのアカウントが提供される単独の場所ですが、<!-- -->他のインスタンスのユーザーとあたかも同じ場所にいるように簡単にコミュニケーションをとったりフォローしたりできます。 
-\n
+    <string name="dialog_whats_an_instance">shitposter.club, blob.cat, expired.mentality.ripや<a href="https://fediverse.network/pleroma?count=peers">その他</a> のような、あらゆるインスタンスのアドレスやドメインを入力できます。 
+\n 
+\nまだアカウントをお持ちでない場合は、参加したいインスタンスの名前を入力することで そのインスタンスにアカウントを作成できます。 
+\n 
+\nインスタンスはあなたのアカウントが提供される単独の場所ですが、他のインスタンスのユーザーとあたかも同じ場所にいるように簡単にコミュニケーションをとったりフォローしたりできます。 
+\n 
 \nさらに詳しい情報は<a href="https://joinmastodon.org">joinmastodon.org</a>でご覧いただけます。 </string>
   
 

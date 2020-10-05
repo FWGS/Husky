@@ -18,6 +18,7 @@ package com.keylesspalace.tusky.receiver
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.os.Message
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -31,6 +32,7 @@ import com.keylesspalace.tusky.entity.Status
 import com.keylesspalace.tusky.service.SendTootService
 import com.keylesspalace.tusky.service.TootToSend
 import com.keylesspalace.tusky.components.notifications.NotificationHelper
+import com.keylesspalace.tusky.service.MessageToSend
 import com.keylesspalace.tusky.util.randomAlphanumericString
 import dagger.android.AndroidInjection
 import javax.inject.Inject
@@ -50,48 +52,69 @@ class SendStatusBroadcastReceiver : BroadcastReceiver() {
         val senderIdentifier = intent.getStringExtra(NotificationHelper.KEY_SENDER_ACCOUNT_IDENTIFIER)
         val senderFullName = intent.getStringExtra(NotificationHelper.KEY_SENDER_ACCOUNT_FULL_NAME)
         val citedStatusId = intent.getStringExtra(NotificationHelper.KEY_CITED_STATUS_ID)
-        val visibility = intent.getSerializableExtra(NotificationHelper.KEY_VISIBILITY) as Status.Visibility
+        val visibility = intent.getSerializableExtra(NotificationHelper.KEY_VISIBILITY)
         val spoiler = intent.getStringExtra(NotificationHelper.KEY_SPOILER)
         val mentions = intent.getStringArrayExtra(NotificationHelper.KEY_MENTIONS)
         val citedText = intent.getStringExtra(NotificationHelper.KEY_CITED_TEXT)
         val localAuthorId = intent.getStringExtra(NotificationHelper.KEY_CITED_AUTHOR_LOCAL)
+        val chatId = intent.getStringExtra(NotificationHelper.KEY_CHAT_ID)
 
         val account = accountManager.getAccountById(senderId)
 
         val notificationManager = NotificationManagerCompat.from(context)
 
+        if (account == null) {
+            Log.w(TAG, "Account \"$senderId\" not found in database. Aborting quick reply!")
 
-        if (intent.action == NotificationHelper.REPLY_ACTION) {
+            val builder = NotificationCompat.Builder(context, NotificationHelper.CHANNEL_MENTION + senderIdentifier)
+                    .setSmallIcon(R.drawable.ic_notify)
+                    .setColor(ContextCompat.getColor(context, (R.color.tusky_blue)))
+                    .setGroup(senderFullName)
+                    .setDefaults(0) // So it doesn't ring twice, notify only in Target callback
 
+            builder.setContentTitle(context.getString(R.string.error_generic))
+            builder.setContentText(context.getString(R.string.error_sender_account_gone))
+
+            builder.setSubText(senderFullName)
+            builder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            builder.setCategory(NotificationCompat.CATEGORY_SOCIAL)
+            builder.setOnlyAlertOnce(true)
+
+            notificationManager.notify(notificationId, builder.build())
+            return
+        }
+
+        if (intent.action == NotificationHelper.COMPOSE_ACTION) {
+            context.sendBroadcast(Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS))
+
+            notificationManager.cancel(notificationId)
+
+            accountManager.setActiveAccount(senderId)
+
+            val composeIntent = ComposeActivity.startIntent(context, ComposeOptions(
+                    inReplyToId = citedStatusId,
+                    replyVisibility = visibility as Status.Visibility,
+                    contentWarning = spoiler,
+                    mentionedUsernames = mentions.toSet(),
+                    replyingStatusAuthor = localAuthorId,
+                    replyingStatusContent = citedText
+            ))
+
+            composeIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
+            context.startActivity(composeIntent)
+        } else {
             val message = getReplyMessage(intent)
 
-            if (account == null) {
-                Log.w(TAG, "Account \"$senderId\" not found in database. Aborting quick reply!")
-
-                val builder = NotificationCompat.Builder(context, NotificationHelper.CHANNEL_MENTION + senderIdentifier)
-                        .setSmallIcon(R.drawable.ic_notify)
-                        .setColor(ContextCompat.getColor(context, (R.color.tusky_blue)))
-                        .setGroup(senderFullName)
-                        .setDefaults(0) // So it doesn't ring twice, notify only in Target callback
-
-                builder.setContentTitle(context.getString(R.string.error_generic))
-                builder.setContentText(context.getString(R.string.error_sender_account_gone))
-
-                builder.setSubText(senderFullName)
-                builder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                builder.setCategory(NotificationCompat.CATEGORY_SOCIAL)
-                builder.setOnlyAlertOnce(true)
-
-                notificationManager.notify(notificationId, builder.build())
-            } else {
+            val sendIntent = if(intent.action == NotificationHelper.REPLY_ACTION) {
                 val text = mentions.joinToString(" ", postfix = " ") { "@$it" } + message.toString()
 
-                val sendIntent = SendTootService.sendTootIntent(
+                SendTootService.sendTootIntent(
                         context,
                         TootToSend(
                                 text,
                                 spoiler,
-                                visibility.serverString(),
+                                (visibility as Status.Visibility).serverString(),
                                 false,
                                 emptyList(),
                                 emptyList(),
@@ -110,45 +133,28 @@ class SendStatusBroadcastReceiver : BroadcastReceiver() {
                                 0
                         )
                 )
-
-                context.startService(sendIntent)
-
-                val builder = NotificationCompat.Builder(context, NotificationHelper.CHANNEL_MENTION + senderIdentifier)
-                        .setSmallIcon(R.drawable.ic_notify)
-                        .setColor(ContextCompat.getColor(context, (R.color.tusky_blue)))
-                        .setGroup(senderFullName)
-                        .setDefaults(0) // So it doesn't ring twice, notify only in Target callback
-
-                builder.setContentTitle(context.getString(R.string.status_sent))
-                builder.setContentText(context.getString(R.string.status_sent_long))
-
-                builder.setSubText(senderFullName)
-                builder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                builder.setCategory(NotificationCompat.CATEGORY_SOCIAL)
-                builder.setOnlyAlertOnce(true)
-
-                notificationManager.notify(notificationId, builder.build())
+            } else {
+                SendTootService.sendMessageIntent(context,
+                    MessageToSend(message.toString(), null, null, account.id, chatId!!, 0))
             }
-        } else if (intent.action == NotificationHelper.COMPOSE_ACTION) {
 
-            context.sendBroadcast(Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS))
+            context.startService(sendIntent)
 
-            notificationManager.cancel(notificationId)
+            val builder = NotificationCompat.Builder(context, NotificationHelper.CHANNEL_MENTION + senderIdentifier)
+                    .setSmallIcon(R.drawable.ic_notify)
+                    .setColor(ContextCompat.getColor(context, (R.color.tusky_blue)))
+                    .setGroup(senderFullName)
+                    .setDefaults(0) // So it doesn't ring twice, notify only in Target callback
 
-            accountManager.setActiveAccount(senderId)
+            builder.setContentTitle(context.getString(R.string.status_sent))
+            builder.setContentText(context.getString(R.string.status_sent_long))
 
-            val composeIntent = ComposeActivity.startIntent(context, ComposeOptions(
-                    inReplyToId = citedStatusId,
-                    replyVisibility = visibility,
-                    contentWarning = spoiler,
-                    mentionedUsernames = mentions.toSet(),
-                    replyingStatusAuthor = localAuthorId,
-                    replyingStatusContent = citedText
-            ))
+            builder.setSubText(senderFullName)
+            builder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            builder.setCategory(NotificationCompat.CATEGORY_SOCIAL)
+            builder.setOnlyAlertOnce(true)
 
-            composeIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-
-            context.startActivity(composeIntent)
+            notificationManager.notify(notificationId, builder.build())
         }
     }
 

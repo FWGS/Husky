@@ -22,7 +22,7 @@
 
   
     <string name="about_project_site">        Strona projektu:\n
-        https://husky.fwgs.ru
+        https://huskyapp.dev
     </string>
   
 
@@ -41,20 +41,18 @@
     <string name="add_account_description">Dodaj nowe Konto Pleroma</string>
   
   
-    <string name="warning_scheduling_interval">Pleroma umożliwia wysłanie minimalnie 5 minut od zaplanowania</string>
+    <string name="warning_scheduling_interval">Pleroma umożliwia wysłanie minimalnie 5 minut od zaplanowania.</string>
   
 
 
   
-    <string name="dialog_whats_an_instance">Tutaj można wprowadzić domenę lub adres instancji,
-        np. shitposter.club, blob.cat, expired.mentality.rip, i
-        <a href="https://fediverse.network/pleroma?count=peers">wiele więcej!</a>
-        \n\nJeżeli nie posiadasz jeszcze konta, wprowadź tu nazwę instancji, na której chcesz się zarejestrować.
-        Instancja jest miejscem, na którym znajduje się twoje konto,
-        lecz komunikując się z innymi serwerami, działa tak,
-        jakby były jednym portalem.
-        Więcej informacji można znaleźć na <a href="https://joinmastodon.org">joinmastodon.org</a>.
-    </string>
+    <string name="dialog_whats_an_instance">Tutaj można wprowadzić domenę lub adres instancji, np. shitposter.club, blob.cat, expired.mentality.rip, i <a href="https://fediverse.network/pleroma?count=peers">wiele więcej!</a> 
+\n
+\nJeżeli nie posiadasz jeszcze konta, wprowadź tu nazwę instancji, na której chcesz się zarejestrować.
+\n
+\nInstancja jest miejscem, na którym znajduje się twoje konto, lecz komunikując się z innymi serwerami, działa tak, jakby były jednym portalem.
+\n
+\nWięcej informacji można znaleźć na <a href="https://joinmastodon.org">joinmastodon.org</a>. </string>
   
 
 </resources>

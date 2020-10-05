@@ -23,4 +23,6 @@ public interface ActionButtonActivity {
     /* return the ActionButton of the Activity to hide or show it on scroll */
     @Nullable
     FloatingActionButton getActionButton();
+
+    default void onActionButtonHidden() {}
 }

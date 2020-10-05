@@ -102,7 +102,6 @@ class ConversationsFragment : SFragment(), StatusActionListener, Injectable, Res
             viewModel.refresh()
         }
         swipeRefreshLayout.setColorSchemeResources(R.color.tusky_blue)
-        swipeRefreshLayout.setProgressBackgroundColorSchemeColor(ThemeUtils.getColor(swipeRefreshLayout.context, android.R.attr.colorBackground))
     }
 
     private fun onTopLoaded() {
@@ -137,6 +136,10 @@ class ConversationsFragment : SFragment(), StatusActionListener, Injectable, Res
         viewModel.conversations.value?.getOrNull(position)?.lastStatus?.let {
             viewThread(it.toStatus())
         }
+    }
+
+    override fun onViewReplyTo(position: Int) {
+        // there are no Reply to labels in conversations
     }
 
     override fun onOpenReblog(position: Int) {

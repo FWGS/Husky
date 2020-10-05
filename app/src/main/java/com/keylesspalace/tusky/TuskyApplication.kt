@@ -18,14 +18,17 @@ package com.keylesspalace.tusky
 import android.app.Application
 import android.content.Context
 import android.content.res.Configuration
+import android.graphics.Bitmap
 import android.util.Log
 import androidx.emoji.text.EmojiCompat
 import androidx.preference.PreferenceManager
 import androidx.work.WorkManager
+import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import com.github.piasy.biv.BigImageViewer
 import com.github.piasy.biv.loader.glide.GlideCustomImageLoader
 import com.keylesspalace.tusky.components.notifications.NotificationWorkerFactory
 import com.keylesspalace.tusky.di.AppInjector
+import com.keylesspalace.tusky.settings.PrefKeys
 import com.keylesspalace.tusky.util.*
 import com.uber.autodispose.AutoDisposePlugins
 import dagger.android.DispatchingAndroidInjector
@@ -55,7 +58,7 @@ class TuskyApplication : Application(), HasAndroidInjector {
         val preferences = PreferenceManager.getDefaultSharedPreferences(this)
 
         // init the custom emoji fonts
-        val emojiSelection = preferences.getInt(EmojiPreference.FONT_PREFERENCE, 0)
+        val emojiSelection = preferences.getInt(PrefKeys.EMOJI, 0)
         val emojiConfig = EmojiCompatFont.byId(emojiSelection)
                 .getConfig(this)
                 .setReplaceAll(true)
@@ -76,6 +79,7 @@ class TuskyApplication : Application(), HasAndroidInjector {
             Log.w("RxJava", "undeliverable exception", it)
         }
 
+        SubsamplingScaleImageView.setPreferredBitmapConfig(Bitmap.Config.ARGB_8888)
         BigImageViewer.initialize(GlideCustomImageLoader.with(this))
     }
 

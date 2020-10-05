@@ -24,7 +24,7 @@
 
   
     <string name="about_project_site">      Site du projet :\n
-      https://husky.fwgs.ru
+      https://huskyapp.dev
     </string>
   
 
@@ -43,7 +43,7 @@
     <string name="add_account_description">Ajouter un nouveau compte Pleroma</string>
   
   
-    <string name="warning_scheduling_interval">L’intervalle minimum de planification sur Pleroma est de 5 minutes.</string>
+    <string name="warning_scheduling_interval">L’intervalle minimum de planification sur Pleroma est de5 minutes.</string>
   
 
 

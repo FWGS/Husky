@@ -22,6 +22,7 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonParseException
 import com.google.gson.annotations.JsonAdapter
 import com.google.gson.annotations.SerializedName
+import com.keylesspalace.tusky.R
 import kotlinx.android.parcel.Parcelize
 
 @Parcelize
@@ -59,6 +60,15 @@ data class Attachment(
                 "\"audio\"" -> Type.AUDIO
                 else -> Type.UNKNOWN
             }
+        }
+    }
+
+    fun describeAttachmentType() : Int {
+        return when(type) {
+            Type.IMAGE -> R.string.attachment_type_image
+            Type.VIDEO, Type.GIFV -> R.string.attachment_type_video
+            Type.AUDIO -> R.string.attachment_type_audio
+            Type.UNKNOWN -> R.string.attachment_type_unknown
         }
     }
 

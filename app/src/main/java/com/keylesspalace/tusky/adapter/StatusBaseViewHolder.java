@@ -17,6 +17,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.util.Log;
+import android.graphics.Paint;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
@@ -69,6 +70,7 @@ public abstract class StatusBaseViewHolder extends RecyclerView.ViewHolder {
 
     private TextView displayName;
     private TextView username;
+    private TextView replyInfo;
     private ImageButton replyButton;
     private SparkButton reblogButton;
     private SparkButton favouriteButton;
@@ -121,6 +123,7 @@ public abstract class StatusBaseViewHolder extends RecyclerView.ViewHolder {
         timestampInfo = itemView.findViewById(R.id.status_timestamp_info);
         content = itemView.findViewById(R.id.status_content);
         avatar = itemView.findViewById(R.id.status_avatar);
+        replyInfo = itemView.findViewById(R.id.reply_info);
         replyButton = itemView.findViewById(R.id.status_reply);
         reblogButton = itemView.findViewById(R.id.status_inset);
         favouriteButton = itemView.findViewById(R.id.status_favourite);
@@ -377,6 +380,24 @@ public abstract class StatusBaseViewHolder extends RecyclerView.ViewHolder {
             replyButton.setImageResource(R.drawable.ic_reply_24dp);
         }
 
+    }
+
+    protected void setReplyInfo(StatusViewData.Concrete status, StatusActionListener listener) {
+        if (status.getInReplyToId() != null) {
+            Context context = replyInfo.getContext();
+            String replyToAccount = status.getInReplyToAccountAcct();
+            replyInfo.setText(context.getString(R.string.status_replied_to_format, replyToAccount));
+            if (!status.getParentVisible()) {
+                replyInfo.setPaintFlags(replyInfo.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+                replyInfo.setOnClickListener(null);
+            } else {
+                replyInfo.setPaintFlags(replyInfo.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
+                replyInfo.setOnClickListener(v -> listener.onViewReplyTo(getAdapterPosition()));
+            }
+            replyInfo.setVisibility(View.VISIBLE);
+        } else {
+            replyInfo.setVisibility(View.GONE);
+        }
     }
 
     private void setReblogged(boolean reblogged) {
@@ -757,6 +778,7 @@ public abstract class StatusBaseViewHolder extends RecyclerView.ViewHolder {
             setUsername(status.getNickname());
             setCreatedAt(status.getCreatedAt(), statusDisplayOptions);
             setIsReply(status.getInReplyToId() != null);
+            setReplyInfo(status, listener);
             setAvatar(status.getAvatar(), status.getRebloggedAvatar(), status.isBot(), statusDisplayOptions);
             setReblogged(status.isReblogged());
             setFavourited(status.isFavourited());
@@ -805,7 +827,7 @@ public abstract class StatusBaseViewHolder extends RecyclerView.ViewHolder {
             itemView.setAccessibilityDelegate(null);
         } else {
             if (payloads instanceof List)
-                for (Object item : (List) payloads) {
+                for (Object item : (List<?>) payloads) {
                     if (Key.KEY_CREATED.equals(item)) {
                         setCreatedAt(status.getCreatedAt(), statusDisplayOptions);
                     }
@@ -924,7 +946,7 @@ public abstract class StatusBaseViewHolder extends RecyclerView.ViewHolder {
             List<PollOptionViewData> options = poll.getOptions();
             for (int i = 0; i < args.length; i++) {
                 if (i < options.size()) {
-                    int percent = PollViewDataKt.calculatePercent(options.get(i).getVotesCount(), poll.getVotesCount());
+                    int percent = PollViewDataKt.calculatePercent(options.get(i).getVotesCount(), poll.getVotersCount(), poll.getVotesCount());
                     args[i] = buildDescription(options.get(i).getTitle(), percent, context);
                 } else {
                     args[i] = "";
@@ -967,12 +989,18 @@ public abstract class StatusBaseViewHolder extends RecyclerView.ViewHolder {
 
         if (expired || poll.getVoted()) {
             // no voting possible
-            pollAdapter.setup(poll.getOptions(), poll.getVotesCount(), emojis, PollAdapter.RESULT);
+            View.OnClickListener viewThreadListener = v -> {
+                int position = getAdapterPosition();
+                if (position != RecyclerView.NO_POSITION) {
+                    listener.onViewThread(position);
+                }
+            };
+            pollAdapter.setup(poll.getOptions(), poll.getVotesCount(), poll.getVotersCount(), emojis, PollAdapter.RESULT, viewThreadListener);
 
             pollButton.setVisibility(View.GONE);
         } else {
             // voting possible
-            pollAdapter.setup(poll.getOptions(), poll.getVotesCount(), emojis, poll.getMultiple() ? PollAdapter.MULTIPLE : PollAdapter.SINGLE);
+            pollAdapter.setup(poll.getOptions(), poll.getVotesCount(), poll.getVotersCount(), emojis, poll.getMultiple() ? PollAdapter.MULTIPLE : PollAdapter.SINGLE, null);
 
             pollButton.setVisibility(View.VISIBLE);
 
@@ -999,8 +1027,15 @@ public abstract class StatusBaseViewHolder extends RecyclerView.ViewHolder {
     private CharSequence getPollInfoText(long timestamp, PollViewData poll,
                                          StatusDisplayOptions statusDisplayOptions,
                                          Context context) {
-        String votes = numberFormat.format(poll.getVotesCount());
-        String votesText = context.getResources().getQuantityString(R.plurals.poll_info_votes, poll.getVotesCount(), votes);
+
+        String votesText;
+        if(poll.getVotersCount() == null) {
+            String voters = numberFormat.format(poll.getVotesCount());
+            votesText = context.getResources().getQuantityString(R.plurals.poll_info_votes, poll.getVotesCount(), voters);
+        } else {
+            String voters = numberFormat.format(poll.getVotersCount());
+            votesText = context.getResources().getQuantityString(R.plurals.poll_info_people, poll.getVotersCount(), voters);
+        }
         CharSequence pollDurationInfo;
         if (poll.getExpired()) {
             pollDurationInfo = context.getString(R.string.poll_info_closed);
@@ -1010,8 +1045,7 @@ public abstract class StatusBaseViewHolder extends RecyclerView.ViewHolder {
             if (statusDisplayOptions.useAbsoluteTime()) {
                 pollDurationInfo = context.getString(R.string.poll_info_time_absolute, getAbsoluteTime(poll.getExpiresAt()));
             } else {
-                String pollDuration = TimestampUtils.formatPollDuration(pollDescription.getContext(), poll.getExpiresAt().getTime(), timestamp);
-                pollDurationInfo = context.getString(R.string.poll_info_time_relative, pollDuration);
+                pollDurationInfo = TimestampUtils.formatPollDuration(pollDescription.getContext(), poll.getExpiresAt().getTime(), timestamp);
             }
         }
 

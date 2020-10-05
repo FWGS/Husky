@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along with Tusky; if not,
  * see <http://www.gnu.org/licenses>. */
 
-package com.keylesspalace.tusky.fragment.preference
+package com.keylesspalace.tusky.components.preference
 
 import android.os.Bundle
 import androidx.preference.PreferenceFragmentCompat
@@ -119,6 +119,17 @@ class NotificationPreferencesFragment : PreferenceFragmentCompat(), Injectable {
                     isChecked = activeAccount.notificationsPolls
                     setOnPreferenceChangeListener { _, newValue ->
                         updateAccount { it.notificationsPolls = newValue as Boolean }
+                        true
+                    }
+                }
+
+                switchPreference {
+                    setTitle(R.string.pref_title_notification_filter_chat_messages)
+                    key = PrefKeys.NOTIFICATION_FILTER_CHAT_MESSAGES
+                    isIconSpaceReserved = false
+                    isChecked = activeAccount.notificationsChatMessages
+                    setOnPreferenceChangeListener { _, newValue ->
+                        updateAccount { it.notificationsChatMessages = newValue as Boolean }
                         true
                     }
                 }
