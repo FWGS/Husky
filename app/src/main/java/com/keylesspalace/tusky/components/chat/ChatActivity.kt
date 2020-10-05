@@ -12,6 +12,7 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
+import android.view.KeyEvent
 import android.view.MenuItem
 import android.view.View
 import android.widget.ImageButton
@@ -208,7 +209,7 @@ class ChatActivity: BottomSheetActivity(),
         subscribeToUpdates()
 
         val preferences = PreferenceManager.getDefaultSharedPreferences(this)
-        viewModel.tryFetchStickers = preferences.getBoolean("stickers", false)
+        viewModel.tryFetchStickers = preferences.getBoolean(PrefKeys.STICKERS, false)
         viewModel.anonymizeNames = preferences.getBoolean(PrefKeys.ANONYMIZE_FILENAMES, false)
 
         setupHeader()
@@ -461,22 +462,7 @@ class ChatActivity: BottomSheetActivity(),
         emojiBehavior = BottomSheetBehavior.from(emojiView)
         stickerBehavior = BottomSheetBehavior.from(stickerKeyboard)
 
-        sendButton.setOnClickListener {
-            val media = viewModel.getSingleMedia()
-
-            serviceClient.sendChatMessage( MessageToSend(
-                    editText.text.toString(),
-                    media?.id,
-                    media?.uri?.toString(),
-                    accountManager.activeAccount!!.id,
-                    this.chatId,
-                    0
-            ))
-
-            enableButton(sendButton, false, false)
-            enableButton(attachmentButton, false, false)
-            enableButton(stickerButton, false, false)
-        }
+        sendButton.setOnClickListener { onSendClicked()}
 
         attachmentButton.setOnClickListener { openPickDialog() }
         emojiButton.setOnClickListener { showEmojis() }
@@ -500,6 +486,23 @@ class ChatActivity: BottomSheetActivity(),
 
         actionPhotoTake.setOnClickListener { initiateCameraApp() }
         actionPhotoPick.setOnClickListener { onMediaPick() }
+    }
+
+    private fun onSendClicked() {
+        val media = viewModel.getSingleMedia()
+
+        serviceClient.sendChatMessage( MessageToSend(
+                editText.text.toString(),
+                media?.id,
+                media?.uri?.toString(),
+                accountManager.activeAccount!!.id,
+                this.chatId,
+                0
+        ))
+
+        enableButton(sendButton, false, false)
+        enableButton(attachmentButton, false, false)
+        enableButton(stickerButton, false, false)
     }
 
     private fun openPickDialog() {
@@ -980,14 +983,34 @@ class ChatActivity: BottomSheetActivity(),
         }
     }
 
+    override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
+        Log.d(TAG, event.toString())
+        if(event.action == KeyEvent.ACTION_DOWN) {
+            if (event.isCtrlPressed) {
+                if (keyCode == KeyEvent.KEYCODE_ENTER) {
+                    // send message by pressing CTRL + ENTER
+                    onSendClicked()
+                    return true
+                }
+            }
+
+            if (keyCode == KeyEvent.KEYCODE_BACK) {
+                onBackPressed()
+                return true
+            }
+        }
+        return super.onKeyDown(keyCode, event)
+    }
+
+
     override fun onBackPressed() {
         // Acting like a teen: deliberately ignoring parent.
-        if (addMediaBehavior.state == BottomSheetBehavior.STATE_EXPANDED ||
-                emojiBehavior.state == BottomSheetBehavior.STATE_EXPANDED ||
-                stickerBehavior.state == BottomSheetBehavior.STATE_EXPANDED) {
+        if (addMediaBehavior.state != BottomSheetBehavior.STATE_HIDDEN ||
+                emojiBehavior.state != BottomSheetBehavior.STATE_HIDDEN ||
+                stickerBehavior.state != BottomSheetBehavior.STATE_HIDDEN) {
             addMediaBehavior.state = BottomSheetBehavior.STATE_HIDDEN
-            emojiBehavior.state = BottomSheetBehavior.STATE_HIDDEN
-            stickerBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+            emojiBehavior.state    = BottomSheetBehavior.STATE_HIDDEN
+            stickerBehavior.state  = BottomSheetBehavior.STATE_HIDDEN
             return
         }
 
