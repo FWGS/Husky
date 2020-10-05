@@ -83,11 +83,24 @@ abstract class BottomSheetActivity : BaseActivity() {
 
                     onEndSearch(url)
 
+                    if (accounts.isNotEmpty()) {
+
+                        // HACKHACK: Pleroma, remove when search will work normally
+                        if (accounts[0].pleroma != null) {
+                            val account = accounts.firstOrNull { it.pleroma?.apId == url || it.url == url }
+
+                            if (account != null) {
+                                viewAccount(account.id)
+                                return@subscribe
+                            }
+                        } else {
+                            viewAccount(accounts[0].id)
+                            return@subscribe
+                        }
+                    }
+
                     if (statuses.isNotEmpty()) {
                         viewThread(statuses[0].id, statuses[0].url)
-                        return@subscribe
-                    } else if (accounts.isNotEmpty()) {
-                        viewAccount(accounts[0].id)
                         return@subscribe
                     }
 
