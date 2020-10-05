@@ -17,6 +17,7 @@ import com.keylesspalace.tusky.util.StatusDisplayOptions
 import com.keylesspalace.tusky.util.ThemeUtils
 import com.keylesspalace.tusky.util.TimestampUtils
 import com.keylesspalace.tusky.util.emojify
+import com.keylesspalace.tusky.util.LinkHelper
 import com.keylesspalace.tusky.view.MediaPreviewImageView
 import com.keylesspalace.tusky.viewdata.ChatMessageViewData
 import java.text.SimpleDateFormat
@@ -40,8 +41,10 @@ class ChatMessagesViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
     fun setupWithChatMessage(msg: ChatMessageViewData.Concrete, chatActionListener: ChatActionListener, statusDisplayOptions: StatusDisplayOptions, payload: Any?) {
         if(payload == null) {
-            if(msg.content != null)
-                content.text = msg.content.emojify(msg.emojis, content)
+            if(msg.content != null) {
+                val text = msg.content.emojify(msg.emojis, content)
+                LinkHelper.setClickableText(content, text, null, chatActionListener)
+            }
 
             setAttachment(msg.attachment, chatActionListener)
             setCreatedAt(msg.createdAt)
