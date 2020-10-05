@@ -98,6 +98,7 @@ data class StringField (
 )
 
 data class PleromaAccount(
+    @SerializedName("ap_id") val apId: String? = null,
     @SerializedName("accepts_chat_messages") val acceptsChatMessages: Boolean? = null,
     @SerializedName("is_moderator") val isModerator: Boolean? = null,
     @SerializedName("is_admin") val isAdmin: Boolean? = null
