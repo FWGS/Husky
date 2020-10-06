@@ -385,9 +385,9 @@ class ChatActivity: BottomSheetActivity(),
 
                 enableSendButton()
                 enableButton(attachmentButton, notHaveMedia, notHaveMedia)
-                enableButton(stickerButton, haveStickers, haveStickers)
+                enableButton(stickerButton, haveStickers && notHaveMedia, haveStickers && notHaveMedia)
 
-                if(!it.isNotEmpty()) {
+                if(!notHaveMedia) {
                     val media = it[0]
 
                     when(media.type) {
