@@ -66,7 +66,6 @@ import com.mikepenz.iconics.IconicsDrawable
 import com.mikepenz.iconics.typeface.library.googlematerial.GoogleMaterial
 import com.mikepenz.iconics.utils.colorInt
 import com.mikepenz.iconics.utils.sizeDp
-import com.uber.autodispose.android.lifecycle.AndroidLifecycleScopeProvider.from
 import com.uber.autodispose.android.lifecycle.autoDispose
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -228,20 +227,22 @@ class ChatActivity: BottomSheetActivity(),
                 .subscribe { event: Event? ->
                     when(event) {
                         is ChatMessageDeliveredEvent -> {
-                            onRefresh()
-                            enableButton(sendButton, true, true)
-                            enableButton(attachmentButton, true, true)
-                            enableButton(stickerButton, haveStickers, haveStickers)
-                            editText.text.clear()
-                            viewModel.media.value = listOf()
-                        }
+                            if(event.chatMsg.chatId == chatId) {
+                                onRefresh()
+                                enableButton(attachmentButton, true, true)
+                                enableButton(stickerButton, haveStickers, haveStickers)
 
+                                sending = false
+                                enableSendButton()
+                            }
+                        }
                         is ChatMessageReceivedEvent -> {
-                            onRefresh()
+                            if(event.chatMsg.chatId == chatId) {
+                                onRefresh()
+                            }
                         }
                     }
                 }
-
 
         tryCache()
     }
@@ -288,11 +289,14 @@ class ChatActivity: BottomSheetActivity(),
                                 viewModel.updateDescription(it.localId, newDescription)
                             }
                         }
-                        removeId -> viewModel.removeMediaFromQueue(it)
+                        removeId -> {
+                            viewModel.removeMediaFromQueue(it)
+                        }
                     }
                 }
                 true
             }
+            popup.show()
         }
 
         imageAttachment.setOnClickListener(onMediaPick)
@@ -315,6 +319,7 @@ class ChatActivity: BottomSheetActivity(),
         highlightSpans(editText.text, mentionColour)
         editText.afterTextChanged { editable ->
             highlightSpans(editable, mentionColour)
+            enableSendButton()
         }
 
         // work around Android platform bug -> https://issuetracker.google.com/issues/67102093
@@ -322,6 +327,17 @@ class ChatActivity: BottomSheetActivity(),
                 || Build.VERSION.SDK_INT == Build.VERSION_CODES.O_MR1) {
             editText.setLayerType(View.LAYER_TYPE_SOFTWARE, null)
         }
+    }
+
+    private var sending = false
+    private fun enableSendButton() {
+        if(sending)
+            return
+
+        val haveMedia = viewModel.media.value?.isNotEmpty() ?: false
+        val haveText  = editText.text.isNotEmpty()
+
+        enableButton(sendButton, haveMedia || haveText, haveMedia || haveText)
     }
 
     override fun search(token: String): List<ComposeAutoCompleteAdapter.AutocompleteResult> {
@@ -355,11 +371,6 @@ class ChatActivity: BottomSheetActivity(),
             viewModel.instanceParams.observe { instanceData ->
                 maximumTootCharacters = instanceData.chatLimit
             }
-            viewModel.haveStickers.observe { haveStickers ->
-                if (haveStickers) {
-                    stickerButton.visibility = View.VISIBLE
-                }
-            }
             viewModel.instanceStickers.observe { stickers ->
                 if(stickers.isNotEmpty()) {
                     haveStickers = true
@@ -370,7 +381,13 @@ class ChatActivity: BottomSheetActivity(),
             }
             viewModel.emoji.observe { setEmojiList(it) }
             viewModel.media.observe {
-                if(it.isNotEmpty()) {
+                val notHaveMedia = it.isEmpty()
+
+                enableSendButton()
+                enableButton(attachmentButton, notHaveMedia, notHaveMedia)
+                enableButton(stickerButton, haveStickers, haveStickers)
+
+                if(!it.isNotEmpty()) {
                     val media = it[0]
 
                     when(media.type) {
@@ -462,7 +479,7 @@ class ChatActivity: BottomSheetActivity(),
         emojiBehavior = BottomSheetBehavior.from(emojiView)
         stickerBehavior = BottomSheetBehavior.from(stickerKeyboard)
 
-        sendButton.setOnClickListener { onSendClicked()}
+        sendButton.setOnClickListener { onSendClicked() }
 
         attachmentButton.setOnClickListener { openPickDialog() }
         emojiButton.setOnClickListener { showEmojis() }
@@ -491,7 +508,7 @@ class ChatActivity: BottomSheetActivity(),
     private fun onSendClicked() {
         val media = viewModel.getSingleMedia()
 
-        serviceClient.sendChatMessage( MessageToSend(
+        serviceClient.sendChatMessage(MessageToSend(
                 editText.text.toString(),
                 media?.id,
                 media?.uri?.toString(),
@@ -500,6 +517,9 @@ class ChatActivity: BottomSheetActivity(),
                 0
         ))
 
+        sending = true
+        editText.text.clear()
+        viewModel.media.value = listOf()
         enableButton(sendButton, false, false)
         enableButton(attachmentButton, false, false)
         enableButton(stickerButton, false, false)
@@ -655,8 +675,6 @@ class ChatActivity: BottomSheetActivity(),
                         }
                     }
                     displayTransientError(errorId)
-                } else {
-                    enableButton(attachmentButton, false, false)
                 }
             }
         }
