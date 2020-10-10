@@ -68,20 +68,19 @@ private fun TextView.setClickableTextWithoutUnderlines(@StringRes textId: Int) {
 
     Linkify.addLinks(text, Linkify.WEB_URLS)
 
-    val builder = SpannableStringBuilder(text)
     val urlSpans = text.getSpans(0, text.length, URLSpan::class.java)
     for (span in urlSpans) {
-        val start = builder.getSpanStart(span)
-        val end = builder.getSpanEnd(span)
-        val flags = builder.getSpanFlags(span)
+        val start = text.getSpanStart(span)
+        val end = text.getSpanEnd(span)
+        val flags = text.getSpanFlags(span)
 
         val customSpan = object : CustomURLSpan(span.url) {}
 
-        builder.removeSpan(span)
-        builder.setSpan(customSpan, start, end, flags)
+        text.removeSpan(span)
+        text.setSpan(customSpan, start, end, flags)
     }
 
-    setText(builder)
+    setText(text)
     linksClickable = true
     movementMethod = LinkMovementMethod.getInstance()
 

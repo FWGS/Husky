@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
+import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
@@ -187,7 +188,7 @@ public class LinkHelper {
     public static CharSequence createClickableText(String text, String link) {
         URLSpan span = new CustomURLSpan(link);
 
-        SpannableStringBuilder clickableText = new SpannableStringBuilder(text);
+        SpannableString clickableText = new SpannableString(text);
         clickableText.setSpan(span, 0, text.length(), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
         return clickableText;
     }

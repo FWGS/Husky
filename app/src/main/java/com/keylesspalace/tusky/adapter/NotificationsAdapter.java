@@ -21,6 +21,7 @@ import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.text.InputFilter;
+import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextUtils;
@@ -523,7 +524,7 @@ public class NotificationsAdapter extends RecyclerView.Adapter {
                 }
             }
             message.setCompoundDrawablesWithIntrinsicBounds(icon, null, null, null);
-            final SpannableStringBuilder str = new SpannableStringBuilder(wholeMessage);
+            final SpannableString str = new SpannableString(wholeMessage);
             str.setSpan(new StyleSpan(Typeface.BOLD), 0, displayName.length(),
                     Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             CharSequence emojifiedText = CustomEmojiHelper.emojify(str, notificationViewData.getAccount().getEmojis(), message, true);

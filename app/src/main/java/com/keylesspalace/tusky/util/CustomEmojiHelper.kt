@@ -21,9 +21,12 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
+import android.text.SpannableString
 import android.text.SpannableStringBuilder
+import android.text.Spanned
 import android.text.style.ReplacementSpan
 import android.view.View
+import androidx.core.text.toSpannable
 
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
@@ -46,7 +49,7 @@ fun CharSequence.emojify(emojis: List<Emoji>?, view: View, forceSmallEmoji: Bool
     if(emojis.isNullOrEmpty())
         return this
 
-    val builder = SpannableStringBuilder.valueOf(this)
+    val builder = SpannableString.valueOf(this)
     val pm = PreferenceManager.getDefaultSharedPreferences(view.context)
     val smallEmojis = forceSmallEmoji || !pm.getBoolean("bigEmojis", true)
     // val animatedEmojis = pm.getBoolean("animateEmojis", false)
@@ -62,7 +65,7 @@ fun CharSequence.emojify(emojis: List<Emoji>?, view: View, forceSmallEmoji: Bool
                 EmojiSpan(WeakReference<View>(view))
             }
 
-            builder.setSpan(span, matcher.start(), matcher.end(), 0);
+            builder.setSpan(span, matcher.start(), matcher.end(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             Glide.with(view)
                 .asBitmap()
                 .load(url)
