@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?><!--This applies only to favourite and rebnotificationsEnabledions.-->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/notification_container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -29,8 +30,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/notification_top_text"
-        android:layout_toEndOf="@+id/notification_status_avatar"
-        android:paddingBottom="4dp">
+        android:layout_toEndOf="@+id/notification_status_avatar">
 
         <androidx.emoji.widget.EmojiTextView
             android:id="@+id/status_display_name"
@@ -72,11 +72,26 @@
 
     </RelativeLayout>
 
+    <TextView
+        android:id="@+id/notification_reply_info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/status_name_bar"
+        android:layout_toEndOf="@id/notification_status_avatar"
+        android:drawablePadding="6dp"
+        android:layout_marginTop="2dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textColor="?android:textColorTertiary"
+        android:textSize="?attr/status_text_medium"
+        app:drawableStartCompat="@drawable/ic_reply_18dp"
+        tools:text="Reply to a1batross" />
+
     <com.keylesspalace.tusky.view.CustomEmojiTextView
         android:id="@+id/notification_content_warning_description"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/status_name_bar"
+        android:layout_below="@id/notification_reply_info"
         android:layout_toEndOf="@id/notification_status_avatar"
         android:hyphenationFrequency="full"
         android:breakStrategy="high_quality"
@@ -108,6 +123,7 @@
         android:id="@+id/notification_content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
         android:layout_below="@id/notification_content_warning_button"
         android:layout_toEndOf="@+id/notification_status_avatar"
         android:hyphenationFrequency="full"

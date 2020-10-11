@@ -19,6 +19,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.Typeface;
+import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.text.InputFilter;
 import android.text.SpannableString;
@@ -336,6 +337,8 @@ public class NotificationsAdapter extends RecyclerView.Adapter {
          * @param position    The position of the status in the list.
          */
         void onNotificationContentCollapsedChange(boolean isCollapsed, int position);
+
+        void onViewReplyTo(int position);
     }
 
     private static class FollowViewHolder extends RecyclerView.ViewHolder {
@@ -411,6 +414,7 @@ public class NotificationsAdapter extends RecyclerView.Adapter {
         private final TextView statusContent;
         private final ImageView statusAvatar;
         private final ImageView notificationAvatar;
+        private final TextView replyInfo;
         private final TextView contentWarningDescriptionTextView;
         private final Button contentWarningButton;
         private final Button contentCollapseButton; // TODO: This code SHOULD be based on StatusBaseViewHolder
@@ -433,6 +437,7 @@ public class NotificationsAdapter extends RecyclerView.Adapter {
             statusContent = itemView.findViewById(R.id.notification_content);
             statusAvatar = itemView.findViewById(R.id.notification_status_avatar);
             notificationAvatar = itemView.findViewById(R.id.notification_notification_avatar);
+            replyInfo = itemView.findViewById(R.id.notification_reply_info);
             contentWarningDescriptionTextView = itemView.findViewById(R.id.notification_content_warning_description);
             contentWarningButton = itemView.findViewById(R.id.notification_content_warning_button);
             contentCollapseButton = itemView.findViewById(R.id.button_toggle_notification_content);
@@ -456,6 +461,7 @@ public class NotificationsAdapter extends RecyclerView.Adapter {
             statusContent.setVisibility(show ? View.VISIBLE : View.GONE);
             statusAvatar.setVisibility(show ? View.VISIBLE : View.GONE);
             notificationAvatar.setVisibility(show ? View.VISIBLE : View.GONE);
+            replyInfo.setVisibility(show ? View.VISIBLE : View.GONE);
         }
 
         private void setDisplayName(String name, List<Emoji> emojis) {
@@ -577,6 +583,7 @@ public class NotificationsAdapter extends RecyclerView.Adapter {
                 });
 
                 setupContentAndSpoiler(listener);
+                setupReplyInfo();
             }
 
         }
@@ -657,6 +664,24 @@ public class NotificationsAdapter extends RecyclerView.Adapter {
             CharSequence emojifiedContentWarning =
                     CustomEmojiHelper.emojify(statusViewData.getSpoilerText(), statusViewData.getStatusEmojis(), contentWarningDescriptionTextView);
             contentWarningDescriptionTextView.setText(emojifiedContentWarning);
+        }
+
+        private void setupReplyInfo() {
+            if (statusViewData.getInReplyToId() != null) {
+                Context context = replyInfo.getContext();
+                String replyToAccount = statusViewData.getInReplyToAccountAcct();
+                replyInfo.setText(context.getString(R.string.status_replied_to_format, replyToAccount));
+                if (statusViewData.getParentVisible() == false)
+                    replyInfo.setPaintFlags(replyInfo.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+                else
+                    replyInfo.setPaintFlags(replyInfo.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
+
+                replyInfo.setOnClickListener(v -> notificationActionListener.onViewReplyTo(getAdapterPosition()));
+
+                replyInfo.setVisibility(View.VISIBLE);
+            } else {
+                replyInfo.setVisibility(View.GONE);
+            }
         }
     }
 }
