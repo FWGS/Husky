@@ -451,6 +451,7 @@
             android:textSize="?attr/status_text_medium"
             android:layout_toLeftOf="@+id/composePreviewButton"
             android:layout_centerVertical="true"
+            android:textStyle="bold"
             tools:text="500" />
 
         <com.google.android.material.button.MaterialButton
