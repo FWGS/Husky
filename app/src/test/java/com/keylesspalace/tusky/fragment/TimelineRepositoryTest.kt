@@ -76,7 +76,7 @@ class TimelineRepositoryTest {
                 makeStatus("3"),
                 makeStatus("2")
         )
-        whenever(mastodonApi.homeTimelineSingle(isNull(), isNull(), anyInt(), any()))
+        whenever(mastodonApi.homeTimelineSingle(isNull(), isNull(), anyInt()))
                 .thenReturn(Single.just(statuses))
         val result = subject.getStatuses(null, null, null, limit, TimelineRequestMode.NETWORK)
                 .blockingGet()
@@ -107,7 +107,7 @@ class TimelineRepositoryTest {
         )
         val sinceId = "2"
         val sinceIdMinusOne = "1"
-        whenever(mastodonApi.homeTimelineSingle(null, sinceIdMinusOne, limit + 1, true))
+        whenever(mastodonApi.homeTimelineSingle(null, sinceIdMinusOne, limit + 1))
                 .thenReturn(Single.just(response))
         val result = subject.getStatuses(null, sinceId, sinceIdMinusOne, limit,
                 TimelineRequestMode.NETWORK)
@@ -141,7 +141,7 @@ class TimelineRepositoryTest {
         )
         val sinceId = "2"
         val sinceIdMinusOne = "1"
-        whenever(mastodonApi.homeTimelineSingle(null, sinceIdMinusOne, limit + 1, true))
+        whenever(mastodonApi.homeTimelineSingle(null, sinceIdMinusOne, limit + 1))
                 .thenReturn(Single.just(response))
         val result = subject.getStatuses(null, sinceId, sinceIdMinusOne, limit,
                 TimelineRequestMode.NETWORK)
@@ -181,7 +181,7 @@ class TimelineRepositoryTest {
         val sinceId = "2"
         val sinceIdMinusOne = "1"
         val maxId = "3"
-		whenever(mastodonApi.homeTimelineSingle(maxId, sinceIdMinusOne, limit + 1, true))
+		whenever(mastodonApi.homeTimelineSingle(maxId, sinceIdMinusOne, limit + 1))
                 .thenReturn(Single.just(response))
         val result = subject.getStatuses(maxId, sinceId, sinceIdMinusOne, limit,
                 TimelineRequestMode.NETWORK)
@@ -224,7 +224,7 @@ class TimelineRepositoryTest {
         val sinceId = "2"
         val sinceIdMinusOne = "1"
         val maxId = "4"
-		whenever(mastodonApi.homeTimelineSingle(maxId, sinceIdMinusOne, limit + 1, true))
+		whenever(mastodonApi.homeTimelineSingle(maxId, sinceIdMinusOne, limit + 1))
                 .thenReturn(Single.just(response))
         val result = subject.getStatuses(maxId, sinceId, sinceIdMinusOne, limit,
                 TimelineRequestMode.NETWORK)
@@ -263,7 +263,7 @@ class TimelineRepositoryTest {
         dbResult.status = dbStatus.toEntity(account.id, gson)
         dbResult.account = status.account.toEntity(account.id, gson)
 
-        whenever(mastodonApi.homeTimelineSingle(any(), any(), any(), any()))
+        whenever(mastodonApi.homeTimelineSingle(any(), any(), any()))
                 .thenReturn(Single.just(listOf(status)))
         whenever(timelineDao.getStatusesForAccount(account.id, status.id, null, 30))
 		.thenReturn(Single.just(listOf(dbResult)))
@@ -281,7 +281,7 @@ class TimelineRepositoryTest {
         val dbResult2 = TimelineStatusWithAccount()
         dbResult2.status = Placeholder("1").toEntity(account.id)
 
-        whenever(mastodonApi.homeTimelineSingle(any(), any(), any(), any()))
+        whenever(mastodonApi.homeTimelineSingle(any(), any(), any()))
                 .thenReturn(Single.just(listOf(status)))
         whenever(timelineDao.getStatusesForAccount(account.id, status.id, null, 30))
                 .thenReturn(Single.just(listOf(dbResult, dbResult2)))
