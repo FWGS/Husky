@@ -24,6 +24,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.view.ViewCompat
+import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -34,6 +35,7 @@ import com.keylesspalace.tusky.entity.Attachment
 import com.keylesspalace.tusky.entity.Status
 import com.keylesspalace.tusky.interfaces.RefreshableFragment
 import com.keylesspalace.tusky.network.MastodonApi
+import com.keylesspalace.tusky.settings.PrefKeys
 import com.keylesspalace.tusky.util.ThemeUtils
 import com.keylesspalace.tusky.util.hide
 import com.keylesspalace.tusky.util.show
@@ -72,6 +74,7 @@ class AccountMediaFragment : BaseFragment(), RefreshableFragment, Injectable {
 
     private var isSwipeToRefreshEnabled: Boolean = true
     private var needToRefresh = false
+    private var filterMuted = false
 
     @Inject
     lateinit var api: MastodonApi
@@ -115,10 +118,12 @@ class AccountMediaFragment : BaseFragment(), RefreshableFragment, Injectable {
 
                 val body = response.body()
                 body?.let { fetched ->
-                    statuses.addAll(0, fetched)
+                    // filter muted statuses if needed
+                    val filtered = fetched.filter { !(filterMuted && it.muted) }
+                    statuses.addAll(0, filtered)
                     // flatMap requires iterable but I don't want to box each array into list
                     val result = mutableListOf<AttachmentViewData>()
-                    for (status in fetched) {
+                    for (status in filtered) {
                         result.addAll(AttachmentViewData.list(status))
                     }
                     adapter.addTop(result)
@@ -148,11 +153,15 @@ class AccountMediaFragment : BaseFragment(), RefreshableFragment, Injectable {
             body?.let { fetched ->
                 Log.d(TAG, "fetched ${fetched.size} statuses")
                 if (fetched.isNotEmpty()) Log.d(TAG, "first: ${fetched.first().id}, last: ${fetched.last().id}")
-                statuses.addAll(fetched)
+
+                // filter muted statuses if needed
+                val filtered = fetched.filter { !(filterMuted && it.muted) }
+
+                statuses.addAll(filtered)
                 Log.d(TAG, "now there are ${statuses.size} statuses")
                 // flatMap requires iterable but I don't want to box each array into list
                 val result = mutableListOf<AttachmentViewData>()
-                for (status in fetched) {
+                for (status in filtered) {
                     result.addAll(AttachmentViewData.list(status))
                 }
                 adapter.addBottom(result)
@@ -201,8 +210,7 @@ class AccountMediaFragment : BaseFragment(), RefreshableFragment, Injectable {
                         statuses.lastOrNull()?.let { last ->
                             Log.d(TAG, "Requesting statuses with max_id: ${last.id}, (bottom)")
                             fetchingStatus = FetchingStatus.FETCHING_BOTTOM
-                            val withMuted = true // TODO: configurable
-                            currentCall = api.accountStatuses(accountId, last.id, null, null, null, true, null, withMuted)
+                            currentCall = api.accountStatuses(accountId, last.id, null, null, null, true, null)
                             currentCall?.enqueue(bottomCallback)
                         }
                     }
@@ -210,19 +218,22 @@ class AccountMediaFragment : BaseFragment(), RefreshableFragment, Injectable {
             }
         })
 
+        filterMuted = PreferenceManager.getDefaultSharedPreferences(requireContext()).getBoolean(
+                PrefKeys.HIDE_MUTED_USERS, false
+        )
+
         doInitialLoadingIfNeeded()
     }
 
     private fun refresh() {
         statusView.hide()
-        val withMuted = true // TODO: configurable
         if (fetchingStatus != FetchingStatus.NOT_FETCHING) return
         currentCall = if (statuses.isEmpty()) {
             fetchingStatus = FetchingStatus.INITIAL_FETCHING
-            api.accountStatuses(accountId, null, null, null, null, true, null, withMuted)
+            api.accountStatuses(accountId, null, null, null, null, true, null)
         } else {
             fetchingStatus = FetchingStatus.REFRESHING
-            api.accountStatuses(accountId, null, statuses[0].id, null, null, true, null, withMuted)
+            api.accountStatuses(accountId, null, statuses[0].id, null, null, true, null)
         }
         currentCall?.enqueue(callback)
 
@@ -236,8 +247,7 @@ class AccountMediaFragment : BaseFragment(), RefreshableFragment, Injectable {
         }
         if (fetchingStatus == FetchingStatus.NOT_FETCHING && statuses.isEmpty()) {
             fetchingStatus = FetchingStatus.INITIAL_FETCHING
-            val withMuted = true // TODO: configurable
-            currentCall = api.accountStatuses(accountId, null, null, null, null, true, null, withMuted)
+            currentCall = api.accountStatuses(accountId, null, null, null, null, true, null)
             currentCall?.enqueue(callback)
         }
         else if (needToRefresh)

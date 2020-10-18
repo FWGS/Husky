@@ -61,6 +61,7 @@ import com.keylesspalace.tusky.network.MastodonApi;
 import com.keylesspalace.tusky.repository.Placeholder;
 import com.keylesspalace.tusky.repository.TimelineRepository;
 import com.keylesspalace.tusky.repository.TimelineRequestMode;
+import com.keylesspalace.tusky.settings.PrefKeys;
 import com.keylesspalace.tusky.util.CardViewMode;
 import com.keylesspalace.tusky.util.Either;
 import com.keylesspalace.tusky.util.HttpHeaderLink;
@@ -245,7 +246,6 @@ public class TimelineFragment extends SFragment implements
         adapter = new TimelineAdapter(dataSource, statusDisplayOptions, this);
 
         isSwipeToRefreshEnabled = arguments.getBoolean(ARG_ENABLE_SWIPE_TO_REFRESH, true);
-
     }
 
     @Override
@@ -288,7 +288,7 @@ public class TimelineFragment extends SFragment implements
     private void tryCache() {
         // Request timeline from disk to make it quick, then replace it with timeline from
         // the server to update it
-        this.timelineRepo.getStatuses(null, null, null, LOAD_AT_ONCE,
+        timelineRepo.getStatuses(null, null, null, LOAD_AT_ONCE,
                 TimelineRequestMode.DISK)
                 .observeOn(AndroidSchedulers.mainThread())
                 .as(autoDisposable(from(this, Lifecycle.Event.ON_DESTROY)))
@@ -373,7 +373,8 @@ public class TimelineFragment extends SFragment implements
 
         filter = preferences.getBoolean("tabFilterHomeBoosts", true);
         filterRemoveReblogs = kind == Kind.HOME && !filter;
-        reloadFilters(false);
+
+        reloadFilters(preferences,false);
     }
 
     private static boolean filterContextMatchesKind(Kind kind, List<String> filterContext) {
@@ -455,12 +456,13 @@ public class TimelineFragment extends SFragment implements
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+
         /* This is delayed until onActivityCreated solely because MainActivity.composeButton isn't
          * guaranteed to be set until then. */
         if (actionButtonPresent()) {
             /* Use a modified scroll listener that both loads more statuses as it goes, and hides
              * the follow button on down-scroll. */
-            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
             hideFab = preferences.getBoolean("fabHide", false);
             scrollListener = new EndlessOnScrollListener(layoutManager) {
                 @Override
@@ -530,8 +532,7 @@ public class TimelineFragment extends SFragment implements
                             }
                         } else if (event instanceof MuteEvent) {
                             if (kind != Kind.USER && kind != Kind.USER_WITH_REPLIES && kind != Kind.USER_PINNED) {
-                                String id = ((MuteEvent) event).getAccountId();
-                                removeAllByAccountId(id);
+                                handleMuteEvent((MuteEvent)event);
                             }
                         } else if (event instanceof DomainMuteEvent) {
                             if (kind != Kind.USER && kind != Kind.USER_WITH_REPLIES && kind != Kind.USER_PINNED) {
@@ -700,12 +701,12 @@ public class TimelineFragment extends SFragment implements
         updateAdapter();
     }
     
-    private void setMutedStatusForStatus(int position, Status status, boolean muted) {
-        status.setThreadMuted(muted);
+    private void setMutedStatusForStatus(int position, Status status, boolean muted, boolean threadMuted) {
+        status.setThreadMuted(threadMuted);
                 
         StatusViewData.Builder statusViewData = new StatusViewData.Builder((StatusViewData.Concrete)statuses.getPairedItem(position));
         statusViewData.setMuted(muted);
-        statusViewData.setThreadMuted(muted);
+        statusViewData.setThreadMuted(threadMuted);
 
         statuses.setPairedItem(position, statusViewData.createStatusViewData());
     }
@@ -912,13 +913,17 @@ public class TimelineFragment extends SFragment implements
                 }
                 break;
             }
+            case PrefKeys.HIDE_MUTED_USERS: {
+                updateMuteFilter(sharedPreferences, true);
+                break;
+            }
             case Filter.HOME:
             case Filter.NOTIFICATIONS:
             case Filter.THREAD:
             case Filter.PUBLIC:
             case Filter.ACCOUNT: {
                 if (filterContextMatchesKind(kind, Collections.singletonList(key))) {
-                    reloadFilters(true);
+                    reloadFilters(sharedPreferences, true);
                 }
                 break;
             }
@@ -933,6 +938,19 @@ public class TimelineFragment extends SFragment implements
     @Override
     public void removeItem(int position) {
         statuses.remove(position);
+        updateAdapter();
+    }
+
+    private void removeAllByConversationId(int conversationId) {
+        // using iterator to safely remove items while iterating
+        Iterator<Either<Placeholder, Status>> iterator = statuses.iterator();
+        while (iterator.hasNext()) {
+            Status status = iterator.next().asRightOrNull();
+            if (status != null &&
+                    (status.getConversationId() == conversationId) || status.getActionableStatus().getConversationId() == conversationId) {
+                iterator.remove();
+            }
+        }
         updateAdapter();
     }
 
@@ -1026,32 +1044,30 @@ public class TimelineFragment extends SFragment implements
 
     private Call<List<Status>> getFetchCallByTimelineType(String fromId, String uptoId) {
         MastodonApi api = mastodonApi;
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        boolean withMuted = !preferences.getBoolean("hideMutedUsers", false);
         switch (kind) {
             default:
             case HOME:
-                return api.homeTimeline(fromId, uptoId, LOAD_AT_ONCE, withMuted);
+                return api.homeTimeline(fromId, uptoId, LOAD_AT_ONCE);
             case PUBLIC_FEDERATED:
-                return api.publicTimeline(null, fromId, uptoId, LOAD_AT_ONCE, withMuted);
+                return api.publicTimeline(null, fromId, uptoId, LOAD_AT_ONCE);
             case PUBLIC_LOCAL:
-                return api.publicTimeline(true, fromId, uptoId, LOAD_AT_ONCE, withMuted);
+                return api.publicTimeline(true, fromId, uptoId, LOAD_AT_ONCE);
             case TAG:
                 String firstHashtag = tags.get(0);
                 List<String> additionalHashtags = tags.subList(1, tags.size());
-                return api.hashtagTimeline(firstHashtag, additionalHashtags, null, fromId, uptoId, LOAD_AT_ONCE, withMuted);
+                return api.hashtagTimeline(firstHashtag, additionalHashtags, null, fromId, uptoId, LOAD_AT_ONCE);
             case USER:
-                return api.accountStatuses(id, fromId, uptoId, LOAD_AT_ONCE, true, null, null, withMuted);
+                return api.accountStatuses(id, fromId, uptoId, LOAD_AT_ONCE, true, null, null);
             case USER_PINNED:
-                return api.accountStatuses(id, fromId, uptoId, LOAD_AT_ONCE, null, null, true, withMuted);
+                return api.accountStatuses(id, fromId, uptoId, LOAD_AT_ONCE, null, null, true);
             case USER_WITH_REPLIES:
-                return api.accountStatuses(id, fromId, uptoId, LOAD_AT_ONCE, null, null, null, withMuted);
+                return api.accountStatuses(id, fromId, uptoId, LOAD_AT_ONCE, null, null, null);
             case FAVOURITES:
-                return api.favourites(fromId, uptoId, LOAD_AT_ONCE, withMuted);
+                return api.favourites(fromId, uptoId, LOAD_AT_ONCE);
             case BOOKMARKS:
-                return api.bookmarks(fromId, uptoId, LOAD_AT_ONCE, withMuted);
+                return api.bookmarks(fromId, uptoId, LOAD_AT_ONCE);
             case LIST:
-                return api.listTimeline(id, fromId, uptoId, LOAD_AT_ONCE, withMuted);
+                return api.listTimeline(id, fromId, uptoId, LOAD_AT_ONCE);
         }
     }
 
@@ -1421,17 +1437,45 @@ public class TimelineFragment extends SFragment implements
         int conversationId = eventStatus.getConversationId();
         
         if(conversationId == -1) { // invalid conversation ID
-            setMutedStatusForStatus(pos, eventStatus, event.getMute());
+            if(isFilteringMuted()) {
+                statuses.remove(pos);
+            } else {
+                setMutedStatusForStatus(pos, eventStatus, event.getMute(), event.getMute());
+            }
+            updateAdapter();
         } else {
             //noinspection ConstantConditions
-            for (int i = 0; i < statuses.size(); i++) {
-                Status status = statuses.get(i).asRightOrNull();
-                if (status != null && status.getConversationId() == conversationId) {
-                    setMutedStatusForStatus(i, status, event.getMute());
+            if(isFilteringMuted()) {
+                removeAllByConversationId(conversationId);
+            } else {
+                for (int i = 0; i < statuses.size(); i++) {
+                    Status status = statuses.get(i).asRightOrNull();
+                    if (status != null && status.getConversationId() == conversationId) {
+                        setMutedStatusForStatus(i, status, event.getMute(), event.getMute());
+                    }
                 }
+                updateAdapter();
             }
         }
-        updateAdapter();
+    }
+
+    private void handleMuteEvent(MuteEvent event) {
+        String id = event.getAccountId();
+        boolean muting = event.getMute();
+
+        if(isFilteringMuted() && muting) {
+            removeAllByAccountId(id);
+        } else {
+            for (int i = 0; i < statuses.size(); i++) {
+                Status status = statuses.get(i).asRightOrNull();
+                if (status != null
+                        && status.getAccount().getId().equals(id)
+                        && !status.isThreadMuted()) {
+                    setMutedStatusForStatus(i, status, muting, false);
+                }
+            }
+            updateAdapter();
+        }
     }
 
     private List<Either<Placeholder, Status>> liftStatusList(List<Status> list) {

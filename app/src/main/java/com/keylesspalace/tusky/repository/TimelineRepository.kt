@@ -66,8 +66,7 @@ class TimelineRepositoryImpl(
                                        sinceIdMinusOne: String?, limit: Int,
                                        accountId: Long, requestMode: TimelineRequestMode
     ): Single<out List<TimelineStatus>> {
-        val withMuted = true // TODO: configurable
-        return mastodonApi.homeTimelineSingle(maxId, sinceIdMinusOne, limit + 1, withMuted)
+        return mastodonApi.homeTimelineSingle(maxId, sinceIdMinusOne, limit + 1)
                 .map { statuses ->
                     this.saveStatusesToDb(accountId, statuses, maxId, sinceId)
                 }

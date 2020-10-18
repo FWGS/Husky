@@ -51,49 +51,44 @@ interface MastodonApi {
     @GET("api/v1/filters")
     fun getFilters(): Call<List<Filter>>
 
-    @GET("api/v1/timelines/home")
+    @GET("api/v1/timelines/home?with_muted=true")
     fun homeTimeline(
             @Query("max_id") maxId: String?,
             @Query("since_id") sinceId: String?,
-            @Query("limit") limit: Int?,
-            @Query("with_muted") withMuted: Boolean?
+            @Query("limit") limit: Int?
     ): Call<List<Status>>
 
-    @GET("api/v1/timelines/home")
+    @GET("api/v1/timelines/home?with_muted=true")
     fun homeTimelineSingle(
             @Query("max_id") maxId: String?,
             @Query("since_id") sinceId: String?,
-            @Query("limit") limit: Int?,
-            @Query("with_muted") withMuted: Boolean?
+            @Query("limit") limit: Int?
     ): Single<List<Status>>
 
-    @GET("api/v1/timelines/public")
+    @GET("api/v1/timelines/public?with_muted=true")
     fun publicTimeline(
             @Query("local") local: Boolean?,
             @Query("max_id") maxId: String?,
             @Query("since_id") sinceId: String?,
-            @Query("limit") limit: Int?,
-            @Query("with_muted") withMuted: Boolean?
+            @Query("limit") limit: Int?
     ): Call<List<Status>>
 
-    @GET("api/v1/timelines/tag/{hashtag}")
+    @GET("api/v1/timelines/tag/{hashtag}?with_muted=true")
     fun hashtagTimeline(
             @Path("hashtag") hashtag: String,
             @Query("any[]") any: List<String>?,
             @Query("local") local: Boolean?,
             @Query("max_id") maxId: String?,
             @Query("since_id") sinceId: String?,
-            @Query("limit") limit: Int?,
-            @Query("with_muted") withMuted: Boolean?
+            @Query("limit") limit: Int?
     ): Call<List<Status>>
 
-    @GET("api/v1/timelines/list/{listId}")
+    @GET("api/v1/timelines/list/{listId}?with_muted=true")
     fun listTimeline(
             @Path("listId") listId: String,
             @Query("max_id") maxId: String?,
             @Query("since_id") sinceId: String?,
-            @Query("limit") limit: Int?,
-            @Query("with_muted") withMuted: Boolean?
+            @Query("limit") limit: Int?
     ): Call<List<Status>>
 
     @GET("api/v1/notifications")
@@ -112,12 +107,11 @@ interface MastodonApi {
             @Query("timeline[]") timelines: List<String>
     ): Single<Map<String, Marker>>
 
-    @GET("api/v1/notifications")
+    @GET("api/v1/notifications?with_muted=true")
     fun notificationsWithAuth(
             @Header("Authorization") auth: String,
             @Header(DOMAIN_HEADER) domain: String,
             @Query("since_id") sinceId: String?,
-            @Query("with_muted") withMuted: Boolean?,
             @Query("include_types[]") includeTypes: List<String>?
     ): Single<List<Notification>>
 
@@ -288,7 +282,7 @@ interface MastodonApi {
      * @param excludeReplies only return statuses that are no replies
      * @param onlyMedia only return statuses that have media attached
      */
-    @GET("api/v1/accounts/{id}/statuses")
+    @GET("api/v1/accounts/{id}/statuses?with_muted=true")
     fun accountStatuses(
             @Path("id") accountId: String,
             @Query("max_id") maxId: String?,
@@ -296,8 +290,7 @@ interface MastodonApi {
             @Query("limit") limit: Int?,
             @Query("exclude_replies") excludeReplies: Boolean?,
             @Query("only_media") onlyMedia: Boolean?,
-            @Query("pinned") pinned: Boolean?,
-            @Query("with_muted") withMuted: Boolean?
+            @Query("pinned") pinned: Boolean?
     ): Call<List<Status>>
 
     @GET("api/v1/accounts/{id}/followers")
@@ -392,20 +385,18 @@ interface MastodonApi {
     @HTTP(method = "DELETE", path = "api/v1/domain_blocks", hasBody = true)
     fun unblockDomain(@Field("domain") domain: String): Call<Any>
 
-    @GET("api/v1/favourites")
+    @GET("api/v1/favourites?with_muted=true")
     fun favourites(
             @Query("max_id") maxId: String?,
             @Query("since_id") sinceId: String?,
-            @Query("limit") limit: Int?,
-            @Query("with_muted") withMuted: Boolean?
+            @Query("limit") limit: Int?
     ): Call<List<Status>>
 
-    @GET("api/v1/bookmarks")
+    @GET("api/v1/bookmarks?with_muted=true")
     fun bookmarks(
             @Query("max_id") maxId: String?,
             @Query("since_id") sinceId: String?,
-            @Query("limit") limit: Int?,
-            @Query("with_muted") withMuted: Boolean?
+            @Query("limit") limit: Int?
     ): Call<List<Status>>
 
     @GET("api/v1/follow_requests")
@@ -572,14 +563,13 @@ interface MastodonApi {
             @Field("forward") isNotifyRemote: Boolean?
     ): Single<ResponseBody>
 
-    @GET("api/v1/accounts/{id}/statuses")
+    @GET("api/v1/accounts/{id}/statuses?with_muted=true")
     fun accountStatusesObservable(
             @Path("id") accountId: String,
             @Query("max_id") maxId: String?,
             @Query("since_id") sinceId: String?,
             @Query("limit") limit: Int?,
-            @Query("exclude_reblogs") excludeReblogs: Boolean?,
-            @Query("with_muted") withMuted: Boolean?
+            @Query("exclude_reblogs") excludeReblogs: Boolean?
     ): Single<List<Status>>
 
     @GET("api/v1/statuses/{id}")

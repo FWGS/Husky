@@ -42,7 +42,6 @@ class NotificationFetcher @Inject constructor(
                 authHeader,
                 account.domain,
                 account.lastNotificationId,
-                true,
                 Notification.Type.asStringList
         ).blockingGet()
 

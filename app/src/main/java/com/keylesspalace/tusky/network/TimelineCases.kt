@@ -103,7 +103,7 @@ class TimelineCasesImpl(
 
             override fun onFailure(call: Call<Relationship>, t: Throwable) {}
         })
-        eventHub.dispatch(MuteEvent(id))
+        eventHub.dispatch(MuteEvent(id, true))
     }
     
     override fun muteStatus(status: Status, mute: Boolean) {
@@ -115,7 +115,7 @@ class TimelineCasesImpl(
             mastodonApi.unmuteStatus(id)
         }).subscribe( { status ->
             eventHub.dispatch(MuteStatusEvent(status.id, mute))
-        }, {})
+        }, {}).addTo(this.cancelDisposable)
     }
 
     override fun block(id: String) {
@@ -126,7 +126,6 @@ class TimelineCasesImpl(
             override fun onFailure(call: Call<Relationship>, t: Throwable) {}
         })
         eventHub.dispatch(BlockEvent(id))
-
     }
 
     override fun delete(id: String): Single<DeletedStatus> {

@@ -21,6 +21,7 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Environment;
@@ -62,6 +63,7 @@ import com.keylesspalace.tusky.entity.Status;
 import com.keylesspalace.tusky.entity.EmojiReaction;
 import com.keylesspalace.tusky.network.MastodonApi;
 import com.keylesspalace.tusky.network.TimelineCases;
+import com.keylesspalace.tusky.settings.PrefKeys;
 import com.keylesspalace.tusky.util.LinkHelper;
 import com.keylesspalace.tusky.viewdata.AttachmentViewData;
 import com.keylesspalace.tusky.interfaces.StatusActionListener;
@@ -101,6 +103,7 @@ public abstract class SFragment extends BaseFragment implements Injectable {
     private boolean filterRemoveRegex;
     private Matcher filterRemoveRegexMatcher;
     private static Matcher alphanumeric = Pattern.compile("^\\w+$").matcher("");
+    private boolean filterMuted;
 
     @Inject
     public MastodonApi mastodonApi;
@@ -543,8 +546,23 @@ public abstract class SFragment extends BaseFragment implements Injectable {
         });
     }
 
-    @VisibleForTesting
-    public void reloadFilters(boolean forceRefresh) {
+    public boolean isFilteringMuted() {
+        return filterMuted;
+    }
+
+    public void updateMuteFilter(@NonNull SharedPreferences pref, boolean reload) {
+        filterMuted = pref.getBoolean(PrefKeys.HIDE_MUTED_USERS, false);
+
+        if(reload) {
+            refreshAfterApplyingFilters();
+        }
+    }
+
+    public void reloadFilters(SharedPreferences pref, boolean forceRefresh) {
+        if(pref != null) {
+            updateMuteFilter(pref, false); // will be reloaded later
+        }
+
         if (filters != null && !forceRefresh) {
             applyFilters(forceRefresh);
             return;
@@ -581,6 +599,9 @@ public abstract class SFragment extends BaseFragment implements Injectable {
 
     @VisibleForTesting
     public boolean shouldFilterStatus(Status status) {
+        if (filterMuted && status.getMuted()) {
+            return true;
+        }
 
         if (filterRemoveRegex && status.getPoll() != null) {
             for (PollOption option : status.getPoll().getOptions()) {
@@ -594,7 +615,7 @@ public abstract class SFragment extends BaseFragment implements Injectable {
                 || (!status.getSpoilerText().isEmpty() && filterRemoveRegexMatcher.reset(status.getActionableStatus().getSpoilerText()).find())));
     }
 
-    private void applyFilters(boolean refresh) {
+    public void applyFilters(boolean refresh) {
         List<String> tokens = new ArrayList<>();
         for (Filter filter : filters) {
             if (filterIsRelevant(filter)) {

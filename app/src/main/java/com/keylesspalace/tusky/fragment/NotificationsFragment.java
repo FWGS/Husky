@@ -67,6 +67,7 @@ import com.keylesspalace.tusky.interfaces.AccountActionListener;
 import com.keylesspalace.tusky.interfaces.ActionButtonActivity;
 import com.keylesspalace.tusky.interfaces.ReselectableFragment;
 import com.keylesspalace.tusky.interfaces.StatusActionListener;
+import com.keylesspalace.tusky.settings.PrefKeys;
 import com.keylesspalace.tusky.util.CardViewMode;
 import com.keylesspalace.tusky.util.Either;
 import com.keylesspalace.tusky.util.HttpHeaderLink;
@@ -168,6 +169,7 @@ public class NotificationsFragment extends SFragment implements
     private boolean alwaysOpenSpoiler;
     private boolean showNotificationsFilter;
     private boolean showingError;
+    private boolean withMuted;
 
     // Each element is either a Notification for loading data or a Placeholder
     private final PairedList<Either<Placeholder, Notification>, NotificationViewData> notifications
@@ -201,7 +203,7 @@ public class NotificationsFragment extends SFragment implements
         View rootView = inflater.inflate(R.layout.fragment_timeline_notifications, container, false);
 
         @NonNull Context context = inflater.getContext(); // from inflater to silence warning
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
 
         boolean showNotificationsFilterSetting = preferences.getBoolean("showNotificationsFilter", true);
         //Clear notifications on filter visibility change to force refresh
@@ -247,6 +249,7 @@ public class NotificationsFragment extends SFragment implements
                 CardViewMode.NONE,
                 preferences.getBoolean("confirmReblogs", true)
         );
+        withMuted = !preferences.getBoolean(PrefKeys.HIDE_MUTED_USERS, false);
 
         adapter = new NotificationsAdapter(accountManager.getActiveAccount().getAccountId(),
                 dataSource, statusDisplayOptions, this, this, this);
@@ -340,20 +343,48 @@ public class NotificationsFragment extends SFragment implements
         int conversationId = posAndNotification.second.getStatus().getConversationId();
         
         if(conversationId == -1) { // invalid conversation ID
-            setMutedStatusForStatus(posAndNotification.first, posAndNotification.second.getStatus(), event.getMute());
+            if(withMuted) {
+                setMutedStatusForStatus(posAndNotification.first, posAndNotification.second.getStatus(), event.getMute(), event.getMute());
+            } else {
+                notifications.remove(posAndNotification.first);
+            }
         } else {
             //noinspection ConstantConditions
-            // using iterator to safely remove items while iterating
-            for (int i = 0; i < notifications.size(); i++) {
-                Notification notification = notifications.get(i).asRightOrNull();
-                if (notification != null && notification.getStatus() != null
-                        && notification.getType() == Notification.Type.MENTION &&
-                        notification.getStatus().getConversationId() == conversationId) {
-                    setMutedStatusForStatus(i, notification.getStatus(), event.getMute());
+            if(withMuted) {
+                for (int i = 0; i < notifications.size(); i++) {
+                    Notification notification = notifications.get(i).asRightOrNull();
+                    if (notification != null && notification.getStatus() != null
+                            && notification.getType() == Notification.Type.MENTION &&
+                            notification.getStatus().getConversationId() == conversationId) {
+                        setMutedStatusForStatus(i, notification.getStatus(), event.getMute(), event.getMute());
+                    }
                 }
+            } else {
+                removeAllByConversationId(conversationId);
             }
         }
         updateAdapter();
+    }
+
+    private void handleMuteEvent(MuteEvent event) {
+        String id = event.getAccountId();
+        boolean mute = event.getMute();
+
+        if(withMuted) {
+            for (int i = 0; i < notifications.size(); i++) {
+                Notification notification = notifications.get(i).asRightOrNull();
+                if (notification != null
+                        && notification.getStatus() != null
+                        && notification.getType() == Notification.Type.MENTION
+                        && notification.getAccount().getId().equals(id)
+                        && !notification.getStatus().isThreadMuted()) {
+                    setMutedStatusForStatus(i, notification.getStatus(), mute, false);
+                }
+            }
+            updateAdapter();
+        } else {
+            removeAllByAccountId(id);
+        }
     }
 
     @Override
@@ -411,6 +442,8 @@ public class NotificationsFragment extends SFragment implements
 	                    handleMuteStatusEvent((MuteStatusEvent) event);
                     } else if (event instanceof BlockEvent) {
                         removeAllByAccountId(((BlockEvent) event).getAccountId());
+                    } else if (event instanceof MuteEvent) {
+                        handleMuteEvent((MuteEvent)event);
                     } else if (event instanceof PreferenceChangedEvent) {
                         onPreferenceChanged(((PreferenceChangedEvent) event).getPreferenceKey());
                     } else if (event instanceof EmojiReactEvent) {
@@ -645,13 +678,13 @@ public class NotificationsFragment extends SFragment implements
         updateAdapter();
     }
     
-    private void setMutedStatusForStatus(int position, Status status, boolean muted) {
-        status.setThreadMuted(muted);
+    private void setMutedStatusForStatus(int position, Status status, boolean muted, boolean threadMuted) {
+        status.setThreadMuted(threadMuted);
                 
         NotificationViewData.Concrete viewdata = (NotificationViewData.Concrete) notifications.getPairedItem(position);
 
         StatusViewData.Builder viewDataBuilder = new StatusViewData.Builder(viewdata.getStatusViewData());
-        viewDataBuilder.setThreadMuted(muted);
+        viewDataBuilder.setThreadMuted(threadMuted);
         viewDataBuilder.setMuted(muted);
 
         NotificationViewData.Concrete newViewData = new NotificationViewData.Concrete(
@@ -924,9 +957,11 @@ public class NotificationsFragment extends SFragment implements
     }
 
     private void onPreferenceChanged(String key) {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+
         switch (key) {
             case "fabHide": {
-                hideFab = PreferenceManager.getDefaultSharedPreferences(getContext()).getBoolean("fabHide", false);
+                hideFab = sharedPreferences.getBoolean("fabHide", false);
                 break;
             }
             case "mediaPreviewEnabled": {
@@ -938,10 +973,14 @@ public class NotificationsFragment extends SFragment implements
             }
             case "showNotificationsFilter": {
                 if (isAdded()) {
-                    showNotificationsFilter = PreferenceManager.getDefaultSharedPreferences(getContext()).getBoolean("showNotificationsFilter", true);
+                    showNotificationsFilter = sharedPreferences.getBoolean("showNotificationsFilter", true);
                     updateFilterVisibility();
                     fullyRefreshWithProgressBar(true);
                 }
+            }
+            case PrefKeys.HIDE_MUTED_USERS: {
+                withMuted = !sharedPreferences.getBoolean(PrefKeys.HIDE_MUTED_USERS, false);
+                fullyRefresh();
             }
         }
     }
@@ -949,6 +988,21 @@ public class NotificationsFragment extends SFragment implements
     @Override
     public void removeItem(int position) {
         notifications.remove(position);
+        updateAdapter();
+    }
+
+    private void removeAllByConversationId(int conversationId) {
+        // using iterator to safely remove items while iterating
+        Iterator<Either<Placeholder, Notification>> iterator = notifications.iterator();
+        while (iterator.hasNext()) {
+            Either<Placeholder, Notification> placeholderOrNotification = iterator.next();
+            Notification notification = placeholderOrNotification.asRightOrNull();
+            if (notification != null && notification.getStatus() != null
+                    && notification.getType() == Notification.Type.MENTION &&
+                    notification.getStatus().getConversationId() == conversationId) {
+                iterator.remove();
+            }
+        }
         updateAdapter();
     }
 
@@ -1019,8 +1073,6 @@ public class NotificationsFragment extends SFragment implements
         if (fetchEnd == FetchEnd.BOTTOM) {
             bottomLoading = true;
         }
-
-        boolean withMuted = true; // TODO: configurable
 
         Call<List<Notification>> call = mastodonApi.notifications(fromId, uptoId, LOAD_AT_ONCE, showNotificationsFilter ? notificationFilter : null, withMuted);
 

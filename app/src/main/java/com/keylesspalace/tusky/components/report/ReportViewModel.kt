@@ -140,7 +140,7 @@ class ReportViewModel @Inject constructor(
                             val muting = relationship?.muting == true
                             muteStateMutable.value = Success(muting)
                             if (muting) {
-                                eventHub.dispatch(MuteEvent(accountId))
+                                eventHub.dispatch(MuteEvent(accountId, true))
                             }
                         },
                         { error ->

@@ -34,6 +34,7 @@ object PrefKeys {
     const val BIG_EMOJIS = "bigEmojis"
     const val STICKERS = "stickers"
     const val ANONYMIZE_FILENAMES = "anonymizeFilenames"
+    const val HIDE_MUTED_USERS = "hideMutedUsers"
 
     const val CUSTOM_TABS = "customTabs"
 

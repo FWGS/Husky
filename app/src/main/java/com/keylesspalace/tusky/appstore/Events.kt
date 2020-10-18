@@ -13,7 +13,7 @@ data class MuteStatusEvent(val statusId: String, val mute: Boolean) : Dispatchab
 data class EmojiReactEvent(val newStatus: Status) : Dispatchable
 data class UnfollowEvent(val accountId: String) : Dispatchable
 data class BlockEvent(val accountId: String) : Dispatchable
-data class MuteEvent(val accountId: String) : Dispatchable
+data class MuteEvent(val accountId: String, val mute: Boolean) : Dispatchable
 data class StatusDeletedEvent(val statusId: String) : Dispatchable
 data class StatusPreviewEvent(val status: Status) : Dispatchable
 data class StatusComposedEvent(val status: Status) : Dispatchable

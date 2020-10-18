@@ -132,7 +132,7 @@ class PreferencesActivity : BaseActivity(), SharedPreferences.OnSharedPreference
 
             }
             "statusTextSize", "absoluteTimeView", "showBotOverlay", "animateGifAvatars",
-            "useBlurhash", "showCardsInTimelines", "confirmReblogs", "hideMutedUsers", 
+            "useBlurhash", "showCardsInTimelines", "confirmReblogs",
             "enableSwipeForTabs", "bigEmojis", "mainNavPosition", PrefKeys.HIDE_TOP_TOOLBAR -> {
                 restartActivitiesOnExit = true
             }

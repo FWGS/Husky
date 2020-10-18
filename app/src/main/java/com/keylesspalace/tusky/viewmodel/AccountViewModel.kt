@@ -247,7 +247,8 @@ class AccountViewModel @Inject constructor(
                     when (relationshipAction) {
                         RelationShipAction.UNFOLLOW -> eventHub.dispatch(UnfollowEvent(accountId))
                         RelationShipAction.BLOCK -> eventHub.dispatch(BlockEvent(accountId))
-                        RelationShipAction.MUTE -> eventHub.dispatch(MuteEvent(accountId))
+                        RelationShipAction.MUTE -> eventHub.dispatch(MuteEvent(accountId, true))
+                        RelationShipAction.UNMUTE -> eventHub.dispatch(MuteEvent(accountId, false))
                         else -> {
                         }
                     }
@@ -276,7 +277,6 @@ class AccountViewModel @Inject constructor(
 
         call.enqueue(callback)
         callList.add(call)
-
     }
 
     override fun onCleared() {
@@ -299,7 +299,6 @@ class AccountViewModel @Inject constructor(
             if (!isSelf)
                 obtainRelationship(isReload)
         }
-
     }
 
     fun setAccountInfo(accountId: String) {

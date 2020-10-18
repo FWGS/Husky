@@ -53,7 +53,6 @@ import com.keylesspalace.tusky.util.CardViewMode;
 import com.keylesspalace.tusky.util.ListStatusAccessibilityDelegate;
 import com.keylesspalace.tusky.util.PairedList;
 import com.keylesspalace.tusky.util.StatusDisplayOptions;
-import com.keylesspalace.tusky.util.ThemeUtils;
 import com.keylesspalace.tusky.util.ViewDataUtils;
 import com.keylesspalace.tusky.view.ConversationLineItemDecoration;
 import com.keylesspalace.tusky.viewdata.StatusViewData;
@@ -155,7 +154,7 @@ public final class ViewThreadFragment extends SFragment implements
         recyclerView.addItemDecoration(new ConversationLineItemDecoration(context));
         alwaysShowSensitiveMedia = accountManager.getActiveAccount().getAlwaysShowSensitiveMedia();
         alwaysOpenSpoiler = accountManager.getActiveAccount().getAlwaysOpenSpoiler();
-        reloadFilters(false);
+        reloadFilters(PreferenceManager.getDefaultSharedPreferences(context), false);
 
         recyclerView.setAdapter(adapter);
 
@@ -184,6 +183,8 @@ public final class ViewThreadFragment extends SFragment implements
                         handleBookmarkEvent((BookmarkEvent) event);
                     } else if (event instanceof BlockEvent) {
                         removeAllByAccountId(((BlockEvent) event).getAccountId());
+                    } else if (event instanceof MuteEvent) {
+                        handleMuteEvent((MuteEvent) event);
                     } else if (event instanceof StatusComposedEvent) {
                         handleStatusComposedEvent((StatusComposedEvent) event);
                     } else if (event instanceof StatusDeletedEvent) {
@@ -207,7 +208,7 @@ public final class ViewThreadFragment extends SFragment implements
                             .createStatusViewData();
             statuses.setPairedItem(i, newViewData);
         }
-        adapter.setStatuses(statuses.getPairedCopy());
+        updateAdapter();
         updateRevealIcon();
     }
 
@@ -411,7 +412,7 @@ public final class ViewThreadFragment extends SFragment implements
             getActivity().finish();
         }
         statuses.remove(position);
-        adapter.setStatuses(statuses.getPairedCopy());
+        updateAdapter();
     }
 
     public void onVoteInPoll(int position, @NonNull List<Integer> choices) {
@@ -441,6 +442,10 @@ public final class ViewThreadFragment extends SFragment implements
         adapter.setItem(position, newViewData, true);
     }
 
+    private void updateAdapter() {
+        adapter.setStatuses(statuses.getPairedCopy());
+    }
+
     private void removeAllByAccountId(String accountId) {
         Status status = null;
         if (!statuses.isEmpty()) {
@@ -461,7 +466,7 @@ public final class ViewThreadFragment extends SFragment implements
             return;
         }
         adapter.setDetailedStatusPosition(statusIndex);
-        adapter.setStatuses(statuses.getPairedCopy());
+        updateAdapter();
     }
 
     private void sendStatusRequest(final String id) {
@@ -601,6 +606,33 @@ public final class ViewThreadFragment extends SFragment implements
         adapter.addAll(descendantsViewData);
         updateRevealIcon();
     }
+
+    private void setMutedStatusForStatus(int position, Status status, boolean muted) {
+        StatusViewData.Builder statusViewData = new StatusViewData.Builder(statuses.getPairedItem(position));
+        statusViewData.setMuted(muted);
+
+        statuses.setPairedItem(position, statusViewData.createStatusViewData());
+    }
+
+    private void handleMuteEvent(MuteEvent event) {
+        String id = event.getAccountId();
+        boolean muting = event.getMute();
+
+        if(isFilteringMuted()) {
+            removeAllByAccountId(id);
+        } else {
+            for (int i = 0; i < statuses.size(); i++) {
+                Status status = statuses.get(i);
+                if (status != null
+                        && status.getAccount().getId().equals(id)
+                        && !status.isThreadMuted()) {
+                    setMutedStatusForStatus(i, status, muting);
+                }
+            }
+            updateAdapter();
+        }
+    }
+
 
     private void handleFavEvent(FavoriteEvent event) {
         Pair<Integer, Status> posAndStatus = findStatusAndPos(event.getStatusId());
