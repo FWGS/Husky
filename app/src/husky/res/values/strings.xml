@@ -47,6 +47,7 @@
     <string name="pref_title_hide_muted_users">Hide muted users</string>
     <string name="pref_title_enable_big_emojis">Enable bigger custom emojis</string>
     <string name="pref_title_enable_experimental_stickers">Enable experimental Pleroma-FE stickers(if available)</string>
+    <string name="pref_title_animate_custom_emojis">Animate custom emojis</string>
 
     <string name="attachment_type_image">Image</string>
     <string name="attachment_type_video">Video</string>

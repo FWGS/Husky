@@ -16,17 +16,13 @@
 @file:JvmName("CustomEmojiHelper")
 package com.keylesspalace.tusky.util
 
-import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
-import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.Drawable
+import android.graphics.drawable.*
 import android.text.SpannableString
-import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.style.ReplacementSpan
 import android.view.View
-import androidx.core.text.toSpannable
 
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
@@ -37,6 +33,7 @@ import com.keylesspalace.tusky.entity.Emoji
 import java.lang.ref.WeakReference
 import java.util.regex.Pattern
 import androidx.preference.PreferenceManager
+import com.keylesspalace.tusky.settings.PrefKeys
 
 /**
  * replaces emoji shortcodes in a text with EmojiSpans
@@ -51,8 +48,8 @@ fun CharSequence.emojify(emojis: List<Emoji>?, view: View, forceSmallEmoji: Bool
 
     val builder = SpannableString.valueOf(this)
     val pm = PreferenceManager.getDefaultSharedPreferences(view.context)
-    val smallEmojis = forceSmallEmoji || !pm.getBoolean("bigEmojis", true)
-    // val animatedEmojis = pm.getBoolean("animateEmojis", false)
+    val smallEmojis = forceSmallEmoji || !pm.getBoolean(PrefKeys.BIG_EMOJIS, true)
+    val animate = pm.getBoolean(PrefKeys.ANIMATE_CUSTOM_EMOJIS, false)
 
     emojis.forEach { (shortcode, url) ->
         val matcher = Pattern.compile(":$shortcode:", Pattern.LITERAL)
@@ -67,9 +64,9 @@ fun CharSequence.emojify(emojis: List<Emoji>?, view: View, forceSmallEmoji: Bool
 
             builder.setSpan(span, matcher.start(), matcher.end(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             Glide.with(view)
-                .asBitmap()
+                .asDrawable()
                 .load(url)
-                .into(span.getTarget())
+                .into(span.getTarget(animate))
         }
     }
     return builder
@@ -112,11 +109,29 @@ open class EmojiSpan(val viewWeakReference: WeakReference<View>) : ReplacementSp
         }
     }
     
-    fun getTarget(): Target<Bitmap> {
-        return object : CustomTarget<Bitmap>() {
-            override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
+    fun getTarget(animate : Boolean): Target<Drawable> {
+        return object : CustomTarget<Drawable>() {
+            override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
                 viewWeakReference.get()?.let { view ->
-                    imageDrawable = BitmapDrawable(view.context.resources, resource)
+                    if(animate && resource is Animatable) {
+                        val callback = resource.callback
+
+                        resource.callback = object: Drawable.Callback {
+                            override fun unscheduleDrawable(p0: Drawable, p1: Runnable) {
+                                callback?.unscheduleDrawable(p0, p1)
+                            }
+                            override fun scheduleDrawable(p0: Drawable, p1: Runnable, p2: Long) {
+                                callback?.scheduleDrawable(p0, p1, p2)
+                            }
+                            override fun invalidateDrawable(p0: Drawable) {
+                                callback?.invalidateDrawable(p0)
+                                view.invalidate()
+                            }
+                        }
+                        resource.start()
+                    }
+
+                    imageDrawable = resource
                     view.invalidate()
                 }
             }

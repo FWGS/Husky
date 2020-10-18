@@ -169,7 +169,7 @@ class PreferencesFragment : PreferenceFragmentCompat(), Injectable {
                     setDefaultValue(false)
                     key = PrefKeys.HIDE_MUTED_USERS
                     setTitle(R.string.pref_title_hide_muted_users)
-                    isSingleLineTitle = true
+                    isSingleLineTitle = false
                 }
 
                 switchPreference {
@@ -190,6 +190,13 @@ class PreferencesFragment : PreferenceFragmentCompat(), Injectable {
                     setDefaultValue(false)
                     key = PrefKeys.STICKERS
                     setTitle(R.string.pref_title_enable_experimental_stickers)
+                    isSingleLineTitle = false
+                }
+
+                switchPreference {
+                    setDefaultValue(false)
+                    key = PrefKeys.ANIMATE_CUSTOM_EMOJIS
+                    setTitle(R.string.pref_title_animate_custom_emojis)
                     isSingleLineTitle = false
                 }
             }
