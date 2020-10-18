@@ -72,13 +72,14 @@
 
     </RelativeLayout>
 
-    <androidx.emoji.widget.EmojiTextView
+    <com.keylesspalace.tusky.view.CustomEmojiTextView
         android:id="@+id/notification_content_warning_description"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/status_name_bar"
         android:layout_toEndOf="@id/notification_status_avatar"
         android:hyphenationFrequency="full"
+        android:breakStrategy="high_quality"
         android:lineSpacingMultiplier="1.1"
         android:textColor="?android:textColorTertiary"
         android:textSize="?attr/status_text_medium"
@@ -103,13 +104,14 @@
         style="@style/TuskyButton.Outlined"
         android:textSize="?attr/status_text_medium" />
 
-    <androidx.emoji.widget.EmojiTextView
+    <com.keylesspalace.tusky.view.CustomEmojiTextView
         android:id="@+id/notification_content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/notification_content_warning_button"
         android:layout_toEndOf="@+id/notification_status_avatar"
         android:hyphenationFrequency="full"
+        android:breakStrategy="high_quality"
         android:lineSpacingMultiplier="1.1"
         android:paddingBottom="10dp"
         android:textColor="?android:textColorTertiary"

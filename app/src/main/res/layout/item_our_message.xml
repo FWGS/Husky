@@ -46,13 +46,14 @@
                 tools:ignore="ContentDescription" />
         </FrameLayout>
 
-        <androidx.emoji.widget.EmojiTextView
+        <com.keylesspalace.tusky.view.CustomEmojiTextView
             android:id="@+id/content"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingTop="@dimen/chat_message_v_padding"
             android:textColor="@color/textColorPrimary"
             android:textSize="?attr/status_text_large"
+            android:breakStrategy="simple"
             android:paddingStart="@dimen/chat_message_h_padding"
             android:paddingEnd="50dp"
             android:paddingBottom="@dimen/chat_message_v_padding"
