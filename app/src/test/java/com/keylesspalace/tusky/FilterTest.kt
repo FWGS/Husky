@@ -116,8 +116,7 @@ class FilterTest {
                 .replace(R.id.mainDrawerLayout, fragment, "fragment")
                 .commit()
 
-        fragment.reloadFilters(false)
-
+        fragment.reloadFilters(null, false)
     }
 
     @Test
