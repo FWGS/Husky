@@ -104,4 +104,8 @@ AND serverId = :statusId""")
     @Query("""UPDATE TimelineStatusEntity SET poll = :poll
 WHERE timelineUserId = :accountId AND (serverId = :statusId OR reblogServerId = :statusId)""")
     abstract fun setVoted(accountId: Long, statusId: String, poll: String)
+
+    @Query("""UPDATE TimelineStatusEntity SET pleroma = :pleroma
+WHERE timelineUserId = :accountId AND (serverId = :statusId OR reblogServerId = :statusId)""")
+    abstract fun setPleroma(accountId: Long, statusId: String, pleroma: String)
 }

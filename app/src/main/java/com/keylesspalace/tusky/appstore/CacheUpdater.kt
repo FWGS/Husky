@@ -32,6 +32,10 @@ class CacheUpdater @Inject constructor(
                     timelineDao.removeAllByUser(accountId, event.accountId)
                 is StatusDeletedEvent ->
                     timelineDao.delete(accountId, event.statusId)
+                is EmojiReactEvent -> {
+                    val pleromaString = gson.toJson(event.newStatus.pleroma)
+                    timelineDao.setPleroma(accountId, event.newStatus.id, pleromaString)
+                }
                 is PollVoteEvent -> {
                     val pollString = gson.toJson(event.poll)
                     timelineDao.setVoted(accountId, event.statusId, pollString)
