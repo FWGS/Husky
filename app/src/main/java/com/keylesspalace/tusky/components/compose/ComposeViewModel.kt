@@ -19,8 +19,10 @@ import android.net.Uri
 import android.util.Log
 import androidx.core.net.toUri
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
+import androidx.work.impl.utils.LiveDataUtils
 import com.keylesspalace.tusky.adapter.ComposeAutoCompleteAdapter
 import com.keylesspalace.tusky.components.common.CommonComposeViewModel
 import com.keylesspalace.tusky.components.common.MediaUploader
@@ -38,6 +40,8 @@ import com.keylesspalace.tusky.service.ServiceClient
 import com.keylesspalace.tusky.service.TootToSend
 import com.keylesspalace.tusky.util.*
 import io.reactivex.Single
+import io.reactivex.Observable.empty
+import io.reactivex.Observable.just
 import io.reactivex.disposables.Disposable
 import io.reactivex.rxkotlin.Singles
 import retrofit2.Response
@@ -58,6 +62,7 @@ class ComposeViewModel
     private var replyingStatusContent: String? = null
     internal var startingText: String? = null
     private var savedTootUid: Int = 0
+    private var scheduledTootUid: String? = null
     private var startingContentWarning: String = ""
     private var inReplyToId: String? = null
     private var startingVisibility: Status.Visibility = Status.Visibility.UNKNOWN
@@ -77,6 +82,105 @@ class ComposeViewModel
     val setupComplete = mutableLiveData(false)
     val poll: MutableLiveData<NewPoll?> = mutableLiveData(null)
     val scheduledAt: MutableLiveData<String?> = mutableLiveData(null)
+
+    val media = mutableLiveData<List<QueuedMedia>>(listOf())
+    val uploadError = MutableLiveData<Throwable>()
+
+    private val mediaToDisposable = mutableMapOf<Long, Disposable>()
+
+    private val isEditingScheduledToot get() = !scheduledTootUid.isNullOrEmpty()
+
+    init {
+
+        Singles.zip(api.getCustomEmojis(), api.getInstance()) { emojis, instance ->
+            InstanceEntity(
+                    instance = accountManager.activeAccount?.domain!!,
+                    emojiList = emojis,
+                    maximumTootCharacters = instance.maxTootChars,
+                    maxPollOptions = instance.pollLimits?.maxOptions,
+                    maxPollOptionLength = instance.pollLimits?.maxOptionChars,
+                    version = instance.version
+            )
+        }
+                .doOnSuccess {
+                    db.instanceDao().insertOrReplace(it)
+                }
+                .onErrorResumeNext(
+                        db.instanceDao().loadMetadataForInstance(accountManager.activeAccount?.domain!!)
+                )
+                .subscribe ({ instanceEntity ->
+                    emoji.postValue(instanceEntity.emojiList)
+                    instance.postValue(instanceEntity)
+                }, { throwable ->
+                    // this can happen on network error when no cached data is available
+                    Log.w(TAG, "error loading instance data", throwable)
+                })
+                .autoDispose()
+    }
+
+    fun pickMedia(uri: Uri): LiveData<Either<Throwable, QueuedMedia>> {
+        // We are not calling .toLiveData() here because we don't want to stop the process when
+        // the Activity goes away temporarily (like on screen rotation).
+        val liveData = MutableLiveData<Either<Throwable, QueuedMedia>>()
+        mediaUploader.prepareMedia(uri)
+                .map { (type, uri, size) ->
+                    val mediaItems = media.value!!
+                    if (type != QueuedMedia.Type.IMAGE
+                            && mediaItems.isNotEmpty()
+                            && mediaItems[0].type == QueuedMedia.Type.IMAGE) {
+                        throw VideoOrImageException()
+                    } else {
+                        addMediaToQueue(type, uri, size)
+                    }
+                }
+                .subscribe({ queuedMedia ->
+                    liveData.postValue(Either.Right(queuedMedia))
+                }, { error ->
+                    liveData.postValue(Either.Left(error))
+                })
+                .autoDispose()
+        return liveData
+    }
+
+    private fun addMediaToQueue(type: QueuedMedia.Type, uri: Uri, mediaSize: Long): QueuedMedia {
+        val mediaItem = QueuedMedia(System.currentTimeMillis(), uri, type, mediaSize)
+        media.value = media.value!! + mediaItem
+        mediaToDisposable[mediaItem.localId] = mediaUploader
+                .uploadMedia(mediaItem)
+                .subscribe ({ event ->
+                    val item = media.value?.find { it.localId == mediaItem.localId }
+                            ?: return@subscribe
+                    val newMediaItem = when (event) {
+                        is UploadEvent.ProgressEvent ->
+                            item.copy(uploadPercent = event.percentage)
+                        is UploadEvent.FinishedEvent ->
+                            item.copy(id = event.attachment.id, uploadPercent = -1)
+                    }
+                    synchronized(media) {
+                        val mediaValue = media.value!!
+                        val index = mediaValue.indexOfFirst { it.localId == newMediaItem.localId }
+                        media.postValue(if (index == -1) {
+                            mediaValue + newMediaItem
+                        } else {
+                            mediaValue.toMutableList().also { it[index] = newMediaItem }
+                        })
+                    }
+                }, { error ->
+                    media.postValue(media.value?.filter { it.localId != mediaItem.localId } ?: emptyList())
+                    uploadError.postValue(error)
+                })
+        return mediaItem
+    }
+
+    private fun addUploadedMedia(id: String, type: QueuedMedia.Type, uri: Uri, description: String?) {
+        val mediaItem = QueuedMedia(System.currentTimeMillis(), uri, type, 0, -1, id, description)
+        media.value = media.value!! + mediaItem
+    }
+
+    fun removeMediaFromQueue(item: QueuedMedia) {
+        mediaToDisposable[item.localId]?.dispose()
+        media.value = media.value!!.withoutFirstWhich { it.localId == item.localId }
+    }
 
     fun didChange(content: String?, contentWarning: String?): Boolean {
 
@@ -134,7 +238,14 @@ class ComposeViewModel
             spoilerText: String,
             preview: Boolean
     ): LiveData<Unit> {
-        return media
+
+        val deletionObservable = if (isEditingScheduledToot) {
+            api.deleteScheduledStatus(scheduledTootUid.toString()).toObservable().map { Unit }
+        } else {
+            just(Unit)
+        }.toLiveData()
+
+        val sendObservable = media
                 .filter { items -> items.all { it.uploadPercent == -1 } }
                 .map {
                     val mediaIds = ArrayList<String>()
@@ -167,8 +278,13 @@ class ComposeViewModel
                             idempotencyKey = randomAlphanumericString(16),
                             retries = 0
                     )
+
                     serviceClient.sendToot(tootToSend)
                 }
+
+        return combineLiveData(deletionObservable, sendObservable) { _, _ -> Unit }
+
+
     }
 
     override fun onCleared() {
@@ -222,6 +338,7 @@ class ComposeViewModel
 
 
         savedTootUid = composeOptions?.savedTootUid ?: 0
+        scheduledTootUid = composeOptions?.scheduledTootUid
         startingText = composeOptions?.tootText
 
 
