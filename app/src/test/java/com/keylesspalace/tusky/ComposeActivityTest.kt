@@ -16,6 +16,7 @@
 
 package com.keylesspalace.tusky
 
+import android.content.Intent
 import android.text.SpannedString
 import android.widget.EditText
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -77,6 +78,7 @@ class ComposeActivityTest {
     )
     var instanceResponseCallback: (()->Instance)? = null
     var nodeinfoResponseCallback: (()->NodeInfo)? = null
+    var composeOptions: ComposeActivity.ComposeOptions? = null
 
     @Before
     fun setupActivity() {
@@ -144,6 +146,9 @@ class ComposeActivityTest {
                 mock(SaveTootHelper::class.java),
                 dbMock
         )
+        activity.intent = Intent(activity, ComposeActivity::class.java).apply {
+            putExtra(ComposeActivity.COMPOSE_OPTIONS_EXTRA, composeOptions)
+        }
 
         val viewModelFactoryMock = mock(ViewModelFactory::class.java)
         `when`(viewModelFactoryMock.create(ComposeViewModel::class.java)).thenReturn(viewModel)
@@ -171,6 +176,14 @@ class ComposeActivityTest {
     }
 
     @Test
+    fun whenModifiedInitialState_andCloseButtonPressed_notFinish() {
+        composeOptions = ComposeActivity.ComposeOptions(modifiedInitialState = true)
+        setupActivity()
+        clickUp()
+        assertFalse(activity.isFinishing)
+    }
+
+    @Test
     fun whenBackButtonPressedAndEmpty_finish() {
         clickBack()
         assertTrue(activity.isFinishing)
@@ -182,6 +195,14 @@ class ComposeActivityTest {
         clickBack()
         assertFalse(activity.isFinishing)
         // We would like to check for dialog but Robolectric doesn't work with AppCompat v7 yet
+    }
+
+    @Test
+    fun whenModifiedInitialState_andBackButtonPressed_notFinish() {
+        composeOptions = ComposeActivity.ComposeOptions(modifiedInitialState = true)
+        setupActivity()
+        clickBack()
+        assertFalse(activity.isFinishing)
     }
 
     @Test
