@@ -271,7 +271,7 @@ interface MastodonApi {
     @GET("api/v1/accounts/{id}")
     fun account(
             @Path("id") accountId: String
-    ): Call<Account>
+    ): Single<Account>
 
     /**
      * Method to fetch statuses for the specified account.
@@ -310,42 +310,43 @@ interface MastodonApi {
     fun followAccount(
             @Path("id") accountId: String,
             @Field("reblogs") showReblogs: Boolean
-    ): Call<Relationship>
+    ): Single<Relationship>
 
     @POST("api/v1/accounts/{id}/unfollow")
     fun unfollowAccount(
             @Path("id") accountId: String
-    ): Call<Relationship>
+    ): Single<Relationship>
 
     @POST("api/v1/accounts/{id}/block")
     fun blockAccount(
             @Path("id") accountId: String
-    ): Call<Relationship>
+    ): Single<Relationship>
 
     @POST("api/v1/accounts/{id}/unblock")
     fun unblockAccount(
             @Path("id") accountId: String
-    ): Call<Relationship>
+    ): Single<Relationship>
 
     @POST("api/v1/accounts/{id}/mute")
     fun muteAccount(
-            @Path("id") accountId: String
-    ): Call<Relationship>
+            @Path("id") accountId: String,
+            @Field("notifications") notifications: Boolean? = null
+    ): Single<Relationship>
 
     @POST("api/v1/accounts/{id}/unmute")
     fun unmuteAccount(
             @Path("id") accountId: String
-    ): Call<Relationship>
+    ): Single<Relationship>
 
     @GET("api/v1/accounts/relationships")
     fun relationships(
             @Query("id[]") accountIds: List<String>
-    ): Call<List<Relationship>>
+    ): Single<List<Relationship>>
 
     @GET("api/v1/accounts/{id}/identity_proofs")
     fun identityProofs(
             @Path("id") accountId: String
-    ): Call<List<IdentityProof>>
+    ): Single<List<IdentityProof>>
     
     @POST("api/v1/pleroma/accounts/{id}/subscribe")
     fun subscribeAccount(
@@ -519,6 +520,7 @@ interface MastodonApi {
             @Field("choices[]") choices: List<Int>
     ): Single<Poll>
 
+<<<<<<< HEAD
     @POST("api/v1/accounts/{id}/block")
     fun blockAccountObservable(
             @Path("id") accountId: String
@@ -554,6 +556,8 @@ interface MastodonApi {
             @Query("id[]") accountIds: List<String>
     ): Single<List<Relationship>>
 
+=======
+>>>>>>> ce973ea7... Personal account notes (#1978)
     @FormUrlEncoded
     @POST("api/v1/reports")
     fun reportObservable(
@@ -673,8 +677,18 @@ interface MastodonApi {
             @Path("id") accountId: String
     ): Single<Chat>
 
+<<<<<<< HEAD
     @GET("api/v1/pleroma/chats/{id}")
     fun getChat(
             @Path("id") chatId: String
     ): Single<Chat>
+=======
+    @FormUrlEncoded
+    @POST("api/v1/accounts/{id}/note")
+    fun updateAccountNote(
+            @Path("id") accountId: String,
+            @Field("comment") note: String
+    ): Single<Relationship>
+
+>>>>>>> ce973ea7... Personal account notes (#1978)
 }

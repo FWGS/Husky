@@ -25,6 +25,7 @@ import android.graphics.Color
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffColorFilter
 import android.os.Bundle
+import android.text.Editable
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -142,6 +143,9 @@ class AccountActivity : BottomSheetActivity(), ActionButtonActivity, HasAndroidI
 
         if (viewModel.isSelf) {
             updateButtons()
+            saveNoteInfo.hide()
+        } else {
+            saveNoteInfo.visibility = View.INVISIBLE
         }
     }
 
@@ -348,8 +352,10 @@ class AccountActivity : BottomSheetActivity(), ActionButtonActivity, HasAndroidI
         viewModel.accountFieldData.observe(this, Observer<List<Either<IdentityProof, Field>>> {
             accountFieldAdapter.fields = it
             accountFieldAdapter.notifyDataSetChanged()
-
         })
+        viewModel.noteSaved.observe(this) {
+            saveNoteInfo.visible(it, View.INVISIBLE)
+        }
     }
 
     /**
@@ -636,7 +642,20 @@ class AccountActivity : BottomSheetActivity(), ActionButtonActivity, HasAndroidI
             subscribing = relation.subscribing
         }
 
+        accountNoteTextInputLayout.visible(relation.note != null)
+        accountNoteTextInputLayout.editText?.setText(relation.note)
+
+        // add the listener late to avoid it firing on the first change
+        accountNoteTextInputLayout.editText?.removeTextChangedListener(noteWatcher)
+        accountNoteTextInputLayout.editText?.addTextChangedListener(noteWatcher)
+
         updateButtons()
+    }
+
+    private val noteWatcher = object: DefaultTextWatcher() {
+        override fun afterTextChanged(s: Editable) {
+            viewModel.noteChanged(s.toString())
+        }
     }
 
     private fun updateFollowButton() {
