@@ -351,12 +351,12 @@ interface MastodonApi {
     @POST("api/v1/pleroma/accounts/{id}/subscribe")
     fun subscribeAccount(
         @Path("id") accountId: String
-    ): Call<Relationship>
+    ): Single<Relationship>
     
     @POST("api/v1/pleroma/accounts/{id}/unsubscribe")
     fun unsubscribeAccount(
         @Path("id") accountId: String
-    ): Call<Relationship>
+    ): Single<Relationship>
 
     @GET("api/v1/blocks")
     fun blocks(
@@ -520,44 +520,28 @@ interface MastodonApi {
             @Field("choices[]") choices: List<Int>
     ): Single<Poll>
 
-<<<<<<< HEAD
-    @POST("api/v1/accounts/{id}/block")
-    fun blockAccountObservable(
-            @Path("id") accountId: String
-    ): Single<Relationship>
+    @GET("api/v1/announcements")
+    fun listAnnouncements(
+            @Query("with_dismissed") withDismissed: Boolean = true
+    ): Single<List<Announcement>>
 
-    @POST("api/v1/accounts/{id}/unblock")
-    fun unblockAccountObservable(
-            @Path("id") accountId: String
-    ): Single<Relationship>
+    @POST("api/v1/announcements/{id}/dismiss")
+    fun dismissAnnouncement(
+            @Path("id") announcementId: String
+    ): Single<ResponseBody>
 
-    @POST("api/v1/accounts/{id}/mute")
-    fun muteAccountObservable(
-            @Path("id") accountId: String
-    ): Single<Relationship>
+    @PUT("api/v1/announcements/{id}/reactions/{name}")
+    fun addAnnouncementReaction(
+            @Path("id") announcementId: String,
+            @Path("name") name: String
+    ): Single<ResponseBody>
 
-    @POST("api/v1/accounts/{id}/unmute")
-    fun unmuteAccountObservable(
-            @Path("id") accountId: String
-    ): Single<Relationship>
-    
-    @POST("api/v1/pleroma/accounts/{id}/subscribe")
-    fun subscribeAccountObservable(
-        @Path("id") accountId: String
-    ): Single<Relationship>
-    
-    @POST("api/v1/pleroma/accounts/{id}/unsubscribe")
-    fun unsubscribeAccountObservable(
-        @Path("id") accountId: String
-    ): Single<Relationship>
+    @DELETE("api/v1/announcements/{id}/reactions/{name}")
+    fun removeAnnouncementReaction(
+            @Path("id") announcementId: String,
+            @Path("name") name: String
+    ): Single<ResponseBody>
 
-    @GET("api/v1/accounts/relationships")
-    fun relationshipsObservable(
-            @Query("id[]") accountIds: List<String>
-    ): Single<List<Relationship>>
-
-=======
->>>>>>> ce973ea7... Personal account notes (#1978)
     @FormUrlEncoded
     @POST("api/v1/reports")
     fun reportObservable(
@@ -677,18 +661,15 @@ interface MastodonApi {
             @Path("id") accountId: String
     ): Single<Chat>
 
-<<<<<<< HEAD
     @GET("api/v1/pleroma/chats/{id}")
     fun getChat(
             @Path("id") chatId: String
     ): Single<Chat>
-=======
+
     @FormUrlEncoded
     @POST("api/v1/accounts/{id}/note")
     fun updateAccountNote(
             @Path("id") accountId: String,
             @Field("comment") note: String
     ): Single<Relationship>
-
->>>>>>> ce973ea7... Personal account notes (#1978)
 }

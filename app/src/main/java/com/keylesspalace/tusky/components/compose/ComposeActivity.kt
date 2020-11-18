@@ -54,7 +54,6 @@ import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
 import androidx.preference.PreferenceManager
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.transition.TransitionManager
 import com.bumptech.glide.Glide
@@ -399,7 +398,7 @@ class ComposeActivity : BaseActivity(),
             }
             viewModel.media.observe { media ->
                 mediaAdapter.submitList(media)
-                if(media.size != mediaCount) {
+                if (media.size != mediaCount) {
                     mediaCount = media.size
                     composeMediaPreviewBar.visible(media.isNotEmpty())
                     updateSensitiveMediaToggle(viewModel.markMediaAsSensitive.value != false, viewModel.showContentWarning.value != false)
@@ -409,8 +408,8 @@ class ComposeActivity : BaseActivity(),
                 pollPreview.visible(poll != null)
                 poll?.let(pollPreview::setPoll)
             }
-            viewModel.scheduledAt.observe {scheduledAt ->
-                if(scheduledAt == null) {
+            viewModel.scheduledAt.observe { scheduledAt ->
+                if (scheduledAt == null) {
                     composeScheduleView.resetSchedule()
                 } else {
                     composeScheduleView.setDateTime(scheduledAt)
@@ -445,7 +444,6 @@ class ComposeActivity : BaseActivity(),
         stickerBehavior = BottomSheetBehavior.from(stickerKeyboard)
         previewBehavior = BottomSheetBehavior.from(previewScroll)
 
-        emojiView.layoutManager = GridLayoutManager(this, 3, GridLayoutManager.HORIZONTAL, false)
         enableButton(composeEmojiButton, clickable = false, colorActive = false)
         enableButton(composeStickerButton, false, false)
 
@@ -794,7 +792,7 @@ class ComposeActivity : BaseActivity(),
     }
 
     private fun onScheduleClick() {
-        if(viewModel.scheduledAt.value == null) {
+        if (viewModel.scheduledAt.value == null) {
             composeScheduleView.openPickDateDialog()
         } else {
             showScheduleView()
@@ -978,9 +976,9 @@ class ComposeActivity : BaseActivity(),
         // Verify the returned content's type is of the correct MIME type
         val supported = inputContentInfo.description.hasMimeType("image/*")
 
-        if(supported) {
+        if (supported) {
             val lacksPermission = (flags and InputConnectionCompat.INPUT_CONTENT_GRANT_READ_URI_PERMISSION) != 0
-            if(lacksPermission) {
+            if (lacksPermission) {
                 try {
                     inputContentInfo.requestPermission()
                 } catch (e: Exception) {
@@ -1035,7 +1033,7 @@ class ComposeActivity : BaseActivity(),
                         Snackbar.LENGTH_SHORT).apply {
 
                 }
-                bar.setAction(R.string.action_retry) { onMediaPick()}
+                bar.setAction(R.string.action_retry) { onMediaPick() }
                 //necessary so snackbar is shown over everything
                 bar.view.elevation = resources.getDimension(R.dimen.compose_activity_snackbar_elevation)
                 bar.show()
@@ -1187,7 +1185,7 @@ class ComposeActivity : BaseActivity(),
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
         Log.d(TAG, event.toString())
-        if(event.action == KeyEvent.ACTION_DOWN) {
+        if (event.action == KeyEvent.ACTION_DOWN) {
             if (event.isCtrlPressed) {
                 if (keyCode == KeyEvent.KEYCODE_ENTER) {
                     // send toot by pressing CTRL + ENTER

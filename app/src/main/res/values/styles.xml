@@ -84,6 +84,8 @@
         <item name="chat_other_color">@color/colorPrimaryDark</item>
         <item name="chat_other_text_color">@color/textColorPrimary</item>
         <item name="chat_date_text_color">@color/textColorSecondary</item>
+
+        <item name="chipStyle">@style/Widget.MaterialComponents.Chip.Choice</item>
     </style>
 
     <style name="ViewMediaActivity.AppBarLayout" parent="ThemeOverlay.AppCompat">

@@ -25,3 +25,4 @@ data class PollVoteEvent(val statusId: String, val poll: Poll) : Dispatchable
 data class DomainMuteEvent(val instance: String): Dispatchable
 data class ChatMessageDeliveredEvent(val chatMsg: ChatMessage) : Dispatchable
 data class ChatMessageReceivedEvent(val chatMsg: ChatMessage) : Dispatchable
+data class AnnouncementReadEvent(val announcementId: String): Dispatchable

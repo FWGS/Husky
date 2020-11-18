@@ -23,34 +23,9 @@ import kotlinx.android.parcel.Parcelize
 data class Emoji(
         val shortcode: String,
         val url: String,
+        @SerializedName("static_url") val staticUrl: String,
         @SerializedName("visible_in_picker") val visibleInPicker: Boolean?
-) : Parcelable {
-    constructor(parcel: Parcel) : this(
-            parcel.readString()!!,
-            parcel.readString()!!,
-            parcel.readValue(Boolean::class.java.classLoader) as? Boolean) {
-    }
-
-    override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeString(shortcode)
-        parcel.writeString(url)
-        parcel.writeValue(visibleInPicker)
-    }
-
-    override fun describeContents(): Int {
-        return 0
-    }
-
-    companion object CREATOR : Parcelable.Creator<Emoji> {
-        override fun createFromParcel(parcel: Parcel): Emoji {
-            return Emoji(parcel)
-        }
-
-        override fun newArray(size: Int): Array<Emoji?> {
-            return arrayOfNulls(size)
-        }
-    }
-}
+) : Parcelable
 
 data class EmojiReaction(
         val name: String,
