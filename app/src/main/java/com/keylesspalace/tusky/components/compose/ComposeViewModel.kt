@@ -19,10 +19,8 @@ import android.net.Uri
 import android.util.Log
 import androidx.core.net.toUri
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
-import androidx.work.impl.utils.LiveDataUtils
 import com.keylesspalace.tusky.adapter.ComposeAutoCompleteAdapter
 import com.keylesspalace.tusky.components.common.CommonComposeViewModel
 import com.keylesspalace.tusky.components.common.MediaUploader

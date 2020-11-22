@@ -62,7 +62,7 @@ fun CharSequence.emojify(emojis: List<Emoji>?, view: View, forceSmallEmoji: Bool
                 EmojiSpan(WeakReference<View>(view))
             }
 
-            builder.setSpan(span, matcher.start(), matcher.end(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            builder.setSpan(span, matcher.start(), matcher.end(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             Glide.with(view)
                 .asDrawable()
                 .load(url)
@@ -101,7 +101,7 @@ open class EmojiSpan(val viewWeakReference: WeakReference<View>) : ReplacementSp
             drawable.setBounds(0, 0, emojiSize, emojiSize)
 
             var transY = bottom - drawable.bounds.bottom
-            transY -= paint.fontMetricsInt.descent / 2;
+            transY -= paint.fontMetricsInt.descent / 2
 
             canvas.translate(x, transY.toFloat())
             drawable.draw(canvas)
