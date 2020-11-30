@@ -225,11 +225,12 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, HasAndroidInje
                         is ProfileEditedEvent -> onFetchUserInfoSuccess(event.newProfileData)
                         is MainTabsChangedEvent -> setupTabs(false)
                         is PreferenceChangedEvent -> {
-                            when(event.preferenceKey) {
+                            when (event.preferenceKey) {
                                 PrefKeys.LIVE_NOTIFICATIONS -> {
                                     initPullNotifications()
                                 }
                             }
+                        }
                         is AnnouncementReadEvent -> {
                             unreadAnnouncementsCount--
                             updateAnnouncementsBadge()
@@ -241,6 +242,7 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, HasAndroidInje
             // Flush old media that was cached for sharing
             deleteStaleCachedMedia(applicationContext.getExternalFilesDir("Husky"))
         }
+    }
 
     private fun initPullNotifications() {
         if (NotificationHelper.areNotificationsEnabled(this, accountManager)) {

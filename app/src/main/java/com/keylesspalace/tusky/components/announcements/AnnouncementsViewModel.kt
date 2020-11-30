@@ -61,7 +61,8 @@ class AnnouncementsViewModel @Inject constructor(
                             either.asRight().maxTootChars,
                             either.asRight().pollLimits?.maxOptions,
                             either.asRight().pollLimits?.maxOptionChars,
-                            either.asRight().version
+                            either.asRight().version,
+                            either.asRight().chatLimit
                     )
         }
                 .doOnSuccess {
