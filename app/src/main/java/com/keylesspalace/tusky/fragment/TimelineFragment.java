@@ -527,9 +527,9 @@ public class TimelineFragment extends SFragment implements
                                 String id = ((BlockEvent) event).getAccountId();
                                 removeAllByAccountId(id);
                             }
-                        } else if (event instanceof MuteStatusEvent) {
+                        } else if (event instanceof MuteConversationEvent) {
                             if (kind != Kind.USER && kind != Kind.USER_WITH_REPLIES && kind != Kind.USER_PINNED) {
-                                handleMuteStatusEvent((MuteStatusEvent)event);
+                                handleMuteStatusEvent((MuteConversationEvent)event);
                             }
                         } else if (event instanceof MuteEvent) {
                             if (kind != Kind.USER && kind != Kind.USER_WITH_REPLIES && kind != Kind.USER_PINNED) {
@@ -1428,7 +1428,7 @@ public class TimelineFragment extends SFragment implements
         onRefresh();
     }
     
-    private void handleMuteStatusEvent(MuteStatusEvent event) {
+    private void handleMuteStatusEvent(MuteConversationEvent event) {
         int pos = findStatusOrReblogPositionById(event.getStatusId());
         
         if (pos < 0)

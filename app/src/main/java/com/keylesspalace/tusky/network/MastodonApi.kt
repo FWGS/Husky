@@ -212,12 +212,12 @@ interface MastodonApi {
     ): Single<Status>
     
     @POST("api/v1/statuses/{id}/mute")
-    fun muteStatus(
+    fun muteConversation(
             @Path("id") statusId: String
     ): Single<Status>
     
     @POST("api/v1/statuses/{id}/unmute")
-    fun unmuteStatus(
+    fun unmuteConversation(
            @Path("id") statusId: String
     ): Single<Status>
     

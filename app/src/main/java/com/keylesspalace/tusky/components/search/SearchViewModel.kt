@@ -199,7 +199,7 @@ class SearchViewModel @Inject constructor(
     }
     
     fun muteConversation(status: Status, isMute: Boolean) {
-        timelineCases.muteStatus(status, isMute)
+        timelineCases.muteConversation(status, isMute)
     }
 
     fun pinAccount(status: Status, isPin: Boolean) {

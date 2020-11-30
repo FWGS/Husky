@@ -15,7 +15,6 @@
 
 package com.keylesspalace.tusky.network
 
-import android.util.Log
 import com.keylesspalace.tusky.appstore.*
 import com.keylesspalace.tusky.entity.DeletedStatus
 import com.keylesspalace.tusky.entity.Poll
@@ -34,7 +33,7 @@ interface TimelineCases {
     fun reblog(status: Status, reblog: Boolean): Single<Status>
     fun favourite(status: Status, favourite: Boolean): Single<Status>
     fun bookmark(status: Status, bookmark: Boolean): Single<Status>
-    fun muteStatus(status: Status, mute: Boolean)
+    fun muteConversation(status: Status, mute: Boolean)
     fun mute(id: String, notifications: Boolean)
     fun block(id: String)
     fun delete(id: String): Single<DeletedStatus>
@@ -93,23 +92,25 @@ class TimelineCasesImpl(
         }
     }
 
-    override fun muteConversation(status: Status, mute: Boolean): Single<Status> {
+    override fun muteConversation(status: Status, mute: Boolean) {
         val id = status.actionableId
-
-        val call = if (mute) {
+        if (mute) {
             mastodonApi.muteConversation(id)
         } else {
             mastodonApi.unmuteConversation(id)
         }
-        return call.doAfterSuccess {
-            eventHub.dispatch(MuteConversationEvent(status.id, mute))
-        }
+                .subscribe({
+                    eventHub.dispatch(MuteConversationEvent(id, mute))
+                }, { t ->
+                    Log.w("Failed to mute status", t)
+                })
+                .addTo(cancelDisposable)
     }
 
     override fun mute(id: String, notifications: Boolean) {
         mastodonApi.muteAccount(id, notifications)
                 .subscribe({
-                    eventHub.dispatch(MuteEvent(id))
+                    eventHub.dispatch(MuteEvent(id, true))
                 }, { t ->
                     Log.w("Failed to mute account", t)
                 })

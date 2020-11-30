@@ -9,7 +9,7 @@ import com.keylesspalace.tusky.entity.Status
 data class FavoriteEvent(val statusId: String, val favourite: Boolean) : Dispatchable
 data class ReblogEvent(val statusId: String, val reblog: Boolean) : Dispatchable
 data class BookmarkEvent(val statusId: String, val bookmark: Boolean) : Dispatchable
-data class MuteStatusEvent(val statusId: String, val mute: Boolean) : Dispatchable
+data class MuteConversationEvent(val statusId: String, val mute: Boolean) : Dispatchable
 data class EmojiReactEvent(val newStatus: Status) : Dispatchable
 data class UnfollowEvent(val accountId: String) : Dispatchable
 data class BlockEvent(val accountId: String) : Dispatchable

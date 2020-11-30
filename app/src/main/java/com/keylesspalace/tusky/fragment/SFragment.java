@@ -349,11 +349,11 @@ public abstract class SFragment extends BaseFragment implements Injectable {
                     return true;
                 }
                 case R.id.status_mute_conversation: {
-                    timelineCases.muteStatus(status, true);
+                    timelineCases.muteConversation(status, true);
                     return true;
                 }
                 case R.id.status_unmute_conversation: {
-                    timelineCases.muteStatus(status, false);
+                    timelineCases.muteConversation(status, false);
                     return true;
                 }
                 case R.id.status_unreblog_private: {

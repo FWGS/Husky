@@ -335,7 +335,7 @@ public class NotificationsFragment extends SFragment implements
                 event.getReblog());
     }
     
-    private void handleMuteStatusEvent(MuteStatusEvent event) {
+    private void handleMuteStatusEvent(MuteConversationEvent event) {
         Pair<Integer, Notification> posAndNotification = findReplyPosition(event.getStatusId());
         if (posAndNotification == null)
             return;
@@ -438,8 +438,8 @@ public class NotificationsFragment extends SFragment implements
                         handleBookmarkEvent((BookmarkEvent) event);
                     } else if (event instanceof ReblogEvent) {
                         handleReblogEvent((ReblogEvent) event);
-                    } else if (event instanceof MuteStatusEvent) {
-	                    handleMuteStatusEvent((MuteStatusEvent) event);
+                    } else if (event instanceof MuteConversationEvent) {
+	                    handleMuteStatusEvent((MuteConversationEvent) event);
                     } else if (event instanceof BlockEvent) {
                         removeAllByAccountId(((BlockEvent) event).getAccountId());
                     } else if (event instanceof MuteEvent) {
