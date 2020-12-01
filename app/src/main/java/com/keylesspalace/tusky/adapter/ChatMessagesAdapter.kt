@@ -130,10 +130,10 @@ class ChatMessagesViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         } else {
             attachmentLayout.visibility = View.VISIBLE
 
-            val previewUrl: String = attachment.previewUrl
-            val description: String? = attachment.description
+            val previewUrl = attachment.previewUrl
+            val description = attachment.description
 
-            if(description != null && TextUtils.isEmpty(description) ) {
+            if(TextUtils.isEmpty(description)) {
                 attachmentView.contentDescription = description
             } else {
                 attachmentView.contentDescription = attachmentView.context
