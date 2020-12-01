@@ -129,6 +129,7 @@ public class NotificationHelper {
     public static final String CHANNEL_EMOJI_REACTION = "CHANNEL_EMOJI_REACTION";
     public static final String CHANNEL_CHAT_MESSAGES = "CHANNEL_CHAT_MESSAGES";
     public static final String CHANNEL_SUBSCRIPTIONS = "CHANNEL_SUBSCRIPTIONS";
+    public static final String CHANNEL_MOVE = "CHANNEL_MOVE";
 
     /**
      * WorkManager Tag
@@ -401,7 +402,8 @@ public class NotificationHelper {
                     CHANNEL_POLL + account.getIdentifier(),
                     CHANNEL_EMOJI_REACTION + account.getIdentifier(),
                     CHANNEL_CHAT_MESSAGES + account.getIdentifier(),
-                    CHANNEL_SUBSCRIPTIONS + account.getIdentifier()
+                    CHANNEL_SUBSCRIPTIONS + account.getIdentifier(),
+                    CHANNEL_MOVE + account.getIdentifier()
             };
             int[] channelNames = {
                     R.string.notification_mention_name,
@@ -412,7 +414,8 @@ public class NotificationHelper {
                     R.string.notification_poll_name,
                     R.string.notification_emoji_name,
                     R.string.notification_chat_message_name,
-                    R.string.notification_subscription_name
+                    R.string.notification_subscription_name,
+                    R.string.notification_move_name
             };
             int[] channelDescriptions = {
                     R.string.notification_mention_descriptions,
@@ -423,7 +426,8 @@ public class NotificationHelper {
                     R.string.notification_poll_description,
                     R.string.notification_emoji_description,
                     R.string.notification_chat_message_description,
-                    R.string.notification_subscription_description
+                    R.string.notification_subscription_description,
+                    R.string.notification_move_description
             };
 
             List<NotificationChannel> channels = new ArrayList<>(9);
@@ -585,6 +589,8 @@ public class NotificationHelper {
                 return account.getNotificationsEmojiReactions();
             case CHAT_MESSAGE:
                 return account.getNotificationsChatMessages();
+            case MOVE:
+                return account.getNotificationsMove();
             default:
                 return false;
         }
@@ -611,6 +617,8 @@ public class NotificationHelper {
                 return CHANNEL_EMOJI_REACTION + account.getIdentifier();
             case CHAT_MESSAGE:
                 return CHANNEL_CHAT_MESSAGES + account.getIdentifier();
+            case MOVE:
+                return CHANNEL_MOVE + account.getIdentifier();
             default:
                 return null;
         }
@@ -713,12 +721,17 @@ public class NotificationHelper {
             case CHAT_MESSAGE:
                 return String.format(context.getString(R.string.notification_chat_message_format),
                         accountName);
+            case MOVE: {
+                return String.format(context.getString(R.string.notification_move_format), accountName);
+            }
         }
         return null;
     }
 
     private static String bodyForType(Notification notification, Context context) {
         switch (notification.getType()) {
+            case MOVE:
+                return "@" + notification.getTarget().getUsername();
             case FOLLOW:
             case FOLLOW_REQUEST:
                 return "@" + notification.getAccount().getUsername();

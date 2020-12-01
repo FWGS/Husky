@@ -92,7 +92,8 @@ public final class ViewDataUtils {
                         alwaysShowSensitiveData,
                         alwaysOpenSpoiler
                 ),
-                notification.getEmoji()
+                notification.getEmoji(),
+                notification.getTarget()
         );
     }
 

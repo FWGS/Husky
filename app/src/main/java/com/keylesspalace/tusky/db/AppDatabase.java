@@ -381,6 +381,7 @@ public abstract class AppDatabase extends RoomDatabase {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase database) {
             database.execSQL("ALTER TABLE `AccountEntity` ADD COLUMN `notificationsSubscriptions` INTEGER NOT NULL DEFAULT 1");
+            database.execSQL("ALTER TABLE `AccountEntity` ADD COLUMN `notificationsMove` INTEGER NOT NULL DEFAULT 1");
         }
     };
 }

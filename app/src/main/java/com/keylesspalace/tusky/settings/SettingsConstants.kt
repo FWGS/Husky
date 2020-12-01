@@ -62,6 +62,7 @@ object PrefKeys {
     const val NOTIFICATION_FILTER_FOLLOW_REQUESTS = "notificationFilterFollowRequests"
     const val NOTIFICATION_FILTER_EMOJI_REACTIONS = "notificationFilterEmojis"
     const val NOTIFICATION_FILTER_SUBSCRIPTIONS = "notificationFilterSubscriptions"
+    const val NOTIFICATION_FILTER_MOVE = "notificationFilterMove"
     const val NOTIFICATIONS_FILTER_FOLLOWS = "notificationFilterFollows"
 
     const val TAB_FILTER_HOME_REPLIES = "tabFilterHomeReplies"

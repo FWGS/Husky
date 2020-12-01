@@ -144,6 +144,17 @@ class NotificationPreferencesFragment : PreferenceFragmentCompat(), Injectable {
                         true
                     }
                 }
+
+                switchPreference {
+                    setTitle(R.string.pref_title_notification_filter_move)
+                    key = PrefKeys.NOTIFICATION_FILTER_MOVE
+                    isIconSpaceReserved = false
+                    isChecked = activeAccount.notificationsMove
+                    setOnPreferenceChangeListener { _, newValue ->
+                        updateAccount { it.notificationsMove = newValue as Boolean }
+                        true
+                    }
+                }
             }
 
             preferenceCategory(R.string.pref_title_notification_alerts) { category ->

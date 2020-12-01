@@ -52,6 +52,7 @@ import com.keylesspalace.tusky.util.LinkHelper;
 import com.keylesspalace.tusky.util.SmartLengthInputFilter;
 import com.keylesspalace.tusky.util.StatusDisplayOptions;
 import com.keylesspalace.tusky.util.StringUtils;
+import com.keylesspalace.tusky.util.ThemeUtils;
 import com.keylesspalace.tusky.util.TimestampUtils;
 import com.keylesspalace.tusky.viewdata.NotificationViewData;
 import com.keylesspalace.tusky.viewdata.StatusViewData;
@@ -78,7 +79,8 @@ public class NotificationsAdapter extends RecyclerView.Adapter {
     private static final int VIEW_TYPE_PLACEHOLDER = 3;
     private static final int VIEW_TYPE_MUTED_STATUS = 4;
     private static final int VIEW_TYPE_FOLLOW_REQUEST = 5;
-    private static final int VIEW_TYPE_UNKNOWN = 6;
+    private static final int VIEW_TYPE_MOVE = 6;
+    private static final int VIEW_TYPE_UNKNOWN = 7;
 
     private static final InputFilter[] COLLAPSE_INPUT_FILTER = new InputFilter[]{SmartLengthInputFilter.INSTANCE};
     private static final InputFilter[] NO_INPUT_FILTER = new InputFilter[0];
@@ -125,6 +127,7 @@ public class NotificationsAdapter extends RecyclerView.Adapter {
                         .inflate(R.layout.item_status_notification, parent, false);
                 return new StatusNotificationViewHolder(view, statusDisplayOptions);
             }
+            case VIEW_TYPE_MOVE:
             case VIEW_TYPE_FOLLOW: {
                 View view = inflater
                         .inflate(R.layout.item_follow, parent, false);
@@ -233,7 +236,15 @@ public class NotificationsAdapter extends RecyclerView.Adapter {
                 case VIEW_TYPE_FOLLOW: {
                     if (payloadForHolder == null) {
                         FollowViewHolder holder = (FollowViewHolder) viewHolder;
-                        holder.setMessage(concreteNotificaton.getAccount());
+                        holder.setMessage(concreteNotificaton.getAccount(), null);
+                        holder.setupButtons(notificationActionListener, concreteNotificaton.getAccount().getId());
+                    }
+                    break;
+                }
+                case VIEW_TYPE_MOVE: {
+                    if (payloadForHolder == null) {
+                        FollowViewHolder holder = (FollowViewHolder) viewHolder;
+                        holder.setMessage(concreteNotificaton.getTarget(), concreteNotificaton.getAccount());
                         holder.setupButtons(notificationActionListener, concreteNotificaton.getAccount().getId());
                     }
                     break;
@@ -294,6 +305,9 @@ public class NotificationsAdapter extends RecyclerView.Adapter {
                 case FOLLOW_REQUEST: {
                     return VIEW_TYPE_FOLLOW_REQUEST;
                 }
+                case MOVE: {
+                    return VIEW_TYPE_MOVE;
+                }
                 default: {
                     return VIEW_TYPE_UNKNOWN;
                 }
@@ -340,13 +354,30 @@ public class NotificationsAdapter extends RecyclerView.Adapter {
             this.statusDisplayOptions = statusDisplayOptions;
         }
 
-        void setMessage(Account account) {
+        void setMessage(Account account, @Nullable Account from) {
             Context context = message.getContext();
 
-            String format = context.getString(R.string.notification_follow_format);
             String wrappedDisplayName = StringUtils.unicodeWrap(account.getName());
-            String wholeMessage = String.format(format, wrappedDisplayName);
-            CharSequence emojifiedMessage = CustomEmojiHelper.emojify(wholeMessage, account.getEmojis(), message, true);
+            Drawable drawable;
+            CharSequence emojifiedMessage;
+
+            if(from != null) {
+                String format = context.getString(R.string.notification_move_format);
+                String wrappedFromName = StringUtils.unicodeWrap(from.getName());
+                String wholeMessage = String.format(format, wrappedFromName);
+                emojifiedMessage = CustomEmojiHelper.emojify(wholeMessage, from.getEmojis(), message, true);
+
+                drawable = ThemeUtils.getTintedDrawable(context, R.drawable.ic_reply_24dp, R.attr.colorPrimary);
+            } else {
+                String format = context.getString(R.string.notification_follow_format);
+                String wholeMessage = String.format(format, wrappedDisplayName);
+                emojifiedMessage = CustomEmojiHelper.emojify(wholeMessage, account.getEmojis(), message, true);
+
+                drawable = ThemeUtils.getTintedDrawable(context, R.drawable.ic_person_add_24dp, R.attr.colorPrimary);
+            }
+
+            message.setCompoundDrawablesRelativeWithIntrinsicBounds(drawable, null, null, null);
+
             message.setText(emojifiedMessage);
 
             String username = context.getString(R.string.status_username_format, account.getUsername());

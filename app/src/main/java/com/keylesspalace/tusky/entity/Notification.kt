@@ -32,7 +32,8 @@ data class Notification(
         val pleroma: PleromaNotification? = null,
         val emoji: String? = null,
         @SerializedName("chat_message") val chatMessage: ChatMessage? = null,
-        @SerializedName("created_at") val createdAt: Date? = null ) {
+        @SerializedName("created_at") val createdAt: Date? = null,
+        val target: Account? = null) {
 
     @JsonAdapter(NotificationTypeAdapter::class)
     enum class Type(val presentation: String) {
@@ -44,7 +45,8 @@ data class Notification(
         POLL("poll"),
         EMOJI_REACTION("pleroma:emoji_reaction"),
         FOLLOW_REQUEST("follow_request"),
-        CHAT_MESSAGE("pleroma:chat_mention");
+        CHAT_MESSAGE("pleroma:chat_mention"),
+        MOVE("move");
 
         companion object {
 
@@ -56,7 +58,7 @@ data class Notification(
                 }
                 return UNKNOWN
             }
-            val asList = listOf(MENTION, REBLOG, FAVOURITE, FOLLOW, POLL, EMOJI_REACTION, FOLLOW_REQUEST, CHAT_MESSAGE)
+            val asList = listOf(MENTION, REBLOG, FAVOURITE, FOLLOW, POLL, EMOJI_REACTION, FOLLOW_REQUEST, CHAT_MESSAGE, MOVE)
 
             val asStringList = asList.map { it.presentation }
         }

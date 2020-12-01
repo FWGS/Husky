@@ -37,6 +37,9 @@
     <string name="notification_subscription_format">%s published a new post</string>
     <string name="notification_subscription_name">Subscriptions</string>
     <string name="notification_subscription_description">Notifications when somebody you\'re subscribed to published a new post</string>
+    <string name="notification_move_format">%s migrated to</string>
+    <string name="notification_move_name">Move</string>
+    <string name="notification_move_description">Notifications when somebody you\'re following migrated to another profile</string>
 
     <string name="pref_title_other">Other</string>
     <string name="pref_title_privacy">Privacy</string>
@@ -48,6 +51,7 @@
     <string name="pref_title_notification_filter_emoji">my posts are reacted with emojis</string>
     <string name="pref_title_notification_filter_chat_messages">received a chat message</string>
     <string name="pref_title_notification_filter_subscriptions">somebody I\'m subscribed to published a new post</string>
+    <string name="pref_title_notification_filter_move">somebody I\'m following migrated to another profile</string>
     <string name="pref_title_hide_muted_users">Hide muted users</string>
     <string name="pref_title_enable_big_emojis">Enable bigger custom emojis</string>
     <string name="pref_title_enable_experimental_stickers">Enable experimental Pleroma-FE stickers(if available)</string>

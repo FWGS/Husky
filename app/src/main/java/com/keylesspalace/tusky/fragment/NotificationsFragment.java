@@ -500,7 +500,7 @@ public class NotificationsFragment extends SFragment implements
 
         NotificationViewData.Concrete newViewData = new NotificationViewData.Concrete(
                 viewdata.getType(), viewdata.getId(), viewdata.getAccount(),
-                viewDataBuilder.createStatusViewData(), viewdata.getEmoji());
+                viewDataBuilder.createStatusViewData(), viewdata.getEmoji(), viewdata.getTarget());
         notifications.setPairedItem(position, newViewData);
         updateAdapter();
     }
@@ -534,7 +534,7 @@ public class NotificationsFragment extends SFragment implements
 
         NotificationViewData.Concrete newViewData = new NotificationViewData.Concrete(
                 viewdata.getType(), viewdata.getId(), viewdata.getAccount(),
-                viewDataBuilder.createStatusViewData(), viewdata.getEmoji());
+                viewDataBuilder.createStatusViewData(), viewdata.getEmoji(), viewdata.getTarget());
 
         notifications.setPairedItem(position, newViewData);
         updateAdapter();
@@ -569,7 +569,7 @@ public class NotificationsFragment extends SFragment implements
 
         NotificationViewData.Concrete newViewData = new NotificationViewData.Concrete(
                 viewdata.getType(), viewdata.getId(), viewdata.getAccount(),
-                viewDataBuilder.createStatusViewData(), viewdata.getEmoji());
+                viewDataBuilder.createStatusViewData(), viewdata.getEmoji(), viewdata.getTarget());
 
         notifications.setPairedItem(position, newViewData);
         updateAdapter();
@@ -598,7 +598,7 @@ public class NotificationsFragment extends SFragment implements
 
         NotificationViewData.Concrete newViewData = new NotificationViewData.Concrete(
                 viewdata.getType(), viewdata.getId(), viewdata.getAccount(),
-                viewDataBuilder.createStatusViewData(), viewdata.getEmoji());
+                viewDataBuilder.createStatusViewData(), viewdata.getEmoji(), viewdata.getTarget());
 
         notifications.setPairedItem(position, newViewData);
         updateAdapter();
@@ -645,7 +645,7 @@ public class NotificationsFragment extends SFragment implements
                         .setIsExpanded(expanded)
                         .createStatusViewData();
         NotificationViewData notificationViewData = new NotificationViewData.Concrete(old.getType(),
-                old.getId(), old.getAccount(), statusViewData, old.getEmoji());
+                old.getId(), old.getAccount(), statusViewData, old.getEmoji(), old.getTarget());
         notifications.setPairedItem(position, notificationViewData);
         updateAdapter();
     }
@@ -659,7 +659,7 @@ public class NotificationsFragment extends SFragment implements
                         .setIsShowingSensitiveContent(isShowing)
                         .createStatusViewData();
         NotificationViewData notificationViewData = new NotificationViewData.Concrete(old.getType(),
-                old.getId(), old.getAccount(), statusViewData, old.getEmoji());
+                old.getId(), old.getAccount(), statusViewData, old.getEmoji(), old.getTarget());
         notifications.setPairedItem(position, notificationViewData);
         updateAdapter();
     }
@@ -673,7 +673,7 @@ public class NotificationsFragment extends SFragment implements
                         .setMuted(isMuted)
                         .createStatusViewData();
         NotificationViewData notificationViewData = new NotificationViewData.Concrete(old.getType(),
-                old.getId(), old.getAccount(), statusViewData, old.getEmoji());
+                old.getId(), old.getAccount(), statusViewData, old.getEmoji(), old.getTarget());
         notifications.setPairedItem(position, notificationViewData);
         updateAdapter();
     }
@@ -689,7 +689,7 @@ public class NotificationsFragment extends SFragment implements
 
         NotificationViewData.Concrete newViewData = new NotificationViewData.Concrete(
                 viewdata.getType(), viewdata.getId(), viewdata.getAccount(),
-                viewDataBuilder.createStatusViewData(), viewdata.getEmoji());
+                viewDataBuilder.createStatusViewData(), viewdata.getEmoji(), viewdata.getTarget());
 
         notifications.setPairedItem(position, newViewData);
     }
@@ -745,7 +745,8 @@ public class NotificationsFragment extends SFragment implements
                 concreteNotification.getId(),
                 concreteNotification.getAccount(),
                 updatedStatus,
-                concreteNotification.getEmoji()
+                concreteNotification.getEmoji(),
+                concreteNotification.getTarget()
         );
         notifications.setPairedItem(position, updatedNotification);
         updateAdapter();
@@ -871,6 +872,8 @@ public class NotificationsFragment extends SFragment implements
                 return getString(R.string.notification_poll_name);
             case EMOJI_REACTION:
                 return getString(R.string.notification_emoji_name);
+            case MOVE:
+                return getString(R.string.notification_move_name);
             default:
                 return "Unknown";
         }
@@ -1427,7 +1430,8 @@ public class NotificationsFragment extends SFragment implements
 
         NotificationViewData.Concrete newViewData = new NotificationViewData.Concrete(
                 viewdata.getType(), viewdata.getId(), viewdata.getAccount(),
-                ViewDataUtils.statusToViewData(newStatus, false, false), viewdata.getEmoji());
+                ViewDataUtils.statusToViewData(newStatus, false, false),
+                viewdata.getEmoji(), viewdata.getTarget());
 
         notifications.setPairedItem(position, newViewData);
         updateAdapter();
