@@ -34,6 +34,9 @@
     <string name="notification_chat_message_format">%s sent you a message</string>
     <string name="notification_chat_message_name">Chat Messages</string>
     <string name="notification_chat_message_description">Notifications about new chat messages</string>
+    <string name="notification_subscription_format">%s published a new post</string>
+    <string name="notification_subscription_name">Subscriptions</string>
+    <string name="notification_subscription_description">Notifications when somebody you\'re subscribed to published a new post</string>
 
     <string name="pref_title_other">Other</string>
     <string name="pref_title_privacy">Privacy</string>
@@ -44,6 +47,7 @@
     <string name="pref_title_default_formatting">Default formatting syntax(if supported by instance)</string>
     <string name="pref_title_notification_filter_emoji">my posts are reacted with emojis</string>
     <string name="pref_title_notification_filter_chat_messages">received a chat message</string>
+    <string name="pref_title_notification_filter_subscriptions">somebody I\'m subscribed to published a new post</string>
     <string name="pref_title_hide_muted_users">Hide muted users</string>
     <string name="pref_title_enable_big_emojis">Enable bigger custom emojis</string>
     <string name="pref_title_enable_experimental_stickers">Enable experimental Pleroma-FE stickers(if available)</string>

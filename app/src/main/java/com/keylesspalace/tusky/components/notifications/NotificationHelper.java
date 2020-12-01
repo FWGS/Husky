@@ -128,7 +128,7 @@ public class NotificationHelper {
     public static final String CHANNEL_POLL = "CHANNEL_POLL";
     public static final String CHANNEL_EMOJI_REACTION = "CHANNEL_EMOJI_REACTION";
     public static final String CHANNEL_CHAT_MESSAGES = "CHANNEL_CHAT_MESSAGES";
-
+    public static final String CHANNEL_SUBSCRIPTIONS = "CHANNEL_SUBSCRIPTIONS";
 
     /**
      * WorkManager Tag
@@ -400,7 +400,8 @@ public class NotificationHelper {
                     CHANNEL_FAVOURITE + account.getIdentifier(),
                     CHANNEL_POLL + account.getIdentifier(),
                     CHANNEL_EMOJI_REACTION + account.getIdentifier(),
-                    CHANNEL_CHAT_MESSAGES + account.getIdentifier()
+                    CHANNEL_CHAT_MESSAGES + account.getIdentifier(),
+                    CHANNEL_SUBSCRIPTIONS + account.getIdentifier()
             };
             int[] channelNames = {
                     R.string.notification_mention_name,
@@ -411,6 +412,7 @@ public class NotificationHelper {
                     R.string.notification_poll_name,
                     R.string.notification_emoji_name,
                     R.string.notification_chat_message_name,
+                    R.string.notification_subscription_name
             };
             int[] channelDescriptions = {
                     R.string.notification_mention_descriptions,
@@ -421,9 +423,10 @@ public class NotificationHelper {
                     R.string.notification_poll_description,
                     R.string.notification_emoji_description,
                     R.string.notification_chat_message_description,
+                    R.string.notification_subscription_description
             };
 
-            List<NotificationChannel> channels = new ArrayList<>(6);
+            List<NotificationChannel> channels = new ArrayList<>(9);
 
             NotificationChannelGroup channelGroup = new NotificationChannelGroup(account.getIdentifier(), account.getFullName());
 
@@ -565,7 +568,9 @@ public class NotificationHelper {
 
         switch (notification.getType()) {
             case MENTION:
-                return account.getNotificationsMentioned();
+                if(isMentionedInNotification(notification, account.getAccountId()))
+                    return account.getNotificationsMentioned();
+                else return account.getNotificationsSubscriptions();
             case FOLLOW:
                 return account.getNotificationsFollowed();
             case FOLLOW_REQUEST:
@@ -589,7 +594,9 @@ public class NotificationHelper {
     private static String getChannelId(AccountEntity account, Notification notification) {
         switch (notification.getType()) {
             case MENTION:
-                return CHANNEL_MENTION + account.getIdentifier();
+                if(isMentionedInNotification(notification, account.getAccountId()))
+                    return CHANNEL_MENTION + account.getIdentifier();
+                else return CHANNEL_SUBSCRIPTIONS + account.getIdentifier();
             case FOLLOW:
                 return CHANNEL_FOLLOW + account.getIdentifier();
             case FOLLOW_REQUEST:
@@ -656,14 +663,32 @@ public class NotificationHelper {
 
         return null;
     }
+    
+    private static boolean isMentionedInNotification(Notification not, String id) {
+        if(not.getStatus() != null) {
+            for(int i = 0; i < not.getStatus().getMentions().length; i++) {
+                if(not.getStatus().getMentions()[i].getId().equals(id)) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        return true; // actually should never happen, true just in case someone breaks API again
+    }
 
     @Nullable
     private static String titleForType(Context context, Notification notification, AccountEntity account) {
         String accountName = StringUtils.unicodeWrap(notification.getAccount().getName());
         switch (notification.getType()) {
             case MENTION:
-                return String.format(context.getString(R.string.notification_mention_format),
-                        accountName);
+                if(isMentionedInNotification(notification, account.getAccountId())) {
+                    return String.format(context.getString(R.string.notification_mention_format),
+                            accountName);
+                } else {
+                    return String.format(context.getString(R.string.notification_subscription_format), accountName);
+                }
             case FOLLOW:
                 return String.format(context.getString(R.string.notification_follow_format),
                         accountName);
