@@ -671,13 +671,13 @@ public class NotificationsAdapter extends RecyclerView.Adapter {
                 Context context = replyInfo.getContext();
                 String replyToAccount = statusViewData.getInReplyToAccountAcct();
                 replyInfo.setText(context.getString(R.string.status_replied_to_format, replyToAccount));
-                if (statusViewData.getParentVisible() == false)
+                if (!statusViewData.getParentVisible()) {
                     replyInfo.setPaintFlags(replyInfo.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-                else
+                    replyInfo.setOnClickListener(null);
+                } else {
                     replyInfo.setPaintFlags(replyInfo.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
-
-                replyInfo.setOnClickListener(v -> notificationActionListener.onViewReplyTo(getAdapterPosition()));
-
+                    replyInfo.setOnClickListener(v -> notificationActionListener.onViewReplyTo(getAdapterPosition()));
+                }
                 replyInfo.setVisibility(View.VISIBLE);
             } else {
                 replyInfo.setVisibility(View.GONE);
