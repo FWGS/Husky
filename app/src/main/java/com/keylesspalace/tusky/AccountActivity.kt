@@ -327,7 +327,7 @@ class AccountActivity : BottomSheetActivity(), ActionButtonActivity, HasAndroidI
      * Subscribe to data loaded at the view model
      */
     private fun subscribeObservables() {
-        viewModel.accountData.observe(this, Observer<Resource<Account>> {
+        viewModel.accountData.observe(this) {
             when (it) {
                 is Success -> onAccountChanged(it.data)
                 is Error -> {
@@ -336,8 +336,8 @@ class AccountActivity : BottomSheetActivity(), ActionButtonActivity, HasAndroidI
                             .show()
                 }
             }
-        })
-        viewModel.relationshipData.observe(this, Observer<Resource<Relationship>> {
+        }
+        viewModel.relationshipData.observe(this) {
             val relation = it?.data
             if (relation != null) {
                 onRelationshipChanged(relation)
@@ -349,11 +349,11 @@ class AccountActivity : BottomSheetActivity(), ActionButtonActivity, HasAndroidI
                         .show()
             }
 
-        })
-        viewModel.accountFieldData.observe(this, Observer<List<Either<IdentityProof, Field>>> {
+        }
+        viewModel.accountFieldData.observe(this) {
             accountFieldAdapter.fields = it
             accountFieldAdapter.notifyDataSetChanged()
-        })
+        }
         viewModel.noteSaved.observe(this) {
             saveNoteInfo.visible(it, View.INVISIBLE)
         }
@@ -367,9 +367,9 @@ class AccountActivity : BottomSheetActivity(), ActionButtonActivity, HasAndroidI
             viewModel.refresh()
             adapter.refreshContent()
         }
-        viewModel.isRefreshing.observe(this, Observer { isRefreshing ->
+        viewModel.isRefreshing.observe(this) { isRefreshing ->
             swipeToRefreshLayout.isRefreshing = isRefreshing == true
-        })
+        }
         swipeToRefreshLayout.setColorSchemeResources(R.color.tusky_blue)
     }
 
@@ -436,7 +436,7 @@ class AccountActivity : BottomSheetActivity(), ActionButtonActivity, HasAndroidI
 
 
             accountAvatarImageView.setOnClickListener { avatarView ->
-                val intent = ViewMediaActivity.newAvatarIntent(avatarView.context, account.avatar)
+                val intent = ViewMediaActivity.newSingleImageIntent(avatarView.context, account.avatar)
 
                 avatarView.transitionName = account.avatar
                 val options = ActivityOptionsCompat.makeSceneTransitionAnimation(this, avatarView, account.avatar)
@@ -635,12 +635,17 @@ class AccountActivity : BottomSheetActivity(), ActionButtonActivity, HasAndroidI
         accountFollowsYouTextView.visible(relation.followedBy)
 
         // because subscribing is Pleroma extension, enable it __only__ when we have non-null subscribing field
-        if(!viewModel.isSelf && followState == FollowState.FOLLOWING && relation.subscribing != null) {
+        // it's also now supported in Mastodon 3.3.0rc but called notifying and use different API call
+        if(!viewModel.isSelf && followState == FollowState.FOLLOWING
+            && (relation.subscribing != null || relation.notifying != null)) {
             accountSubscribeButton.show()
             accountSubscribeButton.setOnClickListener {
                 viewModel.changeSubscribingState()
             }
-            subscribing = relation.subscribing
+            if(relation.notifying != null)
+                subscribing = relation.notifying
+            else if(relation.subscribing != null)
+                subscribing = relation.subscribing
         }
 
         accountNoteTextInputLayout.visible(relation.note != null)

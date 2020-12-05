@@ -39,6 +39,7 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.keylesspalace.tusky.R;
 import com.keylesspalace.tusky.entity.Account;
 import com.keylesspalace.tusky.entity.Emoji;
@@ -216,8 +217,12 @@ public class NotificationsAdapter extends RecyclerView.Adapter {
                             holder.setUsername(statusViewData.getNickname());
                             holder.setCreatedAt(statusViewData.getCreatedAt());
 
-                            holder.setAvatars(concreteNotificaton.getStatusViewData().getAvatar(),
-                                    concreteNotificaton.getAccount().getAvatar());
+                            if(concreteNotificaton.getType() == Notification.Type.STATUS) {
+                                holder.setAvatar(statusViewData.getAvatar(), statusViewData.isBot());
+                            } else {
+                                holder.setAvatars(statusViewData.getAvatar(),
+                                        concreteNotificaton.getAccount().getAvatar());
+                            }
                         }
 
                         holder.setMessage(concreteNotificaton, statusListener);
@@ -291,10 +296,11 @@ public class NotificationsAdapter extends RecyclerView.Adapter {
             switch (concrete.getType()) {
                 case MENTION:
                 case POLL: {
-                    if(concrete.getStatusViewData() != null && concrete.getStatusViewData().isMuted())
+                    if (concrete.getStatusViewData() != null && concrete.getStatusViewData().isMuted())
                         return VIEW_TYPE_MUTED_STATUS;
                     return VIEW_TYPE_STATUS;
                 }
+                case STATUS:
                 case FAVOURITE:
                 case REBLOG:
                 case EMOJI_REACTION: {
@@ -426,7 +432,11 @@ public class NotificationsAdapter extends RecyclerView.Adapter {
         private StatusViewData.Concrete statusViewData;
         private SimpleDateFormat shortSdf;
         private SimpleDateFormat longSdf;
-    
+
+        private int avatarRadius48dp;
+        private int avatarRadius36dp;
+        private int avatarRadius24dp;
+
         StatusNotificationViewHolder(View itemView, StatusDisplayOptions statusDisplayOptions) {
             super(itemView);
             message = itemView.findViewById(R.id.notification_top_text);
@@ -452,6 +462,10 @@ public class NotificationsAdapter extends RecyclerView.Adapter {
             statusContent.setOnClickListener(this);
             shortSdf = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
             longSdf = new SimpleDateFormat("MM/dd HH:mm:ss", Locale.getDefault());
+
+            this.avatarRadius48dp = itemView.getContext().getResources().getDimensionPixelSize(R.dimen.avatar_radius_48dp);
+            this.avatarRadius36dp = itemView.getContext().getResources().getDimensionPixelSize(R.dimen.avatar_radius_36dp);
+            this.avatarRadius24dp = itemView.getContext().getResources().getDimensionPixelSize(R.dimen.avatar_radius_24dp);
         }
 
         private void showNotificationContent(boolean show) {
@@ -460,7 +474,6 @@ public class NotificationsAdapter extends RecyclerView.Adapter {
             contentWarningButton.setVisibility(show ? View.VISIBLE : View.GONE);
             statusContent.setVisibility(show ? View.VISIBLE : View.GONE);
             statusAvatar.setVisibility(show ? View.VISIBLE : View.GONE);
-            notificationAvatar.setVisibility(show ? View.VISIBLE : View.GONE);
             replyInfo.setVisibility(show ? View.VISIBLE : View.GONE);
         }
 
@@ -545,6 +558,17 @@ public class NotificationsAdapter extends RecyclerView.Adapter {
                     wholeMessage = String.format(format, displayName);
                     break;
                 }
+                case STATUS: {
+                    icon = ContextCompat.getDrawable(context, R.drawable.ic_home_24dp);
+                    if (icon != null) {
+                        icon.setColorFilter(ContextCompat.getColor(context,
+                                R.color.tusky_blue), PorterDuff.Mode.SRC_ATOP);
+                    }
+
+                    String format = context.getString(R.string.notification_subscription_format);
+                    wholeMessage = String.format(format, displayName);
+                    break;
+                }
                 case EMOJI_REACTION: {
                     icon = ContextCompat.getDrawable(context, R.drawable.ic_emoji_24dp);
                     if(icon != null) {
@@ -595,19 +619,34 @@ public class NotificationsAdapter extends RecyclerView.Adapter {
             this.notificationId = notificationId;
         }
 
-        void setAvatars(@Nullable String statusAvatarUrl, @Nullable String notificationAvatarUrl) {
-
-            int statusAvatarRadius = statusAvatar.getContext().getResources()
-                    .getDimensionPixelSize(R.dimen.avatar_radius_36dp);
+        void setAvatar(@Nullable String statusAvatarUrl, boolean isBot) {
+            statusAvatar.setPaddingRelative(0, 0, 0, 0);
 
             ImageLoadingHelper.loadAvatar(statusAvatarUrl,
-                    statusAvatar, statusAvatarRadius, statusDisplayOptions.animateAvatars());
+                    statusAvatar, avatarRadius48dp, statusDisplayOptions.animateAvatars());
 
-            int notificationAvatarRadius = statusAvatar.getContext().getResources()
-                    .getDimensionPixelSize(R.dimen.avatar_radius_24dp);
+            if (statusDisplayOptions.showBotOverlay() && isBot) {
+                notificationAvatar.setVisibility(View.VISIBLE);
+                notificationAvatar.setBackgroundColor(0x50ffffff);
+                Glide.with(notificationAvatar)
+                        .load(R.drawable.ic_bot_24dp)
+                        .into(notificationAvatar);
 
+            } else {
+                notificationAvatar.setVisibility(View.GONE);
+            }
+        }
+
+        void setAvatars(@Nullable String statusAvatarUrl, @Nullable String notificationAvatarUrl) {
+            int padding = Utils.dpToPx(statusAvatar.getContext(), 12);
+            statusAvatar.setPaddingRelative(0, 0, padding, padding);
+
+            ImageLoadingHelper.loadAvatar(statusAvatarUrl,
+                    statusAvatar, avatarRadius36dp, statusDisplayOptions.animateAvatars());
+
+            notificationAvatar.setVisibility(View.VISIBLE);
             ImageLoadingHelper.loadAvatar(notificationAvatarUrl, notificationAvatar,
-                notificationAvatarRadius, statusDisplayOptions.animateAvatars());
+                avatarRadius24dp, statusDisplayOptions.animateAvatars());
         }
 
         @Override

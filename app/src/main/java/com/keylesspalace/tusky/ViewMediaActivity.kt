@@ -88,7 +88,7 @@ class ViewMediaActivity : BaseActivity(), ViewImageFragment.PhotoActionsListener
             return intent
         }
 
-        fun newAvatarIntent(context: Context?, url: String): Intent {
+        fun newSingleImageIntent(context: Context?, url: String): Intent {
             val intent = Intent(context, ViewMediaActivity::class.java)
             intent.putExtra(EXTRA_AVATAR_URL, url)
             return intent

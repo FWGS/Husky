@@ -46,7 +46,8 @@ data class Notification(
         EMOJI_REACTION("pleroma:emoji_reaction"),
         FOLLOW_REQUEST("follow_request"),
         CHAT_MESSAGE("pleroma:chat_mention"),
-        MOVE("move");
+        MOVE("move"),
+        STATUS("status"); /* Mastodon 3.3.0rc1 */
 
         companion object {
 
@@ -58,7 +59,7 @@ data class Notification(
                 }
                 return UNKNOWN
             }
-            val asList = listOf(MENTION, REBLOG, FAVOURITE, FOLLOW, POLL, EMOJI_REACTION, FOLLOW_REQUEST, CHAT_MESSAGE, MOVE)
+            val asList = listOf(MENTION, REBLOG, FAVOURITE, FOLLOW, POLL, EMOJI_REACTION, FOLLOW_REQUEST, CHAT_MESSAGE, MOVE, STATUS)
 
             val asStringList = asList.map { it.presentation }
         }
@@ -87,5 +88,20 @@ data class Notification(
             return Type.byString(json.asString)
         }
 
+    }
+
+    companion object {
+
+        // for Pleroma compatibility that uses Mention type
+        @JvmStatic
+        fun rewriteToStatusTypeIfNeeded(body: Notification, accountId: String) : Notification {
+            if (body.type == Type.MENTION
+                    && body.status != null) {
+                return if (body.status.mentions.any {
+                    it.id == accountId
+                }) body else body.copy(type = Type.STATUS)
+            }
+            return body
+        }
     }
 }

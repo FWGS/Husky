@@ -82,7 +82,7 @@ class PollAdapter: RecyclerView.Adapter<PollViewHolder>() {
                 val percent = calculatePercent(option.votesCount, votersCount, voteCount)
                 val emojifiedPollOptionText = buildDescription(option.title, percent, holder.resultTextView.context)
                         .emojify(emojis, holder.resultTextView)
-                holder.resultTextView.text =  EmojiCompat.get().process(emojifiedPollOptionText)
+                holder.resultTextView.text = EmojiCompat.get().process(emojifiedPollOptionText)
 
                 val level = percent * 100
 

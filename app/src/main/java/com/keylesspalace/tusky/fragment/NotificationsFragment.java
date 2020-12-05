@@ -177,7 +177,10 @@ public class NotificationsFragment extends SFragment implements
         @Override
         public NotificationViewData apply(Either<Placeholder, Notification> input) {
             if (input.isRight()) {
-                Notification notification = input.asRight();
+                Notification notification = Notification.rewriteToStatusTypeIfNeeded(
+                        input.asRight(), accountManager.getActiveAccount().getAccountId()
+                );
+
                 return ViewDataUtils.notificationToViewData(
                         notification,
                         alwaysShowSensitiveMedia,
@@ -874,6 +877,8 @@ public class NotificationsFragment extends SFragment implements
                 return getString(R.string.notification_emoji_name);
             case MOVE:
                 return getString(R.string.notification_move_name);
+            case STATUS:
+                return getString(R.string.notification_subscription_name);
             default:
                 return "Unknown";
         }

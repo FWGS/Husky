@@ -309,7 +309,8 @@ interface MastodonApi {
     @POST("api/v1/accounts/{id}/follow")
     fun followAccount(
             @Path("id") accountId: String,
-            @Field("reblogs") showReblogs: Boolean
+            @Field("reblogs") showReblogs: Boolean? = null,
+            @Field("notify") notify: Boolean? = null
     ): Single<Relationship>
 
     @POST("api/v1/accounts/{id}/unfollow")

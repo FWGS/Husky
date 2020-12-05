@@ -152,6 +152,7 @@ public class NotificationHelper {
      */
 
     public static void make(final Context context, Notification body, AccountEntity account, boolean isFirstOfBatch) {
+        body = Notification.rewriteToStatusTypeIfNeeded(body, account.getAccountId());
 
         if (!filterNotification(account, body, context)) {
             return;
@@ -572,9 +573,9 @@ public class NotificationHelper {
 
         switch (notification.getType()) {
             case MENTION:
-                if(isMentionedInNotification(notification, account.getAccountId()))
-                    return account.getNotificationsMentioned();
-                else return account.getNotificationsSubscriptions();
+                return account.getNotificationsMentioned();
+            case STATUS:
+                return account.getNotificationsSubscriptions();
             case FOLLOW:
                 return account.getNotificationsFollowed();
             case FOLLOW_REQUEST:
@@ -600,9 +601,9 @@ public class NotificationHelper {
     private static String getChannelId(AccountEntity account, Notification notification) {
         switch (notification.getType()) {
             case MENTION:
-                if(isMentionedInNotification(notification, account.getAccountId()))
-                    return CHANNEL_MENTION + account.getIdentifier();
-                else return CHANNEL_SUBSCRIPTIONS + account.getIdentifier();
+                return CHANNEL_MENTION + account.getIdentifier();
+            case STATUS:
+                return CHANNEL_SUBSCRIPTIONS + account.getIdentifier();
             case FOLLOW:
                 return CHANNEL_FOLLOW + account.getIdentifier();
             case FOLLOW_REQUEST:
@@ -671,32 +672,17 @@ public class NotificationHelper {
 
         return null;
     }
-    
-    private static boolean isMentionedInNotification(Notification not, String id) {
-        if(not.getStatus() != null) {
-            for(int i = 0; i < not.getStatus().getMentions().length; i++) {
-                if(not.getStatus().getMentions()[i].getId().equals(id)) {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        return true; // actually should never happen, true just in case someone breaks API again
-    }
 
     @Nullable
     private static String titleForType(Context context, Notification notification, AccountEntity account) {
         String accountName = StringUtils.unicodeWrap(notification.getAccount().getName());
         switch (notification.getType()) {
             case MENTION:
-                if(isMentionedInNotification(notification, account.getAccountId())) {
-                    return String.format(context.getString(R.string.notification_mention_format),
-                            accountName);
-                } else {
-                    return String.format(context.getString(R.string.notification_subscription_format), accountName);
-                }
+                return String.format(context.getString(R.string.notification_mention_format),
+                        accountName);
+            case STATUS:
+                return String.format(context.getString(R.string.notification_subscription_format),
+                        accountName);
             case FOLLOW:
                 return String.format(context.getString(R.string.notification_follow_format),
                         accountName);
@@ -739,6 +725,7 @@ public class NotificationHelper {
             case FAVOURITE:
             case REBLOG:
             case EMOJI_REACTION:
+            case STATUS:
                 if (!TextUtils.isEmpty(notification.getStatus().getSpoilerText())) {
                     return notification.getStatus().getSpoilerText();
                 } else {
