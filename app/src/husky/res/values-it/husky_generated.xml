@@ -40,6 +40,9 @@
   
     <string name="add_account_description">Aggiungi un nuovo Account Pleroma</string>
   
+  
+    <string name="warning_scheduling_interval">Pleroma ha un intervallo minimo di programmazione di 5 minuti.</string>
+  
 
 
   
