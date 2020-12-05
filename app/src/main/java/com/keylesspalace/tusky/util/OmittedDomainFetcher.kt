@@ -26,8 +26,6 @@ class OmittedDomainAppModule : AppGlideModule() {
     lateinit var accountManager : AccountManager
 
     override fun registerComponents(context: Context, glide: Glide, registry: Registry) {
-        Log.d("OmittedDomainAppModule", "registering loader factory")
-
         (context.applicationContext as TuskyApplication).androidInjector.inject(this)
 
         registry.append(String::class.java, InputStream::class.java, OmittedDomainLoaderFactory(accountManager))

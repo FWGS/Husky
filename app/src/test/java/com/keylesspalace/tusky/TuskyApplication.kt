@@ -20,10 +20,14 @@ import android.content.Context
 import android.content.res.Configuration
 import android.util.Log
 import androidx.emoji.text.EmojiCompat
+import com.keylesspalace.tusky.db.AccountManager
 import com.keylesspalace.tusky.util.LocaleManager
+import com.keylesspalace.tusky.util.OmittedDomainAppModule
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.HasAndroidInjector
 import de.c1710.filemojicompat.FileEmojiCompatConfig
+import org.mockito.Mockito.*
+import org.mockito.stubbing.Answer
 import javax.inject.Inject
 
 // override TuskyApplication for Robolectric tests, only initialize the necessary stuff
@@ -42,6 +46,16 @@ class TuskyApplication : Application() {
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         localeManager.setLocale(this)
+    }
+
+    fun getAndroidInjector() : DispatchingAndroidInjector<Any> {
+        val mock = mock(DispatchingAndroidInjector::class.java) as DispatchingAndroidInjector<OmittedDomainAppModule>
+
+        `when`(mock.inject(any())).then {
+            it.getArgument<OmittedDomainAppModule>(0).accountManager = mock(AccountManager::class.java)
+            return@then Unit
+        }
+        return mock as DispatchingAndroidInjector<Any>
     }
 
     companion object {

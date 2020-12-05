@@ -230,6 +230,7 @@ class ComposeActivityTest {
                 NodeInfoPleromaUploadLimits( 100, 100, 100, 100 ))
         }
         setupActivity()
+        shadowOf(getMainLooper()).idle()
         assertEquals(true, activity.viewModel.hasNoAttachmentLimits)
     }
 
@@ -240,6 +241,7 @@ class ComposeActivityTest {
                 NodeInfoPleromaUploadLimits( 100, 100, 100, 100 ))
         }
         setupActivity()
+        shadowOf(getMainLooper()).idle()
         assertArrayEquals(arrayOf("text/markdown", "text/bbcode"), activity.supportedFormattingSyntax.toTypedArray())
     }
 
@@ -250,6 +252,7 @@ class ComposeActivityTest {
                 NodeInfoPleromaUploadLimits( Long.MAX_VALUE, Long.MAX_VALUE, Long.MAX_VALUE, Long.MAX_VALUE ))
         }
         setupActivity()
+        shadowOf(getMainLooper()).idle()
         assertEquals(Long.MAX_VALUE, activity.viewModel.instanceMetadata.value!!.imageLimit)
         assertEquals(Long.MAX_VALUE, activity.viewModel.instanceMetadata.value!!.videoLimit)
     }
@@ -258,6 +261,7 @@ class ComposeActivityTest {
     fun whenPixelfedInNodeInfo_haveCustomUploadLimits() {
         nodeinfoResponseCallback = { getPixelfedNodeinfo( 1024 * 1024 ) }
         setupActivity()
+        shadowOf(getMainLooper()).idle()
         assertEquals(1024 * 1024 * 1024, activity.viewModel.instanceMetadata.value!!.imageLimit)
         assertEquals(1024 * 1024 * 1024, activity.viewModel.instanceMetadata.value!!.videoLimit)
         assertArrayEquals(emptyArray(), activity.supportedFormattingSyntax.toTypedArray()) // pixelfed has no formatting
@@ -267,6 +271,7 @@ class ComposeActivityTest {
     fun whenMastodonInNodeinfo_butItsAGlitch() {
         nodeinfoResponseCallback = { getMastodonNodeinfo( "3.1.0+glitch" ) }
         setupActivity()
+        shadowOf(getMainLooper()).idle()
         assertArrayEquals(arrayOf("text/markdown", "text/html"), activity.supportedFormattingSyntax.toTypedArray())
     }
 
@@ -274,6 +279,7 @@ class ComposeActivityTest {
     fun whenMastodonInNodeinfo_butItsBoringVanilla() {
         nodeinfoResponseCallback = { getMastodonNodeinfo( "3.1.0" ) }
         setupActivity()
+        shadowOf(getMainLooper()).idle()
         assertArrayEquals(emptyArray(), activity.supportedFormattingSyntax.toTypedArray())
     }
 
