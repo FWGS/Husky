@@ -133,7 +133,8 @@ class PreferencesActivity : BaseActivity(), SharedPreferences.OnSharedPreference
             }
             "statusTextSize", "absoluteTimeView", "showBotOverlay", "animateGifAvatars",
             "useBlurhash", "showCardsInTimelines", "confirmReblogs",
-            "enableSwipeForTabs", "bigEmojis", "mainNavPosition", PrefKeys.HIDE_TOP_TOOLBAR -> {
+            "enableSwipeForTabs", "bigEmojis", "mainNavPosition", PrefKeys.HIDE_TOP_TOOLBAR,
+            PrefKeys.RENDER_STATUS_AS_MENTION -> {
                 restartActivitiesOnExit = true
             }
             "language" -> {

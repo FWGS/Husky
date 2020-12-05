@@ -280,7 +280,8 @@ public class NotificationsAdapter extends RecyclerView.Adapter {
                 statusDisplayOptions.showBotOverlay(),
                 statusDisplayOptions.useBlurhash(),
                 CardViewMode.NONE,
-                statusDisplayOptions.confirmReblogs()
+                statusDisplayOptions.confirmReblogs(),
+                statusDisplayOptions.renderStatusAsMention()
         );
     }
 
@@ -301,6 +302,12 @@ public class NotificationsAdapter extends RecyclerView.Adapter {
                     return VIEW_TYPE_STATUS;
                 }
                 case STATUS:
+                    if (statusDisplayOptions.renderStatusAsMention()) {
+                        if (concrete.getStatusViewData() != null && concrete.getStatusViewData().isMuted())
+                            return VIEW_TYPE_MUTED_STATUS;
+                        return VIEW_TYPE_STATUS;
+                    }
+                    /* fallthrough */
                 case FAVOURITE:
                 case REBLOG:
                 case EMOJI_REACTION: {

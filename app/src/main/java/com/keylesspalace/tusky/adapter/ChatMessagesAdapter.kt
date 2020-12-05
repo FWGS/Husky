@@ -39,7 +39,7 @@ class ChatMessagesViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
     private val mediaPreviewUnloaded = ColorDrawable(ThemeUtils.getColor(itemView.context, R.attr.colorBackgroundAccent))
 
-    fun setupWithChatMessage(msg: ChatMessageViewData.Concrete, chatActionListener: ChatActionListener, statusDisplayOptions: StatusDisplayOptions, payload: Any?) {
+    fun setupWithChatMessage(msg: ChatMessageViewData.Concrete, chatActionListener: ChatActionListener, payload: Any?) {
         if(payload == null) {
             if(msg.content != null) {
                 val text = msg.content.emojify(msg.emojis, content)
@@ -110,15 +110,15 @@ class ChatMessagesViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
 
     private fun setAttachmentClickListener(view: View, listener: ChatActionListener, attachment: Attachment, animateTransition: Boolean) {
-        view.setOnClickListener { v: View? ->
+        view.setOnClickListener { v: View ->
             val position = adapterPosition
             if (position != RecyclerView.NO_POSITION) {
                 listener.onViewMedia(position, if (animateTransition) v else null)
             }
         }
-        view.setOnLongClickListener { v: View? ->
-            val description = getAttachmentDescription(view.context, attachment)
-            Toast.makeText(view.context, description, Toast.LENGTH_LONG).show()
+        view.setOnLongClickListener { v: View ->
+            val description = getAttachmentDescription(v.context, attachment)
+            Toast.makeText(v.context, description, Toast.LENGTH_LONG).show()
             true
         }
     }
@@ -162,7 +162,6 @@ class ChatMessagesViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
 class ChatMessagesAdapter(private val dataSource : TimelineAdapter.AdapterDataSource<ChatMessageViewData>,
                           private val chatActionListener: ChatActionListener,
-                          private val statusDisplayOptions: StatusDisplayOptions,
                           private val localUserId: String)
 : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -207,7 +206,7 @@ class ChatMessagesAdapter(private val dataSource : TimelineAdapter.AdapterDataSo
         if(holder is PlaceholderViewHolder) {
             holder.setup(chatActionListener, (chat as ChatMessageViewData.Placeholder).isLoading)
         } else if(holder is ChatMessagesViewHolder) {
-            holder.setupWithChatMessage(chat as ChatMessageViewData.Concrete, chatActionListener, statusDisplayOptions,
+            holder.setupWithChatMessage(chat as ChatMessageViewData.Concrete, chatActionListener,
                     if (payloads != null && payloads.isNotEmpty()) payloads[0] else null)
         }
     }

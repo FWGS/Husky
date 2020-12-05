@@ -56,6 +56,7 @@
     <string name="pref_title_enable_big_emojis">Enable bigger custom emojis</string>
     <string name="pref_title_enable_experimental_stickers">Enable experimental Pleroma-FE stickers(if available)</string>
     <string name="pref_title_animate_custom_emojis">Animate custom emojis</string>
+    <string name="pref_title_render_subscriptions_as_statuses">Render subscriptions as normal posts</string>
 
     <string name="attachment_type_image">Image</string>
     <string name="attachment_type_video">Video</string>

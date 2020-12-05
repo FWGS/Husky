@@ -259,11 +259,7 @@ class ChatActivity: BottomSheetActivity(),
     }
 
     private fun setupChat() {
-        val statusDisplayOptions = StatusDisplayOptions(false,false,
-                true, false, false, CardViewMode.NONE,
-                false)
-
-        adapter = ChatMessagesAdapter(dataSource, this, statusDisplayOptions, accountManager.activeAccount!!.accountId)
+        adapter = ChatMessagesAdapter(dataSource, this, accountManager.activeAccount!!.accountId)
 
         // TODO: a11y
         recycler.setHasFixedSize(true)

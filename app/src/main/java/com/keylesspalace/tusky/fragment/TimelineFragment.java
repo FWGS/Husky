@@ -241,7 +241,8 @@ public class TimelineFragment extends SFragment implements
                 preferences.getBoolean("showCardsInTimelines", false) ?
                         CardViewMode.INDENTED :
                         CardViewMode.NONE,
-                preferences.getBoolean("confirmReblogs", true)
+                preferences.getBoolean("confirmReblogs", true),
+                preferences.getBoolean(PrefKeys.RENDER_STATUS_AS_MENTION, true)
         );
         adapter = new TimelineAdapter(dataSource, statusDisplayOptions, this);
 

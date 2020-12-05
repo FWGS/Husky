@@ -250,7 +250,8 @@ public class NotificationsFragment extends SFragment implements
                 preferences.getBoolean("showBotOverlay", true),
                 preferences.getBoolean("useBlurhash", true),
                 CardViewMode.NONE,
-                preferences.getBoolean("confirmReblogs", true)
+                preferences.getBoolean("confirmReblogs", true),
+                preferences.getBoolean(PrefKeys.RENDER_STATUS_AS_MENTION, true)
         );
         withMuted = !preferences.getBoolean(PrefKeys.HIDE_MUTED_USERS, false);
 

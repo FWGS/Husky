@@ -36,6 +36,7 @@ object PrefKeys {
     const val ANONYMIZE_FILENAMES = "anonymizeFilenames"
     const val HIDE_MUTED_USERS = "hideMutedUsers"
     const val ANIMATE_CUSTOM_EMOJIS = "animateCustomEmojis"
+    const val RENDER_STATUS_AS_MENTION = "renderStatusAsMention"
 
     const val CUSTOM_TABS = "customTabs"
 

@@ -165,7 +165,7 @@ class ChatsFragment : BaseFragment(), Injectable, RefreshableFragment, Reselecta
                 accountManager.activeAccount!!.mediaPreviewEnabled,
                 preferences.getBoolean("absoluteTimeView", false),
                 preferences.getBoolean("showBotOverlay", true),
-                false, CardViewMode.NONE,false
+                false, CardViewMode.NONE,false, false
         )
 
         adapter = ChatsAdapter(dataSource, statusDisplayOptions, this, accountManager.activeAccount!!.accountId)

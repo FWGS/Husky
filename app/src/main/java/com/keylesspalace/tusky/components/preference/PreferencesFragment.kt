@@ -199,6 +199,13 @@ class PreferencesFragment : PreferenceFragmentCompat(), Injectable {
                     setTitle(R.string.pref_title_animate_custom_emojis)
                     isSingleLineTitle = false
                 }
+
+                switchPreference {
+                    setDefaultValue(true)
+                    key = PrefKeys.RENDER_STATUS_AS_MENTION
+                    setTitle(R.string.pref_title_render_subscriptions_as_statuses)
+                    isSingleLineTitle = true
+                }
             }
 
             preferenceCategory(R.string.pref_title_privacy) {

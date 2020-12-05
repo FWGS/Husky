@@ -19,6 +19,7 @@ import com.keylesspalace.tusky.util.CardViewMode
 import com.keylesspalace.tusky.util.ViewDataUtils
 import com.keylesspalace.tusky.util.StatusDisplayOptions
 import com.keylesspalace.tusky.R
+import com.keylesspalace.tusky.settings.PrefKeys
 
 import java.util.*;
 
@@ -40,7 +41,8 @@ class StatusView @JvmOverloads constructor(
                 showBotOverlay = false,
                 useBlurhash = preferences.getBoolean("useBlurhash", true),
                 cardViewMode = CardViewMode.NONE,
-                confirmReblogs = preferences.getBoolean("confirmReblogs", true)
+                confirmReblogs = preferences.getBoolean("confirmReblogs", true),
+                renderStatusAsMention = preferences.getBoolean(PrefKeys.RENDER_STATUS_AS_MENTION, true)
         )
         viewHolder = StatusViewHolder(this)
     }
