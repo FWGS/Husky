@@ -34,7 +34,7 @@
     <string name="notification_favourite_format">%s dodał Twój post do ulubionych</string>
     <string name="action_hide_reblogs">Ukryj powtórzenia</string>
     <string name="action_show_reblogs">Pokaż powtórzenia</string>
-    <string name="action_unreblog">Usuń powtórzenia</string>
+    <string name="action_unreblog">Usuń powtórzenie</string>
     <string name="action_open_reblogged_by">Pokaż powtórzenia</string>
     <string name="notification_boost_name">Powtórzenia</string>
     <string name="action_open_reblogger">Otwórz konto osoby powtarzającej</string>
@@ -61,4 +61,17 @@
     <string name="error_sender_account_gone">Wysyłanie postu nie powiodło się.</string>
     <string name="pref_title_alway_open_spoiler">Zawsze rozwijaj posty z ostrzeżeniami o zawartości</string>
     <string name="action_access_scheduled_toot">Zaplanowane posty</string>
+    <string name="action_mark_as_read">Oznacz jako przeczytane</string>
+    <string name="action_open_in_external_app">Otwórz w zewnętrznej aplikacji</string>
+    <string name="notification_chat_message_format">%s wysłał(-a) Tobie wiadomość</string>
+    <string name="pref_title_privacy">Prywatność</string>
+    <string name="pref_summary_live_notifications">Może nieco zwiększyć zużycie energii</string>
+    <string name="attachment_type_image">Zdjęcie</string>
+    <string name="attachment_type_video">Wideo</string>
+    <string name="attachment_type_audio">Audio</string>
+    <string name="attachment_type_unknown">Załącznik</string>
+    <string name="link">Odnośnik</string>
+    <string name="status_replied_to_format">Odpowiedź dla %s</string>
+    <string name="chat_our_last_message"><b>Ty</b></string>
+    <string name="pref_title_other">Inne</string>
 </resources>
