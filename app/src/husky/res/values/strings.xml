@@ -34,7 +34,7 @@
     <string name="notification_chat_message_format">%s sent you a message</string>
     <string name="notification_chat_message_name">Chat Messages</string>
     <string name="notification_chat_message_description">Notifications about new chat messages</string>
-    <string name="notification_subscription_format">%s published a new post</string>
+    <string name="notification_subscription_format">%s just posted</string>
     <string name="notification_subscription_name">Subscriptions</string>
     <string name="notification_subscription_description">Notifications when somebody you\'re subscribed to published a new post</string>
     <string name="notification_move_format">%s migrated to</string>
