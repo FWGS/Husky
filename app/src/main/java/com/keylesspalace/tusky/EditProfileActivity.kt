@@ -64,7 +64,7 @@ class EditProfileActivity : BaseActivity(), Injectable {
         private const val AVATAR_PICK_RESULT = 1
         private const val HEADER_PICK_RESULT = 2
         private const val PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 1
-        private const val MAX_ACCOUNT_FIELDS = 4
+        private const val MASTODON_MAX_ACCOUNT_FIELDS = 4
 
         private const val BUNDLE_CURRENTLY_PICKING = "BUNDLE_CURRENTLY_PICKING"
     }
@@ -77,6 +77,7 @@ class EditProfileActivity : BaseActivity(), Injectable {
     private var currentlyPicking: PickType = PickType.NOTHING
 
     private val accountFieldEditAdapter = AccountFieldEditAdapter()
+    private var maxAccountFields = MASTODON_MAX_ACCOUNT_FIELDS
 
     private enum class PickType {
         NOTHING,
@@ -112,7 +113,7 @@ class EditProfileActivity : BaseActivity(), Injectable {
 
         addFieldButton.setOnClickListener {
             accountFieldEditAdapter.addField()
-            if(accountFieldEditAdapter.itemCount >= MAX_ACCOUNT_FIELDS) {
+            if(accountFieldEditAdapter.itemCount >= maxAccountFields) {
                 it.isVisible = false
             }
 
@@ -123,7 +124,7 @@ class EditProfileActivity : BaseActivity(), Injectable {
 
         viewModel.obtainProfile()
 
-        viewModel.profileData.observe(this, Observer<Resource<Account>> { profileRes ->
+        viewModel.profileData.observe(this) { profileRes ->
             when (profileRes) {
                 is Success -> {
                     val me = profileRes.data
@@ -134,7 +135,7 @@ class EditProfileActivity : BaseActivity(), Injectable {
                         lockedCheckBox.isChecked = me.locked
 
                         accountFieldEditAdapter.setFields(me.source?.fields ?: emptyList())
-                        addFieldButton.isEnabled = me.source?.fields?.size ?: 0 < MAX_ACCOUNT_FIELDS
+                        addFieldButton.isEnabled = me.source?.fields?.size ?: 0 < maxAccountFields
 
                         if(viewModel.avatarData.value == null) {
                             Glide.with(this)
@@ -164,24 +165,34 @@ class EditProfileActivity : BaseActivity(), Injectable {
 
                 }
             }
-        })
+        }
 
         viewModel.obtainInstance()
-        viewModel.instanceData.observe(this, Observer<Resource<Instance>> { result ->
+        viewModel.instanceData.observe(this) { result ->
             when (result) {
                 is Success -> {
                     val instance = result.data
                     if (instance?.maxBioChars != null && instance.maxBioChars > 0) {
                         noteEditTextLayout.counterMaxLength = instance.maxBioChars
                     }
+
+                    instance?.pleroma?.metadata?.fieldsLimits?.let {
+                        maxAccountFields = it.maxFields
+
+                        if(maxAccountFields > MASTODON_MAX_ACCOUNT_FIELDS
+                            && accountFieldEditAdapter.itemCount == MASTODON_MAX_ACCOUNT_FIELDS
+                            && !addFieldButton.isEnabled) {
+                            addFieldButton.isEnabled = true
+                        }
+                    }
                 }
             }
-        })
+        }
 
         observeImage(viewModel.avatarData, avatarPreview, avatarProgressBar, true)
         observeImage(viewModel.headerData, headerPreview, headerProgressBar, false)
 
-        viewModel.saveData.observe(this, Observer<Resource<Nothing>> {
+        viewModel.saveData.observe(this) {
             when(it) {
                 is Success -> {
                     finish()
@@ -193,7 +204,7 @@ class EditProfileActivity : BaseActivity(), Injectable {
                     onSaveFailure(it.errorMessage)
                 }
             }
-        })
+        }
 
     }
 
