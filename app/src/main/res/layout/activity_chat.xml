@@ -63,8 +63,8 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             app:layout_constraintBottom_toTopOf="@+id/composeLayout"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/appbar" />
         <ProgressBar
             android:id="@+id/progressBar"
@@ -72,8 +72,8 @@
             android:layout_height="wrap_content"
             android:visibility="gone"
             app:layout_constraintBottom_toTopOf="@+id/composeLayout"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:visibility="visible" />
         <com.keylesspalace.tusky.view.BackgroundMessageView
@@ -82,8 +82,8 @@
             android:layout_height="wrap_content"
             android:visibility="gone"
             app:layout_constraintBottom_toTopOf="@+id/composeLayout"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/appbar"
             tools:visibility="visible"
             app:layout_constrainedHeight="true" />
@@ -97,8 +97,8 @@
             android:paddingTop="4dp"
             android:paddingBottom="4dp"
             app:layout_constraintTop_toBottomOf="@+id/recycler"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent">
             <FrameLayout
                 android:id="@+id/attachmentLayout"
@@ -107,7 +107,7 @@
                 android:layout_margin="@dimen/compose_media_preview_margin_bottom"
                 android:visibility="gone"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
                 tools:visibility="visible">
                 <com.keylesspalace.tusky.components.compose.view.ProgressImageView
                     android:id="@+id/imageAttachment"
@@ -134,7 +134,7 @@
                 android:layout_marginEnd="4dp"
                 android:contentDescription="@string/action_add_media"
                 android:tooltipText="@string/action_add_media"
-                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/attachmentLayout"
                 app:srcCompat="@drawable/ic_attach_file_24dp" />
             <com.keylesspalace.tusky.components.compose.view.EditTextTyped
@@ -164,7 +164,7 @@
                 android:tooltipText="@string/action_emoji_keyboard"
                 app:srcCompat="@drawable/ic_emoji_24dp"
                 app:layout_constraintTop_toBottomOf="@id/attachmentLayout"
-                app:layout_constraintRight_toLeftOf="@id/stickerButton"
+                app:layout_constraintEnd_toStartOf="@id/stickerButton"
                 />
             <ImageButton
                 android:id="@+id/stickerButton"
@@ -175,7 +175,7 @@
                 android:tooltipText="@string/action_sticker"
                 app:srcCompat="@drawable/ic_sticker"
                 app:layout_constraintTop_toBottomOf="@id/attachmentLayout"
-                app:layout_constraintRight_toLeftOf="@id/sendButton"
+                app:layout_constraintEnd_toStartOf="@id/sendButton"
                 />
             <ImageButton
                 android:id="@+id/sendButton"
@@ -186,7 +186,7 @@
                 android:tooltipText="@string/action_send"
                 app:srcCompat="@drawable/ic_send_24dp"
                 app:layout_constraintTop_toBottomOf="@id/attachmentLayout"
-                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
                 />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
