@@ -92,7 +92,7 @@ class ChatsViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
                 content.text = if(chat.lastMessage.accountId == localUserId) {
                     SpannableStringBuilder.valueOf(content.resources.getText(R.string.chat_our_last_message))
-                            .append(": $text")
+                            .append(": ").append(text)
                 } else text
 
             } else {
