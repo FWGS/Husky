@@ -86,6 +86,8 @@
         <item name="chat_date_text_color">@color/textColorSecondary</item>
 
         <item name="chipStyle">@style/Widget.MaterialComponents.Chip.Choice</item>
+
+        <item name="preferenceTheme">@style/TuskyPreferenceTheme</item>
     </style>
 
     <style name="ViewMediaActivity.AppBarLayout" parent="ThemeOverlay.AppCompat">
@@ -107,6 +109,10 @@
         <item name="android:textSize">?attr/status_text_medium</item>
         <item name="android:textAllCaps">true</item>
         <item name="tabIndicatorHeight">3dp</item>
+    </style>
+
+    <style name="TuskyPreferenceTheme" parent="@style/PreferenceThemeOverlay.v14.Material">
+        <item name="android:tint">?iconColor</item>
     </style>
 
     <style name="TuskyImageButton" parent="@style/Widget.MaterialComponents.Button.UnelevatedButton">

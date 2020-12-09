@@ -199,9 +199,9 @@
         android:foreground="?attr/selectableItemBackground"
         android:minHeight="80dp"
         android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@id/status_display_name"
         app:layout_constraintTop_toBottomOf="@+id/button_toggle_content"
-        app:layout_constraintEnd_toEndOf="parent"
         tools:visibility="gone">
 
         <ImageView
