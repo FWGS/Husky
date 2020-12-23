@@ -118,6 +118,7 @@ public final class ViewThreadFragment extends SFragment implements
         thisThreadsStatusId = getArguments().getString("id");
         SharedPreferences preferences =
                 PreferenceManager.getDefaultSharedPreferences(getActivity());
+
         StatusDisplayOptions statusDisplayOptions = new StatusDisplayOptions(
                 preferences.getBoolean("animateGifAvatars", false),
                 accountManager.getActiveAccount().getMediaPreviewEnabled(),
@@ -128,7 +129,8 @@ public final class ViewThreadFragment extends SFragment implements
                         CardViewMode.INDENTED :
                         CardViewMode.NONE,
                 preferences.getBoolean("confirmReblogs", true),
-                preferences.getBoolean(PrefKeys.RENDER_STATUS_AS_MENTION, true)
+                preferences.getBoolean(PrefKeys.RENDER_STATUS_AS_MENTION, true),
+                preferences.getBoolean(PrefKeys.WELLBEING_HIDE_STATS_POSTS, false)
         );
         adapter = new ThreadAdapter(statusDisplayOptions, this);
     }

@@ -71,7 +71,6 @@ import com.keylesspalace.tusky.util.ListUtils;
 import com.keylesspalace.tusky.util.PairedList;
 import com.keylesspalace.tusky.util.StatusDisplayOptions;
 import com.keylesspalace.tusky.util.StringUtils;
-import com.keylesspalace.tusky.util.ThemeUtils;
 import com.keylesspalace.tusky.util.ViewDataUtils;
 import com.keylesspalace.tusky.view.BackgroundMessageView;
 import com.keylesspalace.tusky.view.EndlessOnScrollListener;
@@ -242,7 +241,8 @@ public class TimelineFragment extends SFragment implements
                         CardViewMode.INDENTED :
                         CardViewMode.NONE,
                 preferences.getBoolean("confirmReblogs", true),
-                preferences.getBoolean(PrefKeys.RENDER_STATUS_AS_MENTION, true)
+                preferences.getBoolean(PrefKeys.RENDER_STATUS_AS_MENTION, true),
+                preferences.getBoolean(PrefKeys.WELLBEING_HIDE_STATS_POSTS, false)
         );
         adapter = new TimelineAdapter(dataSource, statusDisplayOptions, this);
 

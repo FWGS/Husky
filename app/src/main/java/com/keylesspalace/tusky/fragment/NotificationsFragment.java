@@ -251,7 +251,8 @@ public class NotificationsFragment extends SFragment implements
                 preferences.getBoolean("useBlurhash", true),
                 CardViewMode.NONE,
                 preferences.getBoolean("confirmReblogs", true),
-                preferences.getBoolean(PrefKeys.RENDER_STATUS_AS_MENTION, true)
+                preferences.getBoolean(PrefKeys.RENDER_STATUS_AS_MENTION, true),
+                preferences.getBoolean(PrefKeys.WELLBEING_HIDE_STATS_POSTS, false)
         );
         withMuted = !preferences.getBoolean(PrefKeys.HIDE_MUTED_USERS, false);
 
@@ -907,6 +908,7 @@ public class NotificationsFragment extends SFragment implements
     private void loadNotificationsFilter() {
         AccountEntity account = accountManager.getActiveAccount();
         if (account != null) {
+            notificationFilter.clear();
             notificationFilter.addAll(NotificationTypeConverterKt.deserialize(
                     account.getNotificationsFilter()));
         }
@@ -1404,6 +1406,12 @@ public class NotificationsFragment extends SFragment implements
     @Override
     public void onResume() {
         super.onResume();
+        String rawAccountNotificationFilter = accountManager.getActiveAccount().getNotificationsFilter();
+        Set<Notification.Type> accountNotificationFilter = NotificationTypeConverterKt.deserialize(rawAccountNotificationFilter);
+        if (!notificationFilter.equals(accountNotificationFilter)) {
+            loadNotificationsFilter();
+            fullyRefreshWithProgressBar(true);
+        }
         startUpdateTimestamp();
     }
 

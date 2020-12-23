@@ -17,4 +17,6 @@ data class StatusDisplayOptions(
         val confirmReblogs: Boolean,
         @get:JvmName("renderStatusAsMention")
         val renderStatusAsMention: Boolean,
+        @get:JvmName("hideStats")
+        val hideStats: Boolean
 )
