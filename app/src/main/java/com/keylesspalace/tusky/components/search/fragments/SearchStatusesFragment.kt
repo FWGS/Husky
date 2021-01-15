@@ -373,9 +373,10 @@ class SearchStatusesFragment : SearchFragment<Pair<Status, StatusViewData.Concre
     private fun onMute(accountId: String, accountUsername: String) {
         showMuteAccountDialog(
             this.requireActivity(),
-            accountUsername,
-            { notifications -> viewModel.muteAccount(accountId, notifications) }
-        )
+            accountUsername
+        ) { notifications, duration ->
+            viewModel.muteAccount(accountId, notifications, duration)
+        }
     }
 
     private fun accountIsInMentions(account: AccountEntity?, mentions: Array<Mention>): Boolean {
