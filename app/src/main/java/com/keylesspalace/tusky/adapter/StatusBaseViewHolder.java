@@ -567,7 +567,6 @@ public abstract class StatusBaseViewHolder extends RecyclerView.ViewHolder {
     @DrawableRes
     private static int getLabelIcon(Attachment.Type type) {
         switch (type) {
-            default:
             case IMAGE:
                 return R.drawable.ic_photo_24dp;
             case GIFV:
@@ -575,6 +574,8 @@ public abstract class StatusBaseViewHolder extends RecyclerView.ViewHolder {
                 return R.drawable.ic_videocam_24dp;
             case AUDIO:
                 return R.drawable.ic_music_box_24dp;
+            default:
+                return R.drawable.ic_attach_file_24dp;
         }
     }
 
@@ -789,7 +790,7 @@ public abstract class StatusBaseViewHolder extends RecyclerView.ViewHolder {
             setBookmarked(status.isBookmarked());
             List<Attachment> attachments = status.getAttachments();
             boolean sensitive = status.isSensitive();
-            if (statusDisplayOptions.mediaPreviewEnabled() && !hasAudioAttachment(attachments)) {
+            if (statusDisplayOptions.mediaPreviewEnabled() && hasPreviewableAttachment(attachments)) {
                 setMediaPreviews(attachments, sensitive, listener, status.isShowingContent(), statusDisplayOptions.useBlurhash());
 
                 if (attachments.size() == 0) {
@@ -840,13 +841,13 @@ public abstract class StatusBaseViewHolder extends RecyclerView.ViewHolder {
         }
     }
 
-    protected static boolean hasAudioAttachment(List<Attachment> attachments) {
+    protected static boolean hasPreviewableAttachment(List<Attachment> attachments) {
         for (Attachment attachment : attachments) {
-            if (attachment.getType() == Attachment.Type.AUDIO) {
-                return true;
+            if (attachment.getType() == Attachment.Type.AUDIO || attachment.getType() == Attachment.Type.UNKNOWN) {
+                return false;
             }
         }
-        return false;
+        return true;
     }
 
     private void setDescriptionForStatus(@NonNull StatusViewData.Concrete status,

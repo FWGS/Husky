@@ -147,6 +147,7 @@ class SearchStatusesFragment : SearchFragment<Pair<Status, StatusViewData.Concre
                     }
                 }
                 Attachment.Type.UNKNOWN -> {
+                    LinkHelper.openLink(actionable.attachments[attachmentIndex].url, context)
                 }
             }
 

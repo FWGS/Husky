@@ -36,6 +36,7 @@ import com.keylesspalace.tusky.entity.Status
 import com.keylesspalace.tusky.interfaces.RefreshableFragment
 import com.keylesspalace.tusky.network.MastodonApi
 import com.keylesspalace.tusky.settings.PrefKeys
+import com.keylesspalace.tusky.util.LinkHelper
 import com.keylesspalace.tusky.util.ThemeUtils
 import com.keylesspalace.tusky.util.hide
 import com.keylesspalace.tusky.util.show
@@ -273,10 +274,8 @@ class AccountMediaFragment : BaseFragment(), RefreshableFragment, Injectable {
                 }
             }
             Attachment.Type.UNKNOWN -> {
-            }/* Intentionally do nothing. This case is here is to handle when new attachment
-                 * types are added to the API before code is added here to handle them. So, the
-                 * best fallback is to just show the preview and ignore requests to view them. */
-
+                LinkHelper.openLink(items[currentIndex].attachment.url, context)
+            }
         }
     }
 

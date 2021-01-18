@@ -437,8 +437,9 @@ public abstract class SFragment extends BaseFragment implements Injectable {
                 }
                 break;
             }
+            default:
             case UNKNOWN: {
-                onViewUrl(active.getUrl());
+                LinkHelper.openLink(active.getUrl(), getContext());
                 break;
             }
         }
