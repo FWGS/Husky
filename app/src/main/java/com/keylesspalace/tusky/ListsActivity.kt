@@ -132,9 +132,7 @@ class ListsActivity : BaseActivity(), Injectable, HasAndroidInjector {
                         else R.string.action_rename_list) { _, _ ->
                     onPickedDialogName(editText.text, list?.id)
                 }
-                .setNegativeButton(android.R.string.cancel) { d, _ ->
-                    d.dismiss()
-                }
+                .setNegativeButton(android.R.string.cancel, null)
                 .show()
 
         val positiveButton = dialog.getButton(Dialog.BUTTON_POSITIVE)
@@ -143,6 +141,16 @@ class ListsActivity : BaseActivity(), Injectable, HasAndroidInjector {
         }
         editText.setText(list?.title)
         editText.text?.let { editText.setSelection(it.length) }
+    }
+
+    private fun showListDeleteDialog(list: MastoList) {
+        AlertDialog.Builder(this)
+                .setMessage(getString(R.string.dialog_delete_list_warning, list.title))
+                .setPositiveButton(R.string.action_delete){ _, _ ->
+                    viewModel.deleteList(list.id)
+                }
+                .setNegativeButton(android.R.string.cancel, null)
+                .show()
     }
 
 
@@ -201,7 +209,7 @@ class ListsActivity : BaseActivity(), Injectable, HasAndroidInjector {
                 when (item.itemId) {
                     R.id.list_edit -> openListSettings(list)
                     R.id.list_rename -> renameListDialog(list)
-                    R.id.list_delete -> viewModel.deleteList(list.id)
+                    R.id.list_delete -> showListDeleteDialog(list)
                     else -> return@setOnMenuItemClickListener false
                 }
                 true
