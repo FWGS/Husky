@@ -31,6 +31,7 @@ import android.widget.ImageView
 import androidx.appcompat.app.AlertDialog
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
+import androidx.core.content.edit
 import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.emoji.text.EmojiCompat
 import androidx.emoji.text.EmojiCompat.InitCallback
@@ -53,11 +54,13 @@ import com.keylesspalace.tusky.components.announcements.AnnouncementsActivity
 import com.keylesspalace.tusky.components.compose.ComposeActivity
 import com.keylesspalace.tusky.components.compose.ComposeActivity.Companion.canHandleMimeType
 import com.keylesspalace.tusky.components.conversation.ConversationsRepository
+import com.keylesspalace.tusky.components.drafts.DraftsActivity
 import com.keylesspalace.tusky.components.notifications.NotificationHelper
 import com.keylesspalace.tusky.components.preference.PreferencesActivity
 import com.keylesspalace.tusky.components.scheduled.ScheduledTootActivity
 import com.keylesspalace.tusky.components.search.SearchActivity
 import com.keylesspalace.tusky.db.AccountEntity
+import com.keylesspalace.tusky.db.AppDatabase
 import com.keylesspalace.tusky.entity.Account
 import com.keylesspalace.tusky.entity.Notification
 import com.keylesspalace.tusky.fragment.SFragment
@@ -104,6 +107,9 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, HasAndroidInje
 
     @Inject
     lateinit var conversationRepository: ConversationsRepository
+
+    @Inject
+    lateinit var appDb: AppDatabase
 
     private lateinit var header: AccountHeaderView
 
@@ -253,6 +259,7 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, HasAndroidInje
             StreamingService.stopStreaming(this)
             NotificationHelper.disablePullNotifications(this)
         }
+        draftWarning()
     }
 
     override fun onResume() {
@@ -421,7 +428,7 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, HasAndroidInje
                         nameRes = R.string.action_access_saved_toot
                         iconRes = R.drawable.ic_notebook
                         onClick = {
-                            val intent = Intent(context, SavedTootActivity::class.java)
+                            val intent = DraftsActivity.newIntent(context)
                             startActivityWithSlideInAnimation(intent)
                         }
                     },
@@ -763,6 +770,29 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, HasAndroidInje
         header.clear()
         header.profiles = profiles
         header.setActiveProfile(accountManager.activeAccount!!.id)
+    }
+
+    private fun draftWarning() {
+        val sharedPrefsKey = "show_draft_warning"
+        appDb.tootDao().savedTootCount()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .autoDispose(this, Lifecycle.Event.ON_DESTROY)
+                .subscribe { draftCount ->
+                    val showDraftWarning = preferences.getBoolean(sharedPrefsKey, true)
+                    if (draftCount > 0 && showDraftWarning) {
+                        AlertDialog.Builder(this)
+                                .setMessage(R.string.new_drafts_warning)
+                                .setNegativeButton("Don't show again") { _, _ ->
+                                    preferences.edit(commit = true) {
+                                        putBoolean(sharedPrefsKey, false)
+                                    }
+                                }
+                                .setPositiveButton(android.R.string.ok, null)
+                                .show()
+                    }
+                }
+
     }
 
     override fun getActionButton(): FloatingActionButton? = composeButton

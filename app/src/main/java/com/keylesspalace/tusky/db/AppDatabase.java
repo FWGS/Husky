@@ -28,8 +28,9 @@ import com.keylesspalace.tusky.components.conversation.ConversationEntity;
  * DB version & declare DAO
  */
 
-@Database(entities = {TootEntity.class, AccountEntity.class, InstanceEntity.class, TimelineStatusEntity.class,
-                TimelineAccountEntity.class, ConversationEntity.class, ChatEntity.class, ChatMessageEntity.class}, version = 26)
+@Database(entities = { TootEntity.class, DraftEntity.class, AccountEntity.class, InstanceEntity.class, TimelineStatusEntity.class,
+                TimelineAccountEntity.class, ConversationEntity.class, ChatEntity.class, ChatMessageEntity.class
+        }, version = 27)
 public abstract class AppDatabase extends RoomDatabase {
 
     public abstract TootDao tootDao();
@@ -38,6 +39,7 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract ConversationsDao conversationDao();
     public abstract TimelineDao timelineDao();
     public abstract ChatsDao chatsDao();
+    public abstract DraftDao draftDao();
 
     public static final Migration MIGRATION_2_3 = new Migration(2, 3) {
         @Override
@@ -46,7 +48,6 @@ public abstract class AppDatabase extends RoomDatabase {
             database.execSQL("INSERT INTO TootEntity2 SELECT * FROM TootEntity;");
             database.execSQL("DROP TABLE TootEntity;");
             database.execSQL("ALTER TABLE TootEntity2 RENAME TO TootEntity;");
-
         }
     };
 
@@ -382,6 +383,26 @@ public abstract class AppDatabase extends RoomDatabase {
         public void migrate(@NonNull SupportSQLiteDatabase database) {
             database.execSQL("ALTER TABLE `AccountEntity` ADD COLUMN `notificationsSubscriptions` INTEGER NOT NULL DEFAULT 1");
             database.execSQL("ALTER TABLE `AccountEntity` ADD COLUMN `notificationsMove` INTEGER NOT NULL DEFAULT 1");
+        }
+    };
+
+    public static final Migration MIGRATION_26_27 = new Migration(26, 27) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL(
+                    "CREATE TABLE IF NOT EXISTS `DraftEntity` (" +
+                            "`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                            "`accountId` INTEGER NOT NULL, " +
+                            "`inReplyToId` TEXT," +
+                            "`content` TEXT," +
+                            "`contentWarning` TEXT," +
+                            "`sensitive` INTEGER NOT NULL," +
+                            "`visibility` INTEGER NOT NULL," +
+                            "`attachments` TEXT NOT NULL," +
+                            "`poll` TEXT," +
+                            "`formattingSyntax` TEXT NOT NULL," +
+                            "`failedToSend` INTEGER NOT NULL)"
+            );
         }
     };
 }

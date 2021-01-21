@@ -19,6 +19,7 @@ import com.keylesspalace.tusky.*
 import com.keylesspalace.tusky.components.chat.ChatActivity
 import com.keylesspalace.tusky.components.announcements.AnnouncementsActivity
 import com.keylesspalace.tusky.components.compose.ComposeActivity
+import com.keylesspalace.tusky.components.drafts.DraftsActivity
 import com.keylesspalace.tusky.components.instancemute.InstanceListActivity
 import com.keylesspalace.tusky.components.preference.PreferencesActivity
 import com.keylesspalace.tusky.components.report.ReportActivity
@@ -111,4 +112,7 @@ abstract class ActivitiesModule {
 
     @ContributesAndroidInjector
     abstract fun contributesAnnouncementsActivity(): AnnouncementsActivity
+
+    @ContributesAndroidInjector
+    abstract fun contributesDraftActivity(): DraftsActivity
 }

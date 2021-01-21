@@ -35,11 +35,6 @@ import retrofit2.Response
 import java.util.*
 import javax.inject.Inject
 
-/**
- * Throw when trying to add an image when video is already present or the other way around
- */
-class VideoOrImageException : Exception()
-
 open class CommonComposeViewModel(
         private val api: MastodonApi,
         private val accountManager: AccountManager,
@@ -380,3 +375,8 @@ data class ComposeInstanceMetadata(
         val videoLimit: Long,
         val imageLimit: Long
 )
+
+/**
+ * Throw when trying to add an image when video is already present or the other way around
+ */
+class VideoOrImageException : Exception()

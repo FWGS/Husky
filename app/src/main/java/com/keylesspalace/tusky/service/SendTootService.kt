@@ -16,6 +16,7 @@ import com.keylesspalace.tusky.R
 import com.keylesspalace.tusky.appstore.EventHub
 import com.keylesspalace.tusky.appstore.*
 import com.keylesspalace.tusky.components.notifications.NotificationHelper
+import com.keylesspalace.tusky.components.drafts.DraftHelper
 import com.keylesspalace.tusky.db.AccountManager
 import com.keylesspalace.tusky.db.AppDatabase
 import com.keylesspalace.tusky.di.Injectable
@@ -43,7 +44,8 @@ class SendTootService : Service(), Injectable {
     lateinit var eventHub: EventHub
     @Inject
     lateinit var database: AppDatabase
-
+    @Inject
+    lateinit var draftHelper: DraftHelper
     @Inject
     lateinit var saveTootHelper: SaveTootHelper
 
@@ -151,6 +153,10 @@ class SendTootService : Service(), Injectable {
                         // If the status was loaded from a draft, delete the draft and associated media files.
                         if (postToSend.savedTootUid != 0) {
                             saveTootHelper.deleteDraft(postToSend.savedTootUid)
+                        }
+                        if (tootToSend.draftId != 0) {
+                            draftHelper.deleteDraftAndAttachments(tootToSend.draftId)
+                                    .subscribe()
                         }
 
                         when {
@@ -291,18 +297,20 @@ class SendTootService : Service(), Injectable {
 
     private fun saveTootToDrafts(toot: TootToSend) {
 
-        saveTootHelper.saveToot(toot.text,
-                toot.warningText,
-                toot.savedJsonUrls,
-                toot.mediaUris,
-                toot.mediaDescriptions,
-                toot.savedTootUid,
-                toot.inReplyToId,
-                toot.replyingStatusContent,
-                toot.replyingStatusAuthorUsername,
-                Status.Visibility.byString(toot.visibility),
-                toot.poll,
-                toot.formattingSyntax)
+        draftHelper.saveDraft(
+                draftId = toot.draftId,
+                accountId = toot.accountId,
+                inReplyToId = toot.inReplyToId,
+                content = toot.text,
+                contentWarning = toot.warningText,
+                sensitive = toot.sensitive,
+                visibility = Status.Visibility.byString(toot.visibility),
+                mediaUris = toot.mediaUris,
+                mediaDescriptions = toot.mediaDescriptions,
+                poll = toot.poll,
+                formattingSyntax = toot.formattingSyntax
+                failedToSend = true
+        ).subscribe()
     }
 
     private fun cancelSendingIntent(tootId: Int): PendingIntent {
@@ -405,11 +413,11 @@ data class TootToSend(
         val poll: NewPoll?,
         val replyingStatusContent: String?,
         val replyingStatusAuthorUsername: String?,
-        val savedJsonUrls: List<String>?,
         val formattingSyntax: String,
         val preview: Boolean,
-        private val accountId: Long,
+        val accountId: Long,
         val savedTootUid: Int,
+        val draftId: Int,
         val idempotencyKey: String,
         var retries: Int
 ) : Parcelable, PostToSend {
