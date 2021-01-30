@@ -36,7 +36,7 @@
     <string name="title_blocks">Blokitaj uzantoj</string>
     <string name="title_follow_requests">Petoj de sekvado</string>
     <string name="title_edit_profile">Redakti vian profilon</string>
-    <string name="title_saved_toot">Malnetoj</string>
+    <string name="title_drafts">Malnetoj</string>
     <string name="title_licenses">Permesiloj</string>
     <string name="status_username_format">\@%s</string>
     <string name="status_boosted_format">%s diskonigis</string>
@@ -407,13 +407,13 @@
     <string name="action_add_poll">Aldoni baloton</string>
     <string name="pref_title_alway_open_spoiler">Ĉiam pligrandigi tootoj markiĝita per enhavaj avertoj</string>
     <string name="create_poll_title">Baloto</string>
-    <string name="poll_duration_5_min">5 minutoj</string>
-    <string name="poll_duration_30_min">30 minutoj</string>
-    <string name="poll_duration_1_hour">1 horo</string>
-    <string name="poll_duration_6_hours">6 horoj</string>
-    <string name="poll_duration_1_day">1 tago</string>
-    <string name="poll_duration_3_days">3 tagoj</string>
-    <string name="poll_duration_7_days">7 tagoj</string>
+    <string name="duration_5_min">5 minutoj</string>
+    <string name="duration_30_min">30 minutoj</string>
+    <string name="duration_1_hour">1 horo</string>
+    <string name="duration_6_hours">6 horoj</string>
+    <string name="duration_1_day">1 tago</string>
+    <string name="duration_3_days">3 tagoj</string>
+    <string name="duration_7_days">7 tagoj</string>
     <string name="add_poll_choice">Aldoni elekton</string>
     <string name="poll_allow_multiple_choices">Multaj elektoj</string>
     <string name="poll_new_choice_hint">Elekton %d</string>
@@ -474,4 +474,12 @@
     <string name="pref_title_notification_filter_follow_requests">iu petas sekvi min</string>
     <string name="pref_main_nav_position_option_bottom">Malsupro</string>
     <string name="pref_main_nav_position_option_top">Supro</string>
+    <string name="account_note_saved">Konservita!</string>
+    <string name="account_note_hint">Via privata noto pri ĉi tiu konto</string>
+    <string name="pref_title_hide_top_toolbar">Kaŝi la titolon de la supra ilobreto</string>
+    <string name="pref_title_show_cards_in_timelines">Montri antaŭvidojn de ligiloj en tempolinioj</string>
+    <string name="pref_title_confirm_reblogs">Montri konfirman fenestron antaŭ ol diskonigi</string>
+    <string name="no_announcements">Estas neniu anonco.</string>
+    <string name="pref_title_enable_swipe_for_tabs">Ebligi ŝovumadon por ŝanĝi inter la langetoj</string>
+    <string name="warning_scheduling_interval">Mastodon havas minimuman intervalon de planado de 5 minutoj.</string>
 </resources>

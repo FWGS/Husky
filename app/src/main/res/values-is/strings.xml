@@ -3,7 +3,7 @@
     <string name="action_login">Skrá inn með Mastodon</string>
     <string name="link_whats_an_instance">Hvað er tilvik\?</string>
     <string name="title_favourites">Eftirlæti</string>
-    <string name="title_saved_toot">Drög</string>
+    <string name="title_drafts">Drög</string>
     <string name="action_logout">Skrá út</string>
     <string name="action_view_preferences">Kjörstillingar</string>
     <string name="action_view_account_preferences">Eiginleikar tengingar</string>
@@ -396,13 +396,13 @@
     <string name="failed_search">Tókst ekki að leita</string>
     <string name="pref_title_show_notifications_filter">Birta tilkynningasíu</string>
     <string name="create_poll_title">Athuga</string>
-    <string name="poll_duration_5_min">5 mínútur</string>
-    <string name="poll_duration_30_min">30 mínútur</string>
-    <string name="poll_duration_1_hour">1 klukkustund</string>
-    <string name="poll_duration_6_hours">6 klukkustundir</string>
-    <string name="poll_duration_1_day">1 dagur</string>
-    <string name="poll_duration_3_days">3 dagar</string>
-    <string name="poll_duration_7_days">7 dagar</string>
+    <string name="duration_5_min">5 mínútur</string>
+    <string name="duration_30_min">30 mínútur</string>
+    <string name="duration_1_hour">1 klukkustund</string>
+    <string name="duration_6_hours">6 klukkustundir</string>
+    <string name="duration_1_day">1 dagur</string>
+    <string name="duration_3_days">3 dagar</string>
+    <string name="duration_7_days">7 dagar</string>
     <string name="add_poll_choice">Bæta við valkosti</string>
     <string name="poll_allow_multiple_choices">Margir valkostir</string>
     <string name="poll_new_choice_hint">Valkostur %d</string>
@@ -415,8 +415,8 @@
     <string name="notification_follow_request_name">Fylgjendabeiðnir</string>
     <string name="hashtags">Myllumerki</string>
     <plurals name="favs">
-        <item quantity="one"><b>%1$s</b> Eftirlæti</item>
-        <item quantity="other"><b>%1$s</b> Eftirlæti</item>
+        <item quantity="one"><b>%1$s</b> eftirlæti</item>
+        <item quantity="other"><b>%1$s</b> eftirlæti</item>
     </plurals>
     <plurals name="reblogs">
         <item quantity="one"><b>%s</b> Endurbirting</item>
@@ -438,4 +438,33 @@
         <item quantity="one">%d dagur eftir</item>
         <item quantity="other">%d dagar eftir</item>
     </plurals>
+    <string name="account_note_saved">Vistað!</string>
+    <string name="account_note_hint">Þí eigin einkaathugasemd um þennan aðgang</string>
+    <string name="pref_title_hide_top_toolbar">Fela titil á verkfærastikunni efst</string>
+    <string name="pref_title_confirm_reblogs">Birta staðfestingarglugga áður en endurbirting fer fram</string>
+    <string name="pref_title_show_cards_in_timelines">Birta forskoðun tengla á tímalínum</string>
+    <string name="no_announcements">Það eru engar tilkynningar.</string>
+    <string name="pref_title_enable_swipe_for_tabs">Virkja strokuhreyfingu til að skipta milli flipa</string>
+    <plurals name="poll_info_people">
+        <item quantity="one">%s aðili</item>
+        <item quantity="other">%s aðilar</item>
+    </plurals>
+    <string name="add_hashtag_title">Bæta við myllumerki</string>
+    <string name="notification_follow_request_description">Tilkynningar um fylgjendabeiðnir</string>
+    <string name="pref_main_nav_position_option_bottom">Neðst</string>
+    <string name="pref_main_nav_position_option_top">Efst</string>
+    <string name="pref_main_nav_position">Aðalstaða leiðsagnar</string>
+    <string name="pref_title_gradient_for_media">Birta litstigla í stað falins myndefnis</string>
+    <string name="pref_title_notification_filter_follow_requests">beiðni um að fylgja</string>
+    <string name="dialog_mute_hide_notifications">Fela tilkynningar</string>
+    <string name="dialog_mute_warning">Þagga niður í @%s\?</string>
+    <string name="dialog_block_warning">Loka á @%s\?</string>
+    <string name="action_unmute_conversation">Hætta að þagga niður í samtölum</string>
+    <string name="action_mute_conversation">Þagga niður í samtölum</string>
+    <string name="action_unmute_domain">Afþagga %s</string>
+    <string name="action_mute_notifications_desc">Þagga tilkynningar frá %s</string>
+    <string name="action_unmute_notifications_desc">Afþagga tilkynningar frá %s</string>
+    <string name="action_unmute_desc">Afþagga %s</string>
+    <string name="notification_follow_request_format">%s bað um að fylgjast með þér</string>
+    <string name="title_announcements">Tilkynningar</string>
 </resources>
