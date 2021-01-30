@@ -45,11 +45,11 @@
 
 
   
-    <string name="dialog_whats_an_instance">Bármely szerver címét beírhatod ide, mint shitposter.club, blob.cat, expired.mentality.rip, és <a href="https://fediverse.network/pleroma?count=peers">mások!</a> 
+    <string name="dialog_whats_an_instance">Bármely példány címét vagy domain nevét beírhatod ide, mint a shitposter.club, az blob.cat, a expired.mentality.rip és <a href="https://fediverse.network/pleroma?count=peers">mások!</a> 
 \n 
-\nHa még nincs fiókod, beírhatod a címét ide annak a szervernek amelyhez csatlakoznál, majd azon létrehozhatsz egy fiókot. 
+\nHa még nincs fiókod, beírhatod annak a példánynak a címét, amelyhez csatlakoznál, majd azon létrehozhatsz egy fiókot. 
 \n 
-\nA szerver az a hely ahol a fiókadataidat tárolják, de ettől még ugyanúgy kommunikálhatsz más szervereken lévő emberekkel, mintha ugyanazon az oldalon lennétek. 
+\nA példány az a hely, ahol a fiókadataidat tárolják, de ettől még ugyanúgy kommunikálhatsz más példányokon lévő emberekkel, mintha ugyanazon az oldalon lennétek. 
 \n 
 \nTöbb információt találhatsz itt: <a href="https://joinmastodon.org">joinmastodon.org</a>. </string>
   

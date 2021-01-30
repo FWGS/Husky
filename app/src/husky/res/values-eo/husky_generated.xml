@@ -42,6 +42,9 @@
   
     <string name="add_account_description">Aldoni novan Pleroma konton</string>
   
+  
+    <string name="warning_scheduling_interval">Pleroma havas minimuman intervalon de planado de 5 minutoj.</string>
+  
 
 
   
