@@ -60,7 +60,6 @@ class ComposeViewModel @Inject constructor(
     private var inReplyToId: String? = null
     private var startingVisibility: Status.Visibility = Status.Visibility.UNKNOWN
     private var contentWarningStateChanged: Boolean = false
-    public var formattingSyntax: String = ""
     private var modifiedInitialState: Boolean = false
 
     val markMediaAsSensitive =
@@ -71,6 +70,7 @@ class ComposeViewModel @Inject constructor(
     val setupComplete = mutableLiveData(false)
     val poll: MutableLiveData<NewPoll?> = mutableLiveData(null)
     val scheduledAt: MutableLiveData<String?> = mutableLiveData(null)
+    val formattingSyntax: MutableLiveData<String> = mutableLiveData("")
 
     private val isEditingScheduledToot get() = !scheduledTootId.isNullOrEmpty()
 
@@ -126,7 +126,7 @@ class ComposeViewModel @Inject constructor(
                 mediaUris = mediaUris,
                 mediaDescriptions = mediaDescriptions,
                 poll = poll.value,
-                formattingSyntax = formattingSyntax,
+                formattingSyntax = formattingSyntax.value!!,
                 failedToSend = false
         ).subscribe()
     }
@@ -173,7 +173,7 @@ class ComposeViewModel @Inject constructor(
                             poll = poll.value,
                             replyingStatusContent = null,
                             replyingStatusAuthorUsername = null,
-                            formattingSyntax = formattingSyntax,
+                            formattingSyntax = formattingSyntax.value!!,
                             preview = preview,
                             accountId = accountManager.activeAccount!!.id,
                             savedTootUid = savedTootUid,
@@ -271,7 +271,7 @@ class ComposeViewModel @Inject constructor(
         replyingStatusContent = composeOptions?.replyingStatusContent
         replyingStatusAuthor = composeOptions?.replyingStatusAuthor
         
-        formattingSyntax = composeOptions?.formattingSyntax ?: accountManager.activeAccount!!.defaultFormattingSyntax
+        formattingSyntax.value = composeOptions?.formattingSyntax ?: accountManager.activeAccount!!.defaultFormattingSyntax
     }
 
     fun updatePoll(newPoll: NewPoll) {

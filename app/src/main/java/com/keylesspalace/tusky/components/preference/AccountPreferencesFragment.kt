@@ -156,7 +156,7 @@ class AccountPreferencesFragment : PreferenceFragmentCompat(), Injectable {
                         "text/html" -> "HTML"
                         else -> "Plaintext"
                     }
-                    setIcon(getIconForSyntax(value))
+                    setIcon(getIconForSyntax(syntax))
                     setOnPreferenceChangeListener { _, newValue ->
                         val syntax = when(newValue) {
                             "Markdown" -> "text/markdown"
@@ -372,7 +372,7 @@ class AccountPreferencesFragment : PreferenceFragmentCompat(), Injectable {
             "text/html" -> R.drawable.ic_html_24dp
             "text/bbcode" -> R.drawable.ic_bbcode_24dp
             "text/markdown" -> R.drawable.ic_markdown
-            else -> 0
+            else -> android.R.color.transparent
         }
     }
 

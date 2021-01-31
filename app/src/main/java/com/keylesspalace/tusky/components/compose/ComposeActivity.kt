@@ -164,16 +164,24 @@ class ComposeActivity : BaseActivity(),
         composeMediaPreviewBar.adapter = mediaAdapter
         composeMediaPreviewBar.itemAnimator = null
 
-        subscribeToUpdates(mediaAdapter)
+        // set before subscribing to updates to not accidentally catch it
+        viewModel.formattingSyntax.value = activeAccount.defaultFormattingSyntax
+
+        subscribeToUpdates(mediaAdapter, activeAccount)
         setupButtons()
 
         photoUploadUri = savedInstanceState?.getParcelable(PHOTO_UPLOAD_URI_KEY)
-        viewModel.formattingSyntax = activeAccount.defaultFormattingSyntax
 
         /* If the composer is started up as a reply to another post, override the "starting" state
          * based on what the intent from the reply request passes. */
 
         val composeOptions = intent.getParcelableExtra<ComposeOptions?>(COMPOSE_OPTIONS_EXTRA)
+
+        if (!composeOptions?.formattingSyntax.isNullOrEmpty()) {
+            suggestFormattingSyntax = composeOptions?.formattingSyntax!!
+        } else {
+            suggestFormattingSyntax = activeAccount.defaultFormattingSyntax
+        }
         
         viewModel.setup(composeOptions)
         setupReplyViews(composeOptions?.replyingStatusAuthor, composeOptions?.replyingStatusContent)
@@ -181,13 +189,7 @@ class ComposeActivity : BaseActivity(),
         if (!tootText.isNullOrEmpty()) {
             composeEditField.setText(tootText)
         }
-                
-        if(viewModel.formattingSyntax.length == 0) {
-            suggestFormattingSyntax = "text/markdown"
-        } else {
-            suggestFormattingSyntax = viewModel.formattingSyntax
-        }
-        
+
         if (!composeOptions?.scheduledAt.isNullOrEmpty()) {
             composeScheduleView.setDateTime(composeOptions?.scheduledAt)
         }
@@ -323,7 +325,7 @@ class ComposeActivity : BaseActivity(),
     @VisibleForTesting
     var supportedFormattingSyntax = arrayListOf<String>()
 
-    private fun subscribeToUpdates(mediaAdapter: MediaPreviewAdapter) {
+    private fun subscribeToUpdates(mediaAdapter: MediaPreviewAdapter, activeAccount: AccountEntity) {
         withLifecycleContext {
             viewModel.instanceParams.observe { instanceData ->
                 maximumTootCharacters = instanceData.maxChars
@@ -346,18 +348,18 @@ class ComposeActivity : BaseActivity(),
                 if(supportedFormattingSyntax.size != 0) {
                     composeFormattingSyntax.visible(true)
                     
-                    val supportsPrefferedSyntax = supportedFormattingSyntax.contains(viewModel.formattingSyntax)
+                    val supportsPrefferedSyntax = supportedFormattingSyntax.contains(viewModel.formattingSyntax.value!!)
                                         
                     if(!supportsPrefferedSyntax) {
-                        viewModel.formattingSyntax = ""
-                        
-                        setIconForSyntax(supportedFormattingSyntax[0], false)
-                    } else {
-                        setIconForSyntax(viewModel.formattingSyntax, true)
+                        suggestFormattingSyntax = if(supportedFormattingSyntax.contains(activeAccount.defaultFormattingSyntax))
+                            activeAccount.defaultFormattingSyntax
+                        else supportedFormattingSyntax[0]
+
+                        viewModel.formattingSyntax.value = ""
                     }
                 }
                 
-                if(instanceData.software.equals("pleroma")) {
+                if(instanceData.software == "pleroma") {
                     composePreviewButton.visibility = View.VISIBLE
                     reenableAttachments()
                 }
@@ -419,6 +421,17 @@ class ComposeActivity : BaseActivity(),
             viewModel.setupComplete.observe {
                 // Focus may have changed during view model setup, ensure initial focus is on the edit field
                 composeEditField.requestFocus()
+            }
+            viewModel.formattingSyntax.observe {
+                if(it.isEmpty()) {
+                    enableFormattingSyntaxButton(suggestFormattingSyntax, false)
+                    setIconForSyntax(suggestFormattingSyntax, false)
+                } else {
+                    val enable = it == suggestFormattingSyntax
+
+                    enableFormattingSyntaxButton(it, enable)
+                    setIconForSyntax(it, enable)
+                }
             }
         }
     }
@@ -547,12 +560,10 @@ class ComposeActivity : BaseActivity(),
     }
         
     private fun toggleFormattingMode() {
-        if(viewModel.formattingSyntax.equals(suggestFormattingSyntax)) {
-            viewModel.formattingSyntax = ""
-            enableFormattingSyntaxButton(suggestFormattingSyntax, false)
+        if(viewModel.formattingSyntax.value!! == suggestFormattingSyntax) {
+            viewModel.formattingSyntax.value = ""
         } else {
-            viewModel.formattingSyntax = suggestFormattingSyntax
-            enableFormattingSyntaxButton(suggestFormattingSyntax, true)
+            viewModel.formattingSyntax.value = suggestFormattingSyntax
         }
     }
     
@@ -579,13 +590,8 @@ class ComposeActivity : BaseActivity(),
                 htmlId -> "text/html"
                 else -> ""
             }
-            if(choose.length == 0) {
-                // leave previous
-                setIconForSyntax(viewModel.formattingSyntax, false)
-            } else {
-                setIconForSyntax(choose, true)
-            }
-            viewModel.formattingSyntax = choose
+            suggestFormattingSyntax = choose
+            viewModel.formattingSyntax.value = choose
             true
         }
         menu.show()
@@ -652,7 +658,7 @@ class ComposeActivity : BaseActivity(),
     }
     
     private fun codeButtonClicked() {
-        when(viewModel.formattingSyntax) {
+        when(viewModel.formattingSyntax.value!!) {
             "text/markdown" -> MarkdownEdit.addCode(composeEditField)
             "text/bbcode" -> BBCodeEdit.addCode(composeEditField)
             "text/html" -> HTMLEdit.addCode(composeEditField)
@@ -660,7 +666,7 @@ class ComposeActivity : BaseActivity(),
     }
     
     private fun linkButtonClicked() {
-        when(viewModel.formattingSyntax) {
+        when(viewModel.formattingSyntax.value!!) {
             "text/markdown" -> MarkdownEdit.addLink(composeEditField)
             "text/bbcode" -> BBCodeEdit.addLink(composeEditField)
             "text/html" -> HTMLEdit.addLink(composeEditField)
@@ -668,7 +674,7 @@ class ComposeActivity : BaseActivity(),
     }
     
     private fun strikethroughButtonClicked() {
-        when(viewModel.formattingSyntax) {
+        when(viewModel.formattingSyntax.value!!) {
             "text/markdown" -> MarkdownEdit.addStrikeThrough(composeEditField)
             "text/bbcode" -> BBCodeEdit.addStrikeThrough(composeEditField)
             "text/html" -> HTMLEdit.addStrikeThrough(composeEditField)
@@ -676,7 +682,7 @@ class ComposeActivity : BaseActivity(),
     }
     
     private fun italicButtonClicked() {
-        when(viewModel.formattingSyntax) {
+        when(viewModel.formattingSyntax.value!!) {
             "text/markdown" -> MarkdownEdit.addItalic(composeEditField)
             "text/bbcode" -> BBCodeEdit.addItalic(composeEditField)
             "text/html" -> HTMLEdit.addItalic(composeEditField)
@@ -684,7 +690,7 @@ class ComposeActivity : BaseActivity(),
     }
     
     private fun boldButtonClicked() {
-        when(viewModel.formattingSyntax) {
+        when(viewModel.formattingSyntax.value!!) {
             "text/markdown" -> MarkdownEdit.addBold(composeEditField)
             "text/bbcode" -> BBCodeEdit.addBold(composeEditField)
             "text/html" -> HTMLEdit.addBold(composeEditField)
