@@ -384,13 +384,13 @@ public class NotificationsAdapter extends RecyclerView.Adapter {
                 String wholeMessage = String.format(format, wrappedFromName);
                 emojifiedMessage = CustomEmojiHelper.emojify(wholeMessage, from.getEmojis(), message, true);
 
-                drawable = ThemeUtils.getTintedDrawable(context, R.drawable.ic_reply_24dp, R.attr.colorPrimary);
+                drawable = ContextCompat.getDrawable(context, R.drawable.ic_reply_24dp);
             } else {
                 String format = context.getString(R.string.notification_follow_format);
                 String wholeMessage = String.format(format, wrappedDisplayName);
                 emojifiedMessage = CustomEmojiHelper.emojify(wholeMessage, account.getEmojis(), message, true);
 
-                drawable = ThemeUtils.getTintedDrawable(context, R.drawable.ic_person_add_24dp, R.attr.colorPrimary);
+                drawable = ContextCompat.getDrawable(context, R.drawable.ic_person_add_24dp);
             }
 
             message.setCompoundDrawablesRelativeWithIntrinsicBounds(drawable, null, null, null);

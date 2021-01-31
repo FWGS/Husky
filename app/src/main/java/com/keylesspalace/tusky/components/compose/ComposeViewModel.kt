@@ -21,29 +21,22 @@ import androidx.core.net.toUri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
-import com.keylesspalace.tusky.adapter.ComposeAutoCompleteAdapter
 import com.keylesspalace.tusky.components.common.CommonComposeViewModel
 import com.keylesspalace.tusky.components.common.MediaUploader
-import com.keylesspalace.tusky.components.common.UploadEvent
 import com.keylesspalace.tusky.components.common.mutableLiveData
 import com.keylesspalace.tusky.components.compose.ComposeActivity.QueuedMedia
 import com.keylesspalace.tusky.components.drafts.DraftHelper
 import com.keylesspalace.tusky.components.search.SearchType
 import com.keylesspalace.tusky.db.AccountManager
 import com.keylesspalace.tusky.db.AppDatabase
-import com.keylesspalace.tusky.db.InstanceEntity
-import com.keylesspalace.tusky.entity.*
+import com.keylesspalace.tusky.entity.Attachment
+import com.keylesspalace.tusky.entity.NewPoll
 import com.keylesspalace.tusky.entity.Status
 import com.keylesspalace.tusky.network.MastodonApi
 import com.keylesspalace.tusky.service.ServiceClient
 import com.keylesspalace.tusky.service.TootToSend
 import com.keylesspalace.tusky.util.*
-import io.reactivex.Single
-import io.reactivex.Observable.empty
 import io.reactivex.Observable.just
-import io.reactivex.disposables.Disposable
-import io.reactivex.rxkotlin.Singles
-import retrofit2.Response
 import java.util.*
 import javax.inject.Inject
 
@@ -161,12 +154,10 @@ class ComposeViewModel @Inject constructor(
                     val mediaIds = ArrayList<String>()
                     val mediaUris = ArrayList<Uri>()
                     val mediaDescriptions = ArrayList<String>()
-                    val mediaTypes = ArrayList<QueuedMedia.Type>()
                     for (item in media.value!!) {
                         mediaIds.add(item.id!!)
                         mediaUris.add(item.uri)
                         mediaDescriptions.add(item.description ?: "")
-                        mediaTypes.add(item.type)
                     }
 
                     val tootToSend = TootToSend(
@@ -195,84 +186,6 @@ class ComposeViewModel @Inject constructor(
                 }
 
         return combineLiveData(deletionObservable, sendObservable) { _, _ -> }
-    }
-
-    fun updateDescription(localId: Long, description: String): LiveData<Boolean> {
-        val newList = media.value!!.toMutableList()
-        val index = newList.indexOfFirst { it.localId == localId }
-        if (index != -1) {
-            newList[index] = newList[index].copy(description = description)
-        }
-        media.value = newList
-        val completedCaptioningLiveData = MutableLiveData<Boolean>()
-        media.observeForever(object : Observer<List<QueuedMedia>> {
-            override fun onChanged(mediaItems: List<QueuedMedia>) {
-                val updatedItem = mediaItems.find { it.localId == localId }
-                if (updatedItem == null) {
-                    media.removeObserver(this)
-                } else if (updatedItem.id != null) {
-                    api.updateMedia(updatedItem.id, description)
-                            .subscribe({
-                                completedCaptioningLiveData.postValue(true)
-                            }, {
-                                completedCaptioningLiveData.postValue(false)
-                            })
-                            .autoDispose()
-                    media.removeObserver(this)
-                }
-            }
-        })
-        return completedCaptioningLiveData
-    }
-
-    fun searchAutocompleteSuggestions(token: String): List<ComposeAutoCompleteAdapter.AutocompleteResult> {
-        when (token[0]) {
-            '@' -> {
-                return try {
-                    api.searchAccounts(query = token.substring(1), limit = 10)
-                            .blockingGet()
-                            .map { ComposeAutoCompleteAdapter.AccountResult(it) }
-                } catch (e: Throwable) {
-                    Log.e(TAG, String.format("Autocomplete search for %s failed.", token), e)
-                    emptyList()
-                }
-            }
-            '#' -> {
-                return try {
-                    api.searchObservable(query = token, type = SearchType.Hashtag.apiParameter, limit = 10)
-                            .blockingGet()
-                            .hashtags
-                            .map { ComposeAutoCompleteAdapter.HashtagResult(it) }
-                } catch (e: Throwable) {
-                    Log.e(TAG, String.format("Autocomplete search for %s failed.", token), e)
-                    emptyList()
-                }
-            }
-            ':' -> {
-                val emojiList = emoji.value ?: return emptyList()
-
-                val incomplete = token.substring(1).toLowerCase(Locale.ROOT)
-                val results = ArrayList<ComposeAutoCompleteAdapter.AutocompleteResult>()
-                val resultsInside = ArrayList<ComposeAutoCompleteAdapter.AutocompleteResult>()
-                for (emoji in emojiList) {
-                    val shortcode = emoji.shortcode.toLowerCase(Locale.ROOT)
-                    if (shortcode.startsWith(incomplete)) {
-                        results.add(ComposeAutoCompleteAdapter.EmojiResult(emoji))
-                    } else if (shortcode.indexOf(incomplete, 1) != -1) {
-                        resultsInside.add(ComposeAutoCompleteAdapter.EmojiResult(emoji))
-                    }
-                }
-                if (results.isNotEmpty() && resultsInside.isNotEmpty()) {
-                    results.add(ComposeAutoCompleteAdapter.ResultSeparator())
-                }
-                results.addAll(resultsInside)
-                return results
-            }
-            else -> {
-                Log.w(TAG, "Unexpected autocompletion token: $token")
-                return emptyList()
-            }
-        }
     }
 
     fun setup(composeOptions: ComposeActivity.ComposeOptions?) {

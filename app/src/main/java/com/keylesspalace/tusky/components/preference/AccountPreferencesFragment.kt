@@ -156,7 +156,7 @@ class AccountPreferencesFragment : PreferenceFragmentCompat(), Injectable {
                         "text/html" -> "HTML"
                         else -> "Plaintext"
                     }
-                    icon = getIconForSyntax(value)
+                    setIcon(getIconForSyntax(value))
                     setOnPreferenceChangeListener { _, newValue ->
                         val syntax = when(newValue) {
                             "Markdown" -> "text/markdown"
@@ -164,7 +164,7 @@ class AccountPreferencesFragment : PreferenceFragmentCompat(), Injectable {
                             "HTML" -> "text/html"
                             else -> ""
                         }
-                        icon = getIconForSyntax(syntax)
+                        setIcon(getIconForSyntax(syntax))
                         updateAccount { it.defaultFormattingSyntax = syntax }
                         eventHub.dispatch(PreferenceChangedEvent(key))
                         true
@@ -367,15 +367,13 @@ class AccountPreferencesFragment : PreferenceFragmentCompat(), Injectable {
         }
     }
     
-    private fun getIconForSyntax(syntax: String): Drawable? {
+    private fun getIconForSyntax(syntax: String): Int {
         return when(syntax) {
             "text/html" -> R.drawable.ic_html_24dp
             "text/bbcode" -> R.drawable.ic_bbcode_24dp
             "text/markdown" -> R.drawable.ic_markdown
             else -> 0
         }
-        
-        return getTintedIcon(drawableId)
     }
 
     private fun launchFilterActivity(filterContext: String, titleResource: Int) {

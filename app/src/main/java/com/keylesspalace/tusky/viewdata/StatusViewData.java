@@ -682,6 +682,7 @@ public abstract class StatusViewData {
 
         public Builder setParentVisible(boolean parentVisible) {
             this.parentVisible = parentVisible;
+            return this;
         }
 
         public Builder setRebloggedByEmojis(List<Emoji> emojis) {

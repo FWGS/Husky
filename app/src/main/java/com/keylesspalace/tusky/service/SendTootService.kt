@@ -154,8 +154,8 @@ class SendTootService : Service(), Injectable {
                         if (postToSend.savedTootUid != 0) {
                             saveTootHelper.deleteDraft(postToSend.savedTootUid)
                         }
-                        if (tootToSend.draftId != 0) {
-                            draftHelper.deleteDraftAndAttachments(tootToSend.draftId)
+                        if (postToSend.draftId != 0) {
+                            draftHelper.deleteDraftAndAttachments(postToSend.draftId)
                                     .subscribe()
                         }
 
@@ -299,7 +299,7 @@ class SendTootService : Service(), Injectable {
 
         draftHelper.saveDraft(
                 draftId = toot.draftId,
-                accountId = toot.accountId,
+                accountId = toot.getAccountId(),
                 inReplyToId = toot.inReplyToId,
                 content = toot.text,
                 contentWarning = toot.warningText,
@@ -308,7 +308,7 @@ class SendTootService : Service(), Injectable {
                 mediaUris = toot.mediaUris,
                 mediaDescriptions = toot.mediaDescriptions,
                 poll = toot.poll,
-                formattingSyntax = toot.formattingSyntax
+                formattingSyntax = toot.formattingSyntax,
                 failedToSend = true
         ).subscribe()
     }
@@ -415,7 +415,7 @@ data class TootToSend(
         val replyingStatusAuthorUsername: String?,
         val formattingSyntax: String,
         val preview: Boolean,
-        val accountId: Long,
+        private val accountId: Long,
         val savedTootUid: Int,
         val draftId: Int,
         val idempotencyKey: String,
@@ -425,7 +425,7 @@ data class TootToSend(
         return if(warningText.isBlank()) text else warningText
     }
 
-    override fun getAccountId() : Long {
+    override fun getAccountId(): Long {
         return accountId
     }
 

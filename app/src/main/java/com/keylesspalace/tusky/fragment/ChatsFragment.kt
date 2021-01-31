@@ -34,6 +34,7 @@ import com.keylesspalace.tusky.interfaces.ReselectableFragment
 import com.keylesspalace.tusky.network.MastodonApi
 import com.keylesspalace.tusky.network.TimelineCases
 import com.keylesspalace.tusky.repository.*
+import com.keylesspalace.tusky.settings.PrefKeys
 import com.keylesspalace.tusky.util.*
 import com.keylesspalace.tusky.util.Either.Left
 import com.keylesspalace.tusky.view.EndlessOnScrollListener
@@ -161,11 +162,15 @@ class ChatsFragment : BaseFragment(), Injectable, RefreshableFragment, Reselecta
         val preferences = PreferenceManager.getDefaultSharedPreferences(activity)
 
         val statusDisplayOptions = StatusDisplayOptions(
-                preferences.getBoolean("animateGifAvatars", false),
-                accountManager.activeAccount!!.mediaPreviewEnabled,
-                preferences.getBoolean("absoluteTimeView", false),
-                preferences.getBoolean("showBotOverlay", true),
-                false, CardViewMode.NONE,false, false
+                animateAvatars = preferences.getBoolean(PrefKeys.ANIMATE_GIF_AVATARS, false),
+                mediaPreviewEnabled = accountManager.activeAccount!!.mediaPreviewEnabled,
+                useAbsoluteTime = preferences.getBoolean(PrefKeys.ABSOLUTE_TIME_VIEW, false),
+                showBotOverlay = preferences.getBoolean(PrefKeys.SHOW_BOT_OVERLAY, true),
+                useBlurhash = false,
+                cardViewMode = CardViewMode.NONE,
+                confirmReblogs = false,
+                renderStatusAsMention = false,
+                hideStats = false
         )
 
         adapter = ChatsAdapter(dataSource, statusDisplayOptions, this, accountManager.activeAccount!!.accountId)

@@ -37,6 +37,7 @@ data class DraftEntity(
         val visibility: Status.Visibility,
         val attachments: List<DraftAttachment>,
         val poll: NewPoll?,
+        val formattingSyntax: String,
         val failedToSend: Boolean
 )
 

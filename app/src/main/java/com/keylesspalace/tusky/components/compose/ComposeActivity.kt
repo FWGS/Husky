@@ -176,7 +176,7 @@ class ComposeActivity : BaseActivity(),
         val composeOptions = intent.getParcelableExtra<ComposeOptions?>(COMPOSE_OPTIONS_EXTRA)
         
         viewModel.setup(composeOptions)
-        setupReplyViews(composeOptions?.replyingStatusAuthor)
+        setupReplyViews(composeOptions?.replyingStatusAuthor, composeOptions?.replyingStatusContent)
         val tootText = composeOptions?.tootText
         if (!tootText.isNullOrEmpty()) {
             composeEditField.setText(tootText)
@@ -1061,7 +1061,6 @@ class ComposeActivity : BaseActivity(),
             intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes)
         }
         intent.type = "*/*"
-        intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes)
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
         startActivityForResult(intent, MEDIA_PICK_RESULT)
     }

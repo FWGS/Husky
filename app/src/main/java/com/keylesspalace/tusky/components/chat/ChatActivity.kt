@@ -54,6 +54,7 @@ import com.keylesspalace.tusky.appstore.*
 import com.keylesspalace.tusky.components.common.*
 import com.keylesspalace.tusky.components.compose.ComposeActivity
 import com.keylesspalace.tusky.components.compose.dialog.makeCaptionDialog
+import com.keylesspalace.tusky.components.compose.ComposeAutoCompleteAdapter
 import com.keylesspalace.tusky.entity.Attachment
 import com.keylesspalace.tusky.repository.Placeholder
 import com.keylesspalace.tusky.repository.TimelineRequestMode

@@ -42,7 +42,8 @@ class StatusView @JvmOverloads constructor(
                 useBlurhash = preferences.getBoolean("useBlurhash", true),
                 cardViewMode = CardViewMode.NONE,
                 confirmReblogs = preferences.getBoolean("confirmReblogs", true),
-                renderStatusAsMention = preferences.getBoolean(PrefKeys.RENDER_STATUS_AS_MENTION, true)
+                renderStatusAsMention = preferences.getBoolean(PrefKeys.RENDER_STATUS_AS_MENTION, true),
+                hideStats = false
         )
         viewHolder = StatusViewHolder(this)
     }
