@@ -17,7 +17,7 @@ Tusky is quote, unquote, `... a beautiful Android client for [Mastodon](https://
 - Support for changing OAuth application name
 - Markdown support with WYSIWYG editor
 - Support for extended accounts fields, so you can see who is admin or moderator on your instance
-- Subscribing support to annoy you with incoming notification from every post
+- Subscribing support to annoy you with incoming notification from every post (upstreamed to Tusky)
 - Support for seen notifications to less annoy you
 - "Reply to" feature that allows to jump to replied status, useful for hellthreading ;)
 - Bigger emojis!
@@ -25,7 +25,7 @@ Tusky is quote, unquote, `... a beautiful Android client for [Mastodon](https://
 
 ### Support
 
-If you have any bug reports, feature requests or questions please open an issue or send us a post at [Husky@enigmatic.observer](https://enigmatic.observer/users/Husky)!
+If you have any bug reports, feature requests or questions please open an issue or send us a post at [husky@huskyapp.dev](https://huskyapp.dev/users/husky)!
 
 For translating Tusky into your language, visit https://weblate.tusky.app.
 For translating Husky, visit https://l10n.mentality.rip.
