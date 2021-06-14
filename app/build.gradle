@@ -182,9 +182,9 @@ dependencies {
 
     implementation "com.github.connyduck:sparkbutton:4.1.0"
 
-    implementation 'com.github.piasy:BigImageViewer:1.7.0'
-    implementation 'com.github.piasy:GlideImageLoader:1.7.0'
-    implementation 'com.github.piasy:GlideImageViewFactory:1.7.0'
+    implementation 'com.github.piasy:BigImageViewer:1.8.0'
+    implementation 'com.github.piasy:GlideImageLoader:1.8.0'
+    implementation 'com.github.piasy:GlideImageViewFactory:1.8.0'
 
     implementation "com.mikepenz:materialdrawer:$materialdrawerVersion"
     implementation "com.mikepenz:materialdrawer-iconics:$materialdrawerVersion"
