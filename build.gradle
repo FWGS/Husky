@@ -14,9 +14,7 @@ allprojects {
     repositories {
         google()
         jcenter()
-        maven {
-            url "http://dl.bintray.com/piasy/maven"
-        }
+        mavenCentral()
         maven {
             url "https://jitpack.io"
         }
