@@ -15,6 +15,7 @@
 
 package com.keylesspalace.tusky.viewdata;
 
+import android.content.Context;
 import android.content.res.Resources;
 import android.os.Build;
 import android.text.SpannableStringBuilder;
@@ -107,6 +108,20 @@ public abstract class StatusViewData {
         @Nullable
         private final List<EmojiReaction> emojiReactions;
         private final boolean parentVisible;
+
+        public String getReplyToAccountString(Context context){
+            String replyToAccountString = "";
+            String replyTo = context.getString(R.string.status_replied_to_format);
+            String format = context.getString(R.string.status_replied_to_and_more_format);
+            if(this.mentions != null) {
+                if (this.mentions.length > 1) {
+                    replyToAccountString = String.format(Locale.getDefault(),replyTo+format, this.mentions[0].getLocalUsername(), this.mentions.length - 1);
+                } else if (this.mentions.length == 1) {
+                    replyToAccountString = String.format(replyTo, this.mentions[0].getLocalUsername());
+                }
+            }
+            return replyToAccountString;
+        }
 
         public Concrete(String id, Spanned content, boolean reblogged, boolean favourited, boolean bookmarked,
                         @Nullable String spoilerText, Status.Visibility visibility, List<Attachment> attachments,

@@ -71,8 +71,8 @@
     <string name="attachment_type_audio">Audio</string>
     <string name="attachment_type_unknown">Załącznik</string>
     <string name="link">Odnośnik</string>
-    <string name="status_replied_to_format">Odpowiedź dla %s</string>
+    <string name="status_replied_to_format">Odpowiedź dla @%s</string>
     <string name="chat_our_last_message"><b>Ty</b></string>
     <string name="pref_title_other">Inne</string>
-    <string name="status_replied_to_and_more_format">i %d więcej.</string>
+    <string name="status_replied_to_and_more_format">" i %d więcej."</string>
 </resources>

@@ -714,26 +714,11 @@ public class NotificationsAdapter extends RecyclerView.Adapter {
             contentWarningDescriptionTextView.setText(emojifiedContentWarning);
         }
 
-        private String getReplyToAccountString(Context context, Status.Mention[] mentions){
-            String replyToAccountString = "";
-            String format = context.getString(R.string.status_replied_to_and_more_format);
-            if(mentions != null) {
-                if (mentions.length > 1) {
-                    replyToAccountString = String.format(Locale.getDefault(),"@%s "+format, mentions[0].getLocalUsername(), mentions.length - 1);
-                } else if (mentions.length == 1) {
-                    replyToAccountString = String.format("@%s", mentions[0].getLocalUsername());
-                }
-            }
-            return replyToAccountString;
-        }
-
         private void setupReplyInfo() {
             if (statusViewData.getInReplyToId() != null) {
                 Context context = replyInfo.getContext();
-                String replyToAccount = statusViewData.getInReplyToAccountAcct();
-                Status.Mention[] mentions = statusViewData.getMentions();
-                String replyToString = getReplyToAccountString(context, mentions);
-                replyInfo.setText(context.getString(R.string.status_replied_to_format, replyToAccount+replyToString));
+                String replyToAccount = statusViewData.getReplyToAccountString(context);
+                replyInfo.setText(replyToAccount);
                 if (!statusViewData.getParentVisible()) {
                     replyInfo.setPaintFlags(replyInfo.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
                     replyInfo.setOnClickListener(null);
