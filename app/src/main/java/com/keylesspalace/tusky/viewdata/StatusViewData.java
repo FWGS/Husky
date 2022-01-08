@@ -15,12 +15,15 @@
 
 package com.keylesspalace.tusky.viewdata;
 
+import android.content.res.Resources;
 import android.os.Build;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 
 import androidx.annotation.Nullable;
+import androidx.core.content.res.ResourcesCompat;
 
+import com.keylesspalace.tusky.R;
 import com.keylesspalace.tusky.entity.Attachment;
 import com.keylesspalace.tusky.entity.Card;
 import com.keylesspalace.tusky.entity.Emoji;
@@ -105,18 +108,6 @@ public abstract class StatusViewData {
         private final List<EmojiReaction> emojiReactions;
         private final boolean parentVisible;
 
-        private String getReplyToAccountString(){
-            String replyToAccountString = "";
-            if(this.mentions != null) {
-                if (this.mentions.length > 1) {
-                    replyToAccountString = String.format(Locale.getDefault(),"@%s and %d more", this.mentions[0].getLocalUsername(), this.mentions.length - 1);
-                } else if (this.mentions.length == 1) {
-                    replyToAccountString = String.format("@%s", this.mentions[0].getLocalUsername());
-                }
-            }
-            return replyToAccountString;
-        }
-
         public Concrete(String id, Spanned content, boolean reblogged, boolean favourited, boolean bookmarked,
                         @Nullable String spoilerText, Status.Visibility visibility, List<Attachment> attachments,
                         @Nullable String rebloggedByUsername, @Nullable String rebloggedAvatar, boolean sensitive, boolean isExpanded,
@@ -154,8 +145,8 @@ public abstract class StatusViewData {
             this.reblogsCount = reblogsCount;
             this.favouritesCount = favouritesCount;
             this.inReplyToId = inReplyToId;
+            this.inReplyToAccountAcct = inReplyToAccountAcct;
             this.mentions = mentions;
-            this.inReplyToAccountAcct = getReplyToAccountString();
             this.senderId = senderId;
             this.rebloggingEnabled = rebloggingEnabled;
             this.application = application;
